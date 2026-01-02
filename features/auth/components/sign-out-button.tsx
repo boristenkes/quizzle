@@ -1,4 +1,3 @@
-// @ts-nocheck TODO
 'use client'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
@@ -21,14 +20,14 @@ export default function SignOutButton({
 	) => {
 		await authClient.signOut()
 		router.replace('/auth/sign-in')
-		onClick?.(e)
+		onClick?.(e as any)
 	}
 
 	if (unstyled)
 		return (
 			<button
 				onClick={handleClick}
-				{...props}
+				{...(props as React.ComponentProps<'button'>)}
 			/>
 		)
 

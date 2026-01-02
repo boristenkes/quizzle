@@ -7,9 +7,11 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { username } from 'better-auth/plugins'
 import { headers } from 'next/headers'
 import { cache } from 'react'
+import { ulid } from 'ulid'
 import { env } from './env'
 
 export const auth = betterAuth({
+	appName: 'Quizzle',
 	baseURL: env.BETTER_AUTH_URL,
 	database: drizzleAdapter(db, {
 		provider: 'pg',
@@ -25,7 +27,13 @@ export const auth = betterAuth({
 	socialProviders: {
 		google: {
 			clientId: env.GOOGLE_CLIENT_ID,
-			clientSecret: env.GOOGLE_CLIENT_SECRET
+			clientSecret: env.GOOGLE_CLIENT_SECRET,
+			prompt: 'select_account'
+		}
+	},
+	advanced: {
+		database: {
+			generateId: () => ulid()
 		}
 	},
 	plugins: [

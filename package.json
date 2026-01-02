@@ -8,7 +8,6 @@
 		"start": "next start",
 		"lint": "eslint",
 		"auth:generate": "npx @better-auth/cli@latest generate --output=db/schema/auth.ts --config=lib/auth.ts",
-		"auth:migrate": "npx @better-auth/cli@latest migrate --config=lib/auth.ts",
 		"auth:info": "npx @better-auth/cli@latest info --config=lib/auth.ts",
 		"db:generate": "npx drizzle-kit generate",
 		"db:migrate": "npx drizzle-kit migrate",

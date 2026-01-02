@@ -1,18 +1,18 @@
 import { relations } from 'drizzle-orm'
 import { boolean, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
-import { quizzle, tname } from './_root'
+import { quizzle } from './_root'
 import { timestamps } from './_utils'
 import { accounts, sessions } from './auth'
 import { quizzes } from './quizzes'
 
-export const userRoleEnum = quizzle.enum(tname('user_role'), ['user', 'admin'])
+export const userRoleEnum = quizzle.enum('user_role', ['user', 'admin'])
 
 export const users = quizzle.table(
-	tname('users'),
+	'users',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
-		username: text().notNull().unique(),
+		username: text().unique(),
 		email: text().notNull().unique(),
 		emailVerified: boolean().default(false).notNull(),
 		name: text().notNull(),

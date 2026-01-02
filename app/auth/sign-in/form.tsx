@@ -34,9 +34,9 @@ export default function SignInForm() {
 			password: ''
 		}
 	})
-	const { isSubmitting, errors } = form.formState
 	const [showPassword, setShowPassword] = useState(false)
 	const router = useRouter()
+	const { isSubmitting, errors } = form.formState
 
 	const onSubmit = async (data: SignInSchema) => {
 		const chosenIdentifier = data.identifier.includes('@')
@@ -168,6 +168,12 @@ export default function SignInForm() {
 				className='w-full'
 				size='lg'
 				disabled={isSubmitting}
+				onClick={() =>
+					authClient.signIn.social({
+						provider: 'google',
+						callbackURL: '/'
+					})
+				}
 			>
 				<GoogleLogo className='mr-2 size-4' />
 				Continue with Google

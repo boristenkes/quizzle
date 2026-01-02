@@ -1,11 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { index, text, timestamp } from 'drizzle-orm/pg-core'
-import { quizzle, tname } from './_root'
+import { quizzle } from './_root'
 import { timestamps } from './_utils'
 import { users } from './users'
 
 export const sessions = quizzle.table(
-	tname('sessions'),
+	'sessions',
 	{
 		id: text().primaryKey(),
 		expiresAt: timestamp({ withTimezone: true }).notNull(),
@@ -32,7 +32,7 @@ export type Session = typeof sessions.$inferSelect
 export type NewSession = typeof sessions.$inferInsert
 
 export const accounts = quizzle.table(
-	tname('accounts'),
+	'accounts',
 	{
 		id: text().primaryKey(),
 		accountId: text().notNull(),
@@ -64,7 +64,7 @@ export type Account = typeof accounts.$inferSelect
 export type NewAccount = typeof accounts.$inferInsert
 
 export const verifications = quizzle.table(
-	tname('verifications'),
+	'verifications',
 	{
 		id: text().primaryKey(),
 		identifier: text().notNull(),

@@ -37,9 +37,9 @@ export default function SignUpForm() {
 			confirmPassword: ''
 		}
 	})
-	const { isSubmitting, errors } = form.formState
 	const [showPassword, setShowPassword] = useState(false)
 	const router = useRouter()
+	const { isSubmitting, errors } = form.formState
 
 	const onSubmit = async (data: SignUpSchema) => {
 		const response = await authClient.signUp.email(data)
@@ -245,6 +245,12 @@ export default function SignUpForm() {
 				className='w-full'
 				size='lg'
 				disabled={isSubmitting}
+				onClick={() =>
+					authClient.signIn.social({
+						provider: 'google',
+						callbackURL: '/'
+					})
+				}
 			>
 				<GoogleLogo className='mr-2 size-4' />
 				Continue with Google

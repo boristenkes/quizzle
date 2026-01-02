@@ -1,11 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { boolean, index, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
-import { quizzle, tname } from './_root'
+import { quizzle } from './_root'
 import { questions } from './questions'
 
 export const questionOptions = quizzle.table(
-	tname('question_options'),
+	'question_options',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		label: text().notNull(),

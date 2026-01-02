@@ -1,19 +1,16 @@
 import { relations } from 'drizzle-orm'
 import { boolean, text } from 'drizzle-orm/pg-core'
-import { quizzle, tname } from './_root'
+import { quizzle } from './_root'
 import { questions } from './questions'
 
-export const textQuestionSettings = quizzle.table(
-	tname('text_question_settings'),
-	{
-		questionId: text()
-			.primaryKey()
-			.references(() => questions.id, { onDelete: 'cascade' }),
-		acceptableAnswers: text().array().notNull(),
-		ignoreCase: boolean().default(true),
-		trimWhitespace: boolean().default(true)
-	}
-)
+export const textQuestionSettings = quizzle.table('text_question_settings', {
+	questionId: text()
+		.primaryKey()
+		.references(() => questions.id, { onDelete: 'cascade' }),
+	acceptableAnswers: text().array().notNull(),
+	ignoreCase: boolean().default(true),
+	trimWhitespace: boolean().default(true)
+})
 
 export const textQuestionSettingsRelations = relations(
 	textQuestionSettings,

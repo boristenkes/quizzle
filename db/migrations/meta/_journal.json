@@ -36,6 +36,20 @@
       "when": 1767306084835,
       "tag": "0004_damp_human_robot",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767361102708,
+      "tag": "0005_tan_fat_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767366229410,
+      "tag": "0006_tiny_ultimates",
+      "breakpoints": true
     }
   ]
 }

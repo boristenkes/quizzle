@@ -1,19 +1,19 @@
 import { relations } from 'drizzle-orm'
 import { index, integer, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
-import { quizzle, tname } from './_root'
+import { quizzle } from './_root'
 import { timestamps } from './_utils'
 import { questionOptions } from './question-options'
 import { quizzes } from './quizzes'
 
-export const questionTypeEnum = quizzle.enum(tname('question_type'), [
+export const questionTypeEnum = quizzle.enum('question_type', [
 	'multi_choice',
 	'single_choice',
 	'text'
 ])
 
 export const questions = quizzle.table(
-	tname('questions'),
+	'questions',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		prompt: text().notNull(),
