@@ -19,7 +19,7 @@ export default function SignOutButton({
 		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
 	) => {
 		await authClient.signOut()
-		router.replace('/auth/sign-in')
+		router.replace('/sign-in')
 		onClick?.(e as any)
 	}
 

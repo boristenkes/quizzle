@@ -17,3 +17,14 @@ export function isEmpty(value: unknown): value is [] | Record<string, never> {
 
 	return length === 0
 }
+
+export const getInitials = (name: string) => {
+	const words = name.split(' ')
+
+	if (words.length === 1) return name[0].toUpperCase()
+
+	return words
+		.slice(0, 2)
+		.map(word => word[0].toUpperCase())
+		.join('')
+}

@@ -1,4 +1,4 @@
-export default function Logo() {
+export default function Logo(props: React.ComponentProps<'svg'>) {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -7,6 +7,7 @@ export default function Logo() {
 			height='660'
 			viewBox='0 0 733 660'
 			fill='none'
+			{...props}
 		>
 			<rect
 				width='733'
