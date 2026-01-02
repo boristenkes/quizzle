@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzle__users" RENAME COLUMN "display_name" TO "name";
