@@ -20,12 +20,14 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
+import { UploadButton } from '@/components/uploadthing'
 import { editUserSchema, EditUserSchema } from '@/features/users/zod'
 import { authClient } from '@/lib/auth.client'
-import { getDirtyValues, getInitials, isEmpty } from '@/utils/helpers'
+import { getDirtyValues, isEmpty } from '@/utils/helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from 'better-auth'
-import { Camera, Save } from 'lucide-react'
+import { Save, XIcon } from 'lucide-react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -40,13 +42,16 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 		resolver: zodResolver(editUserSchema)
 	})
 	const { isSubmitting, errors } = form.formState
+	const [imageUrl, setImageUrl] = useState<string | undefined | null>(
+		user.image
+	)
 
 	const onSubmit = async (data: EditUserSchema) => {
-		if (isEmpty(form.formState.dirtyFields)) return
+		if (isEmpty(form.formState.touchedFields) && imageUrl === user.image) return
 
-		const dirtyValues = getDirtyValues(data, form.formState.dirtyFields)
+		const dirtyValues = getDirtyValues(data, form.formState.touchedFields)
 
-		console.log(dirtyValues)
+		if (imageUrl !== user.image) dirtyValues.image = imageUrl
 
 		const response = await authClient.updateUser(dirtyValues)
 
@@ -72,32 +77,51 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				{/* Avatar */}
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6'
 				>
 					<div className='flex items-center gap-6'>
-						<Avatar className='h-20 w-20'>
+						<Avatar className='size-24 relative'>
 							<AvatarImage
-								src={form.getValues('image') ?? ''}
-								alt={form.getValues('name')}
+								src={imageUrl!}
+								alt={user.name}
+								className='size-24'
 							/>
-							<AvatarFallback className='text-2xl'>
-								{getInitials(form.getValues('name')!)}
-							</AvatarFallback>
+							<AvatarFallback />
+
+							{imageUrl && (
+								<Button
+									variant='outline'
+									size='icon-xs'
+									aria-label='Remove profile picture'
+									className='absolute top-0 right-0'
+									onClick={() => setImageUrl(null)}
+								>
+									<XIcon />
+								</Button>
+							)}
 						</Avatar>
+
 						<div className='space-y-2'>
-							<Button
-								variant='outline'
-								size='sm'
-							>
-								<Camera className='mr-2 h-4 w-4' />
-								Change Photo
-							</Button>
-							<p className='text-xs text-muted-foreground'>
-								JPG, PNG or GIF. Max 2MB
-							</p>
+							<UploadButton
+								endpoint='avatarUploader'
+								onClientUploadComplete={res => {
+									const fileUrl = res[0].ufsUrl
+									setImageUrl(fileUrl)
+								}}
+								onUploadError={(error: Error) => {
+									form.setError('image', {
+										message: error.message
+									})
+								}}
+							/>
+
+							{errors.image && (
+								<ErrorMessage
+									message={errors.image.message ?? 'Failed to upload image'}
+								/>
+							)}
 						</div>
 					</div>
 
@@ -182,6 +206,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 						<Button
 							type='submit'
 							disabled={isSubmitting}
+							size='lg'
 						>
 							{isSubmitting ? (
 								<Spinner className='size-4' />

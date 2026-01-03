@@ -2,6 +2,7 @@ import { db } from '@/db'
 import { users } from '@/db/schema'
 import { accounts, sessions, verifications } from '@/db/schema/auth'
 import { usernameSchema } from '@/features/auth/zod'
+import { getUploadthingKey } from '@/utils/helpers'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { username } from 'better-auth/plugins'
@@ -9,6 +10,7 @@ import { headers } from 'next/headers'
 import { cache } from 'react'
 import { ulid } from 'ulid'
 import { env } from './env'
+import { uploadthing } from './uploadthing'
 
 export const auth = betterAuth({
 	appName: 'Quizzle',
@@ -52,7 +54,23 @@ export const auth = betterAuth({
 			bio: { type: 'string', input: true, required: false },
 			role: { type: 'string', defaultValue: 'user' }
 		},
-		deleteUser: { enabled: true }
+		deleteUser: {
+			enabled: true,
+			async afterDelete(user) {
+				const imageKey = getUploadthingKey(user.image)
+
+				if (!imageKey) return
+
+				const response = await uploadthing.deleteFiles(imageKey)
+
+				if (!response.success)
+					console.error('[DELETE_USER_IMAGE]:', { response, imageKey })
+			}
+		},
+		changeEmail: {
+			enabled: true,
+			updateEmailWithoutVerification: true
+		}
 	}
 })
 

@@ -34,7 +34,7 @@ export const getInitials = (name: string) => {
 export function getDirtyValues<T>(
 	data: T,
 	dirtyFields: Partial<Record<keyof T, boolean | undefined>>
-) {
+): Partial<T> {
 	return Object.keys(dirtyFields).reduce(
 		(acc, key) => ({
 			...acc,
@@ -42,4 +42,15 @@ export function getDirtyValues<T>(
 		}),
 		{}
 	)
+}
+
+export function getUploadthingKey(url: string | undefined | null) {
+	// Uploadthing image example:
+	// https://zyuyzp7rol.ufs.sh/f/aYByzrDTozqSNzce1pk0ZiK6xbCIa3UpuHyF5eTrf2ghEOlAhttps
+
+	if (!url?.startsWith('https://zyuyzp7rol.ufs.sh')) return null
+
+	const key = url.split('/f/').at(1) as string
+
+	return key
 }

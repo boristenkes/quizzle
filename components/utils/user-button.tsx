@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -11,8 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import SignOutButton from '@/features/auth/components/sign-out-button'
 import { getSession } from '@/lib/auth'
-import { getInitials } from '@/utils/helpers'
 import Link from 'next/link'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 export default async function UserButton() {
 	const session = await getSession()
@@ -29,24 +28,15 @@ export default async function UserButton() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger
-				render={
-					<Button
-						variant='outline'
-						className='relative size-8 rounded-full'
-					>
-						<Avatar className='size-8'>
-							<AvatarImage
-								src={currentUser.image!}
-								alt={currentUser.name}
-							/>
-							<AvatarFallback className='bg-primary text-primary-foreground'>
-								{getInitials(currentUser.name)}
-							</AvatarFallback>
-						</Avatar>
-					</Button>
-				}
-			/>
+			<DropdownMenuTrigger>
+				<Avatar size='lg'>
+					<AvatarImage
+						src={currentUser.image!}
+						alt={currentUser.name}
+					/>
+					<AvatarFallback />
+				</Avatar>
+			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				className='w-56 bg-popover'
 				align='end'

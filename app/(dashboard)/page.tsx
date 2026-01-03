@@ -20,7 +20,7 @@ export default async function DashboardPage() {
 						alt=''
 						fill
 						className='absolute inset-0 object-cover object-center opacity-30'
-						priority
+						preload
 					/>
 				</div>
 
