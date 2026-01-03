@@ -19,6 +19,8 @@ export function isEmpty(value: unknown): value is [] | Record<string, never> {
 }
 
 export const getInitials = (name: string) => {
+	if (!name.length) return ''
+
 	const words = name.split(' ')
 
 	if (words.length === 1) return name[0].toUpperCase()
@@ -27,4 +29,17 @@ export const getInitials = (name: string) => {
 		.slice(0, 2)
 		.map(word => word[0].toUpperCase())
 		.join('')
+}
+
+export function getDirtyValues<T>(
+	data: T,
+	dirtyFields: Partial<Record<keyof T, boolean | undefined>>
+) {
+	return Object.keys(dirtyFields).reduce(
+		(acc, key) => ({
+			...acc,
+			[key]: data[key as keyof T]
+		}),
+		{}
+	)
 }

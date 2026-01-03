@@ -46,7 +46,14 @@ export const auth = betterAuth({
 				return success
 			}
 		})
-	]
+	],
+	user: {
+		additionalFields: {
+			bio: { type: 'string', input: true, required: false },
+			role: { type: 'string', defaultValue: 'user' }
+		},
+		deleteUser: { enabled: true }
+	}
 })
 
 export type GetSessionProps = Omit<

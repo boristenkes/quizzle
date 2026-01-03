@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."users" ADD COLUMN "bio" text;

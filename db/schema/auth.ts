@@ -22,7 +22,7 @@ export const sessions = quizzle.table(
 )
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
-	users: one(users, {
+	user: one(users, {
 		fields: [sessions.userId],
 		references: [users.id]
 	})
@@ -54,7 +54,7 @@ export const accounts = quizzle.table(
 )
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
-	users: one(users, {
+	user: one(users, {
 		fields: [accounts.userId],
 		references: [users.id]
 	})

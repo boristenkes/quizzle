@@ -20,6 +20,7 @@ export const users = quizzle.table(
 		role: userRoleEnum().notNull().default('user'),
 		image: text(),
 		displayUsername: text('display_username'), // required by better-auth
+		bio: text(),
 
 		...timestamps()
 	},

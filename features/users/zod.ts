@@ -1,0 +1,40 @@
+import { usernameSchema } from '@/features/auth/zod'
+import { requiredString } from '@/utils/zod'
+import z from 'zod'
+
+export const userSchema = z.object({
+	id: z.ulid(),
+	username: usernameSchema.optional(),
+	email: z.email(),
+	emailVerified: z.boolean(),
+	name: requiredString,
+	passwordHash: requiredString.optional(),
+	role: z.enum(['user', 'admin']).default('user'),
+	image: z.url().optional().nullable(),
+	displayUsername: requiredString.optional(),
+	bio: z
+		.string()
+		.optional()
+		.nullable()
+		.transform(v => v?.toString()),
+	createdAt: z.date(),
+	updatedAt: z.date()
+})
+
+export type UserSchema = z.infer<typeof userSchema>
+
+export const editUserSchema = userSchema
+	.pick({
+		name: true,
+		email: true,
+		bio: true,
+		image: true
+	})
+	.partial()
+
+export type EditUserSchema = z.infer<typeof editUserSchema>
+
+export const userImageFileSchema = z
+	.file()
+	.max(2 * 1024 * 1024)
+	.mime(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
