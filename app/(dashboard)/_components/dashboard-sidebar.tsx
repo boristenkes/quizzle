@@ -26,7 +26,7 @@ import Link from 'next/link'
 
 const navigationItems = [
 	{ title: 'Dashboard', url: '/', icon: LayoutDashboardIcon },
-	{ title: 'Create Quiz', url: '/create', icon: PlusIcon },
+	{ title: 'Create Quiz', url: '/quizzes/new', icon: PlusIcon },
 	{ title: 'My Quizzes', url: '/my-quizzes', icon: FileTextIcon },
 	{ title: 'Discover', url: '/discover', icon: GlobeIcon },
 	{ title: 'Analytics', url: '/analytics', icon: BarChart3Icon },
