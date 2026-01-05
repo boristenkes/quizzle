@@ -1,3 +1,4 @@
+import { userRoles } from '@/lib/constants'
 import { relations } from 'drizzle-orm'
 import { boolean, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
@@ -6,7 +7,7 @@ import { timestamps } from './_utils'
 import { accounts, sessions } from './auth'
 import { quizzes } from './quizzes'
 
-export const userRoleEnum = quizzle.enum('user_role', ['user', 'admin'])
+export const userRoleEnum = quizzle.enum('user_role', userRoles)
 
 export const users = quizzle.table(
 	'users',
@@ -38,4 +39,3 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
-export type UserRole = (typeof userRoleEnum.enumValues)[number]

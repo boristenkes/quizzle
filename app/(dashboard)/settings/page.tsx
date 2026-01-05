@@ -30,7 +30,7 @@ export default async function SettingsPage() {
 				defaultValue='profile'
 				className='space-y-6'
 			>
-				<TabsList className='grid w-full grid-cols-4 lg:w-auto lg:inline-grid'>
+				<TabsList className='grid w-full grid-cols-4 lg:w-auto lg:inline-grid bg-indigo-100/10'>
 					<TabsTrigger
 						value='profile'
 						className='gap-2'

@@ -45,7 +45,7 @@ export function DashboardSidebar() {
 	return (
 		<Sidebar collapsible='icon'>
 			<SidebarContent className='bg-linear-to-b from-background to-secondary/20'>
-				<div className='p-4 border-b border-sidebar-border'>
+				<div className='h-16 px-4 border-b border-sidebar-border flex items-center'>
 					<Link
 						href='/'
 						className='flex items-center gap-2'

@@ -15,18 +15,3 @@ export const dateFormatter = new Intl.DateTimeFormat('en-US', {
 	day: '2-digit',
 	year: 'numeric'
 })
-
-declare global {
-	interface String {
-		capitalize(): string
-	}
-}
-
-String.prototype.capitalize = function () {
-	const words = this.split(' ')
-	const capitalizedWords = words.map(
-		word => word[0].toUpperCase() + word.slice(1).toLowerCase()
-	)
-
-	return capitalizedWords.join(' ')
-}

@@ -1,3 +1,4 @@
+import { questionTypes } from '@/lib/constants'
 import { relations } from 'drizzle-orm'
 import { index, integer, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
@@ -6,11 +7,7 @@ import { timestamps } from './_utils'
 import { questionOptions } from './question-options'
 import { quizzes } from './quizzes'
 
-export const questionTypeEnum = quizzle.enum('question_type', [
-	'multi_choice',
-	'single_choice',
-	'text'
-])
+export const questionTypeEnum = quizzle.enum('question_type', questionTypes)
 
 export const questions = quizzle.table(
 	'questions',
@@ -39,4 +36,3 @@ export const questionsRelations = relations(questions, ({ one, many }) => ({
 
 export type Question = typeof questions.$inferSelect
 export type NewQuestion = typeof questions.$inferInsert
-export type QuestionType = (typeof questionTypeEnum.enumValues)[number]

@@ -54,3 +54,17 @@ export function getUploadthingKey(url: string | undefined | null) {
 
 	return key
 }
+
+declare global {
+	interface Array<T> {
+		count(callback: (value: T, index: number, array: T[]) => boolean): number
+	}
+}
+
+if (!Array.prototype.count) {
+	Array.prototype.count = function (callback) {
+		const count = this.filter(callback).length
+
+		return count
+	}
+}
