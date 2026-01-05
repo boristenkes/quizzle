@@ -1,9 +1,9 @@
-import { integerSchema, requiredString } from '@/utils/zod'
+import { booleanSchema, integerSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
 export const questionOptionFormSchema = z.object({
 	text: requiredString,
-	isCorrect: z.coerce.boolean().default(false)
+	isCorrect: booleanSchema.default(false)
 })
 
 export const choiceQuestionFormSchema = z
@@ -32,8 +32,8 @@ export const choiceQuestionFormSchema = z
 export const textQuestionFormSchema = z.object({
 	type: z.literal('text'),
 	acceptableAnswers: requiredString.array().min(1),
-	ignoreCase: z.coerce.boolean().optional().default(true),
-	trimWhitespace: z.coerce.boolean().optional().default(true)
+	ignoreCase: booleanSchema.optional().default(true),
+	trimWhitespace: booleanSchema.optional().default(true)
 })
 
 export const baseQuestionFormSchema = z.object({

@@ -47,11 +47,17 @@ import {
 	QuestionFormSchema,
 	TextQuestionFormSchema
 } from '@/features/questions/zod'
+import { QuizFormSchema } from '@/features/quizzes/zod'
 import { QuestionType, questionTypeLabel, questionTypes } from '@/lib/constants'
 import { TagsInputItemDelete, TagsInputItemText } from '@diceui/tags-input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon, SparklesIcon, XIcon } from 'lucide-react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import {
+	Controller,
+	useFieldArray,
+	UseFieldArrayReturn,
+	useForm
+} from 'react-hook-form'
 
 const baseQuestionDefaults: BaseQuestionFormSchema = {
 	prompt: '',
@@ -76,7 +82,11 @@ const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema = {
 	]
 }
 
-export default function QuestionForm() {
+export default function QuestionForm({
+	questionsFieldArray
+}: {
+	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
+}) {
 	const form = useForm<QuestionFormSchema>({
 		defaultValues: choiceDefaults,
 		resolver: zodResolver(questionFormSchema) as any // TS being too weird
@@ -88,7 +98,8 @@ export default function QuestionForm() {
 	const selectedType = form.watch('type')
 
 	const onSubmit = async (data: QuestionFormSchema) => {
-		console.log(data)
+		questionsFieldArray.append(data)
+		form.reset()
 	}
 
 	return (
@@ -267,6 +278,11 @@ export default function QuestionForm() {
 												</li>
 											))}
 										</ol>
+										{form.getFieldState('options').invalid && (
+											<FieldError
+												errors={[form.getFieldState('options').error]}
+											/>
+										)}
 										<Button
 											variant='secondary'
 											onClick={() =>

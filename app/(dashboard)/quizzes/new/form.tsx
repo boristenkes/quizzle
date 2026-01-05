@@ -9,12 +9,22 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
+import {
+	Field,
+	FieldContent,
+	FieldDescription,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+	FieldSet
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
 	EyeIcon,
 	FileText,
@@ -23,15 +33,30 @@ import {
 	SettingsIcon
 } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import QuestionForm from './question-form'
+import QuestionList from './question-list'
 
 type Tab = 'settings' | 'questions' | 'preview'
 
 export default function NewQuizForm() {
-	const form = useForm()
+	const form = useForm<QuizFormSchema>({
+		defaultValues: {
+			title: '',
+			description: '',
+			totalPoints: 100,
+			timeLimitMinutes: undefined,
+			isPublic: true,
+			questions: []
+		},
+		resolver: zodResolver(quizFormSchema) as any
+	})
+	const questionsFieldArray = useFieldArray({
+		control: form.control,
+		name: 'questions'
+	})
 	const [file, setFile] = useState<File | null>(null)
-	const [activeTab, setActiveTab] = useState<Tab>('questions')
+	const [activeTab, setActiveTab] = useState<Tab>('settings')
 
 	return (
 		<div>
@@ -78,86 +103,173 @@ export default function NewQuizForm() {
 								Set up the basic information for your quiz
 							</CardDescription>
 						</CardHeader>
-						<CardContent className='space-y-6'>
-							{/* Title & Time Limit */}
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-								<div className='space-y-2'>
-									<Label htmlFor='title'>Quiz Title *</Label>
-									<Input
-										id='title'
-										placeholder='Enter quiz title...'
-									/>
-								</div>
+						<CardContent>
+							<FieldSet>
+								<FieldGroup>
+									{/* Title & Time Limit */}
+									<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+										<Controller
+											name='title'
+											control={form.control}
+											render={({ field, fieldState }) => (
+												<Field data-invalid={fieldState.invalid}>
+													<FieldLabel htmlFor={field.name}>
+														Quiz Title *
+													</FieldLabel>
+													<Input
+														{...field}
+														id={field.name}
+														name={field.name}
+														aria-invalid={fieldState.invalid}
+														placeholder='Enter quiz title...'
+													/>
+													{fieldState.invalid && (
+														<FieldError errors={[fieldState.error]} />
+													)}
+												</Field>
+											)}
+										/>
 
-								<div className='space-y-2'>
-									<Label htmlFor='timeLimit'>Time Limit (minutes)</Label>
-									<Input
-										id='timeLimit'
-										type='number'
-										placeholder='20'
-									/>
-								</div>
-							</div>
-
-							{/* Description */}
-							<div className='space-y-2'>
-								<Label htmlFor='description'>Description</Label>
-								<Textarea
-									id='description'
-									placeholder='Describe what this quiz covers...'
-									rows={3}
-								/>
-							</div>
-
-							{/* Total points & Public quiz? */}
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-								<div className='space-y-2'>
-									<Label htmlFor='totalPoints'>Total Points</Label>
-									<Input
-										id='totalPoints'
-										type='number'
-										placeholder='100'
-									/>
-									<p className='text-sm text-muted-foreground'>
-										Will auto-distribute across questions
-									</p>
-								</div>
-
-								<div className='space-y-4'>
-									<div className='flex items-center gap-4'>
-										<Label htmlFor='public'>Public Quiz</Label>
-										<Switch id='public' />
+										<Controller
+											name='timeLimitMinutes'
+											control={form.control}
+											render={({ field, fieldState }) => (
+												<Field data-invalid={fieldState.invalid}>
+													<FieldLabel htmlFor={field.name}>
+														Time Limit (minutes)
+													</FieldLabel>
+													<Input
+														{...field}
+														type='number'
+														min={0}
+														id={field.name}
+														name={field.name}
+														aria-invalid={fieldState.invalid}
+														placeholder='20'
+													/>
+													{fieldState.invalid && (
+														<FieldError errors={[fieldState.error]} />
+													)}
+												</Field>
+											)}
+										/>
 									</div>
-									<p className='text-sm text-muted-foreground'>
-										Allow others to discover and take this quiz
-									</p>
-								</div>
-							</div>
 
-							<div className='relative my-6'>
-								<Separator />
-								<span className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground'>
-									or
-								</span>
-							</div>
+									{/* Description */}
+									<Controller
+										name='description'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor={field.name}>
+													Description
+												</FieldLabel>
+												<Textarea
+													{...field}
+													id={field.name}
+													name={field.name}
+													aria-invalid={fieldState.invalid}
+													placeholder='Describe what this quiz covers...'
+													rows={3}
+												/>
+												{fieldState.invalid && (
+													<FieldError errors={[fieldState.error]} />
+												)}
+											</Field>
+										)}
+									/>
 
-							<PdfDropZone onFileSelect={setFile} />
+									{/* Total points & Public quiz? */}
+									<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+										<Controller
+											name='totalPoints'
+											control={form.control}
+											render={({ field, fieldState }) => (
+												<Field data-invalid={fieldState.invalid}>
+													<FieldLabel htmlFor={field.name}>
+														Total Points
+													</FieldLabel>
+													<Input
+														{...field}
+														type='number'
+														min={0}
+														max={100}
+														id={field.name}
+														name={field.name}
+														aria-invalid={fieldState.invalid}
+														placeholder='50'
+													/>
+													<FieldDescription>
+														Will auto-distribute across questions
+													</FieldDescription>
+													{fieldState.invalid && (
+														<FieldError errors={[fieldState.error]} />
+													)}
+												</Field>
+											)}
+										/>
 
-							<div className='flex justify-end'>
-								<Button
-									size='lg'
-									onClick={() => setActiveTab('questions')}
-								>
-									Next: Add Questions
-									<FileText className='ml-2 h-4 w-4' />
-								</Button>
-							</div>
+										<Controller
+											name='isPublic'
+											control={form.control}
+											render={({ field, fieldState }) => (
+												<Field
+													orientation='horizontal'
+													data-invalid={fieldState.invalid}
+												>
+													<FieldContent>
+														<FieldLabel htmlFor={field.name}>
+															Public Quiz{' '}
+														</FieldLabel>
+														<FieldDescription>
+															Allow others to discover and take this quiz
+														</FieldDescription>
+														{fieldState.invalid && (
+															<FieldError errors={[fieldState.error]} />
+														)}
+													</FieldContent>
+													<Switch
+														id={field.name}
+														name={field.name}
+														checked={field.value}
+														onCheckedChange={field.onChange}
+														aria-invalid={fieldState.invalid}
+													/>
+												</Field>
+											)}
+										/>
+									</div>
+
+									<div className='relative my-2'>
+										<Separator />
+										<span className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground'>
+											or
+										</span>
+									</div>
+
+									<PdfDropZone onFileSelect={setFile} />
+
+									<div className='flex justify-end'>
+										<Button
+											size='lg'
+											onClick={() => setActiveTab('questions')}
+										>
+											Next: Add Questions
+											<FileText className='ml-2 h-4 w-4' />
+										</Button>
+									</div>
+								</FieldGroup>
+							</FieldSet>
 						</CardContent>
 					</Card>
 				</TabsContent>
 
-				<TabsContent value='questions'>
-					<QuestionForm />
+				<TabsContent
+					value='questions'
+					className='space-y-4'
+				>
+					<QuestionForm questionsFieldArray={questionsFieldArray} />
+					<QuestionList questionsFieldArray={questionsFieldArray} />
 				</TabsContent>
 			</Tabs>
 		</div>
