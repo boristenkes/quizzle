@@ -1,4 +1,4 @@
-import { questionTypes } from '@/lib/constants'
+import { questionDifficulties, questionTypes } from '@/lib/constants'
 import { relations } from 'drizzle-orm'
 import { index, integer, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
@@ -8,6 +8,10 @@ import { questionOptions } from './question-options'
 import { quizzes } from './quizzes'
 
 export const questionTypeEnum = quizzle.enum('question_type', questionTypes)
+export const questionDifficultyEnum = quizzle.enum(
+	'question_difficulty',
+	questionDifficulties
+)
 
 export const questions = quizzle.table(
 	'questions',
@@ -20,6 +24,7 @@ export const questions = quizzle.table(
 			.notNull()
 			.references(() => quizzes.id, { onDelete: 'cascade' }),
 		order: integer().notNull(),
+		difficulty: questionDifficultyEnum().notNull().default('easy'),
 
 		...timestamps()
 	},

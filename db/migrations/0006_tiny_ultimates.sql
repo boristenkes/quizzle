@@ -1,1 +1,0 @@
-ALTER TABLE "quizzle"."users" ALTER COLUMN "username" DROP NOT NULL;

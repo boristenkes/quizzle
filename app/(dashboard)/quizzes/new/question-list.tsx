@@ -10,6 +10,9 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { QuizFormSchema } from '@/features/quizzes/zod'
+import { questionTypeLabel } from '@/lib/constants'
+import { getDifficultyColor } from '@/utils/format'
+import { cn } from '@/utils/helpers'
 import { CheckIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
 import { UseFieldArrayReturn } from 'react-hook-form'
 
@@ -21,7 +24,7 @@ export default function QuestionList({
 	if (questionsFieldArray.fields.length === 0) return null
 
 	return (
-		<Card>
+		<Card id='new-quiz-form:question-list'>
 			<CardHeader>
 				<CardTitle>Questions ({questionsFieldArray.fields.length})</CardTitle>
 				<CardDescription>Drag to reorder questions</CardDescription>
@@ -35,13 +38,23 @@ export default function QuestionList({
 						<GripVerticalIcon className='h-5 w-5 text-muted-foreground mt-1' />
 						<div className='flex-1 space-y-2'>
 							<div className='flex items-start justify-between'>
-								<div className='flex-1'>
+								<div className='flex-1 flex items-start gap-2'>
 									<h4 className='font-medium'>
 										Q{index + 1}: {question.prompt}
 									</h4>
-									<div className='flex items-center gap-2 mt-2'>
-										<Badge variant='outline'>{question.type}</Badge>
-										<Badge variant='secondary'>{question.points} pts</Badge>
+									<div className='flex items-center gap-2'>
+										<Badge variant='outline'>
+											<strong>type:</strong> {questionTypeLabel[question.type]}
+										</Badge>
+										<Badge
+											className={cn(
+												getDifficultyColor(question.difficulty),
+												'capitalize font-semibold'
+											)}
+											variant='outline'
+										>
+											{question.difficulty}
+										</Badge>
 									</div>
 								</div>
 								<Button
@@ -53,8 +66,8 @@ export default function QuestionList({
 									<Trash2Icon className='h-4 w-4' />
 								</Button>
 							</div>
-							{(question.type === 'multi_choice' ||
-								question.type === 'single_choice') && (
+							{(question.type === 'multi_correct' ||
+								question.type === 'single_correct') && (
 								<div className='grid grid-cols-2 gap-2 text-sm'>
 									{question.options.map((option, optIdx) => (
 										<div

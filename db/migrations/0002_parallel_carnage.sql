@@ -1,1 +1,0 @@
-ALTER TABLE "quizzle"."quizzle__users" ADD COLUMN "display_username" text;

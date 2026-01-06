@@ -1,4 +1,3 @@
-import { quizDifficulties } from '@/lib/constants'
 import { relations } from 'drizzle-orm'
 import { boolean, index, integer, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
@@ -7,13 +6,8 @@ import { timestamps } from './_utils'
 import { questions } from './questions'
 import { users } from './users'
 
-export const quizDifficultyEnum = quizzle.enum(
-	'quiz_difficulty',
-	quizDifficulties
-)
-
 export const quizzes = quizzle.table(
-	'questions',
+	'quizzes',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		title: text().notNull(),
@@ -23,7 +17,6 @@ export const quizzes = quizzle.table(
 		totalPoints: integer().notNull().default(100),
 		isPublic: boolean().notNull().default(true),
 		isPublished: boolean().notNull().default(true),
-		difficulty: quizDifficultyEnum().notNull().default('easy'),
 
 		creatorId: text()
 			.notNull()

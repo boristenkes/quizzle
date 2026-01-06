@@ -1,2 +1,0 @@
-ALTER TABLE "quizzle"."quizzle__users" ALTER COLUMN "email_verified" SET DATA TYPE boolean USING "email_verified" IS NOT NULL;--> statement-breakpoint
-ALTER TABLE "quizzle"."quizzle__users" ALTER COLUMN "email_verified" SET NOT NULL;

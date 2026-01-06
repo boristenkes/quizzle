@@ -1,4 +1,9 @@
-import { booleanSchema, integerSchema, requiredString } from '@/utils/zod'
+import {
+	MAX_QUESTION_OPTIONS,
+	MIN_QUESTION_OPTIONS,
+	questionDifficulties
+} from '@/lib/constants'
+import { booleanSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
 export const questionOptionFormSchema = z.object({
@@ -8,19 +13,26 @@ export const questionOptionFormSchema = z.object({
 
 export const choiceQuestionFormSchema = z
 	.object({
-		type: z.enum(['multi_choice', 'single_choice']),
-		options: questionOptionFormSchema.array().min(2).max(4)
+		type: z.enum(['multi_correct', 'single_correct']),
+		options: questionOptionFormSchema
+			.array()
+			.min(MIN_QUESTION_OPTIONS, {
+				error: `Question must have at least ${MIN_QUESTION_OPTIONS} options`
+			})
+			.max(MAX_QUESTION_OPTIONS, {
+				error: `Question can have up to ${MAX_QUESTION_OPTIONS} options`
+			})
 	})
 	.superRefine((data, ctx) => {
 		const correctCount = data.options.count(opt => opt.isCorrect)
 
-		if (data.type === 'single_choice' && correctCount !== 1) {
+		if (data.type === 'single_correct' && correctCount !== 1) {
 			ctx.addIssue({
 				code: 'custom',
 				message: 'Single choice questions must have exactly one correct option',
 				path: ['options']
 			})
-		} else if (data.type === 'multi_choice' && correctCount < 2) {
+		} else if (data.type === 'multi_correct' && correctCount < 1) {
 			ctx.addIssue({
 				code: 'custom',
 				message: 'Multi choice questions must have at least 2 correct options',
@@ -31,17 +43,15 @@ export const choiceQuestionFormSchema = z
 
 export const textQuestionFormSchema = z.object({
 	type: z.literal('text'),
-	acceptableAnswers: requiredString.array().min(1),
+	acceptableAnswers: requiredString.array().nonempty({ error: 'Required' }),
 	ignoreCase: booleanSchema.optional().default(true),
 	trimWhitespace: booleanSchema.optional().default(true)
 })
 
 export const baseQuestionFormSchema = z.object({
 	prompt: requiredString,
-	points: integerSchema
-		.positive({ error: 'Points must be positive number' })
-		.default(5),
-	explanationHTML: requiredString
+	explanationHTML: requiredString,
+	difficulty: z.enum(questionDifficulties)
 })
 
 export const questionFormSchema = z.discriminatedUnion('type', [

@@ -1,6 +1,5 @@
 'use client'
 
-import Logo from '@/components/logo'
 import {
 	Sidebar,
 	SidebarContent,
@@ -48,17 +47,23 @@ export function DashboardSidebar() {
 				<div className='h-16 px-4 border-b border-sidebar-border flex items-center'>
 					<Link
 						href='/'
-						className='flex items-center gap-2'
+						className='p-4 border-b border-sidebar-border'
 					>
-						<Logo className='size-8' />
-						{!isCollapsed && (
-							<div>
-								<h2 className='font-bold text-lg text-foreground'>Quizzle</h2>
-								<p className='text-xs text-muted-foreground'>
-									Smart Quiz Platform
-								</p>
+						<div className='flex items-center gap-2'>
+							<div className='w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center'>
+								<span className='text-primary-foreground font-bold text-sm'>
+									Q
+								</span>
 							</div>
-						)}
+							{!isCollapsed && (
+								<div>
+									<h2 className='font-bold text-lg text-foreground'>Quizzle</h2>
+									<p className='text-xs text-muted-foreground'>
+										Smart Quiz Platform
+									</p>
+								</div>
+							)}
+						</div>
 					</Link>
 				</div>
 

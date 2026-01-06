@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -17,7 +18,6 @@ import {
 	FieldLegend,
 	FieldSet
 } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -48,21 +48,31 @@ import {
 	TextQuestionFormSchema
 } from '@/features/questions/zod'
 import { QuizFormSchema } from '@/features/quizzes/zod'
-import { QuestionType, questionTypeLabel, questionTypes } from '@/lib/constants'
+import {
+	MAX_QUESTION_OPTIONS,
+	MAX_QUIZ_QUESTIONS,
+	MIN_QUESTION_OPTIONS,
+	questionDifficulties,
+	QuestionType,
+	questionTypeLabel,
+	questionTypes
+} from '@/lib/constants'
 import { TagsInputItemDelete, TagsInputItemText } from '@diceui/tags-input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusIcon, SparklesIcon, XIcon } from 'lucide-react'
+import { PlusIcon, SparklesIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import {
+	Control,
 	Controller,
 	useFieldArray,
 	UseFieldArrayReturn,
-	useForm
+	useForm,
+	UseFormReturn
 } from 'react-hook-form'
 
 const baseQuestionDefaults: BaseQuestionFormSchema = {
 	prompt: '',
 	explanationHTML: '',
-	points: 5
+	difficulty: 'easy'
 }
 
 const textDefaults: BaseQuestionFormSchema & TextQuestionFormSchema = {
@@ -75,7 +85,7 @@ const textDefaults: BaseQuestionFormSchema & TextQuestionFormSchema = {
 
 const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema = {
 	...baseQuestionDefaults,
-	type: 'multi_choice',
+	type: 'multi_correct',
 	options: [
 		{ text: '', isCorrect: false },
 		{ text: '', isCorrect: false }
@@ -89,7 +99,8 @@ export default function QuestionForm({
 }) {
 	const form = useForm<QuestionFormSchema>({
 		defaultValues: choiceDefaults,
-		resolver: zodResolver(questionFormSchema) as any // TS being too weird
+		resolver: zodResolver(questionFormSchema) as any, // TS being too weird
+		disabled: questionsFieldArray.fields.length >= MAX_QUIZ_QUESTIONS
 	})
 	const optionsField = useFieldArray({
 		control: form.control,
@@ -121,11 +132,26 @@ export default function QuestionForm({
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
+				{questionsFieldArray.fields.length >= MAX_QUIZ_QUESTIONS && (
+					<Alert
+						variant='warning'
+						className='mb-6'
+					>
+						<TriangleAlertIcon />
+						<AlertTitle>Question limit reached</AlertTitle>
+						<AlertDescription>
+							This quiz already contains the maximum allowed number of questions
+							({MAX_QUIZ_QUESTIONS}). To add a new question, remove or edit an
+							existing one.{' '}
+							<a href='#new-quiz-form:question-list'>See questions</a>
+						</AlertDescription>
+					</Alert>
+				)}
+
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<FieldSet>
 						<FieldGroup>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								{/* Type */}
 								<Controller
 									name='type'
 									control={form.control}
@@ -148,6 +174,7 @@ export default function QuestionForm({
 												}}
 												id={field.name}
 												name={field.name}
+												disabled={field.disabled}
 											>
 												<SelectTrigger aria-invalid={fieldState.invalid}>
 													<SelectValue>
@@ -172,20 +199,34 @@ export default function QuestionForm({
 									)}
 								/>
 
-								{/* Points */}
 								<Controller
-									name='points'
+									name='difficulty'
 									control={form.control}
 									render={({ field, fieldState }) => (
 										<Field data-invalid={fieldState.invalid}>
-											<FieldLabel htmlFor={field.name}>Points</FieldLabel>
-											<Input
-												{...field}
-												type='number'
+											<FieldLabel htmlFor={field.name}>Difficulty</FieldLabel>
+											<Select
+												value={field.value}
+												onValueChange={field.onChange}
 												id={field.name}
-												min='0'
-												step='5'
-											/>
+												name={field.name}
+												disabled={field.disabled}
+											>
+												<SelectTrigger aria-invalid={fieldState.invalid}>
+													<SelectValue className='capitalize' />
+												</SelectTrigger>
+												<SelectContent>
+													{questionDifficulties.map(difficulty => (
+														<SelectItem
+															key={difficulty}
+															value={difficulty}
+															className='capitalize'
+														>
+															{difficulty}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
 											{fieldState.invalid && (
 												<FieldError errors={[fieldState.error]} />
 											)}
@@ -194,7 +235,6 @@ export default function QuestionForm({
 								/>
 							</div>
 
-							{/* Points */}
 							<Controller
 								name='prompt'
 								control={form.control}
@@ -217,192 +257,16 @@ export default function QuestionForm({
 								)}
 							/>
 
-							{/* Question options */}
-							{(selectedType === 'multi_choice' ||
-								selectedType === 'single_choice') && (
-								<FieldSet>
-									<FieldLegend variant='label'>Available Choices *</FieldLegend>
-									<FieldDescription>
-										Click the checkboxes to mark correct answers
-									</FieldDescription>
-									<FieldGroup className='gap-2'>
-										<ol
-											type='A'
-											className='list-[upper-alpha] pl-5 space-y-2'
-										>
-											{optionsField.fields.map((field, idx) => (
-												<li
-													key={field.id}
-													className='pl-3'
-												>
-													<Field
-														orientation='horizontal'
-														className='data-invalid:border-red-500'
-													>
-														<FieldContent className='flex flex-row items-center'>
-															<Controller
-																name={`options.${idx}.isCorrect`}
-																control={form.control}
-																render={({ field: checkboxField }) => (
-																	<Checkbox
-																		checked={checkboxField.value}
-																		onCheckedChange={checkboxField.onChange}
-																		className='size-6 border-2'
-																	/>
-																)}
-															/>
-															<Controller
-																name={`options.${idx}.text`}
-																control={form.control}
-																render={({ field: inputField, fieldState }) => (
-																	<InputGroup>
-																		<InputGroupInput
-																			{...inputField}
-																			placeholder={`Enter option ${String.fromCharCode(
-																				65 + idx
-																			)}`}
-																		/>
-																		<InputGroupAddon align='inline-end'>
-																			<InputGroupButton
-																				onClick={() => optionsField.remove(idx)}
-																				size='icon-xs'
-																			>
-																				<XIcon />
-																			</InputGroupButton>
-																		</InputGroupAddon>
-																	</InputGroup>
-																)}
-															/>
-														</FieldContent>
-													</Field>
-												</li>
-											))}
-										</ol>
-										{form.getFieldState('options').invalid && (
-											<FieldError
-												errors={[form.getFieldState('options').error]}
-											/>
-										)}
-										<Button
-											variant='secondary'
-											onClick={() =>
-												optionsField.append({ text: '', isCorrect: false })
-											}
-											className='ml-14'
-										>
-											Add option <PlusIcon />
-										</Button>
-									</FieldGroup>
-								</FieldSet>
+							{selectedType === 'text' ? (
+								<TextQuestionFields control={form.control} />
+							) : (
+								<ChoiceQuestionFields
+									form={form}
+									optionsField={optionsField}
+									type={selectedType}
+								/>
 							)}
 
-							{/* Acceptable Answers & Ignore case? & Trim whitespace? */}
-							{selectedType === 'text' && (
-								<>
-									<Controller
-										control={form.control}
-										name='acceptableAnswers'
-										render={({ field, fieldState }) => (
-											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor={field.name}>
-													Acceptable Answers (separated by Enter) *
-												</FieldLabel>
-												<TagsInput
-													id={field.name}
-													value={field.value}
-													onValueChange={field.onChange}
-													ref={field.ref}
-												>
-													<TagsInputList>
-														{field.value.map(answer => (
-															<TagsInputItem
-																key={answer}
-																value={answer}
-															>
-																<TagsInputItemText />
-																<TagsInputItemDelete />
-															</TagsInputItem>
-														))}
-														<TagsInputInput />
-														<TagsInputClear />
-													</TagsInputList>
-												</TagsInput>
-												{fieldState.invalid && (
-													<FieldError errors={[fieldState.error]} />
-												)}
-											</Field>
-										)}
-									/>
-
-									<div className='grid grid-cols-2 gap-2 -mt-5'>
-										<Controller
-											name='ignoreCase'
-											control={form.control}
-											render={({ field, fieldState }) => (
-												<Field
-													orientation='horizontal'
-													data-invalid={fieldState.invalid}
-													className='border border-input p-3 rounded-sm'
-												>
-													<FieldContent>
-														<FieldLabel htmlFor={field.name}>
-															Ignore case
-														</FieldLabel>
-														<FieldDescription>
-															Treats uppercase and lowercase letters as the same
-															when checking answers. (e.g. <q>Apple</q> and{' '}
-															<q>apple</q> are considered same)
-														</FieldDescription>
-														{fieldState.invalid && (
-															<FieldError errors={[fieldState.error]} />
-														)}
-													</FieldContent>
-													<Switch
-														id={field.name}
-														name={field.name}
-														checked={field.value}
-														onCheckedChange={field.onChange}
-														aria-invalid={fieldState.invalid}
-													/>
-												</Field>
-											)}
-										/>
-										<Controller
-											name='trimWhitespace'
-											control={form.control}
-											render={({ field, fieldState }) => (
-												<Field
-													orientation='horizontal'
-													data-invalid={fieldState.invalid}
-													className='border p-3 rounded-sm'
-												>
-													<FieldContent>
-														<FieldLabel htmlFor={field.name}>
-															Trim whitespace
-														</FieldLabel>
-														<FieldDescription>
-															Ignores extra spaces at the beginning or end of
-															answers when checking them.
-														</FieldDescription>
-														{fieldState.invalid && (
-															<FieldError errors={[fieldState.error]} />
-														)}
-													</FieldContent>
-													<Switch
-														id={field.name}
-														name={field.name}
-														checked={field.value}
-														onCheckedChange={field.onChange}
-														aria-invalid={fieldState.invalid}
-													/>
-												</Field>
-											)}
-										/>
-									</div>
-								</>
-							)}
-
-							{/* Explanation HTML */}
 							<Controller
 								name='explanationHTML'
 								control={form.control}
@@ -426,7 +290,10 @@ export default function QuestionForm({
 							/>
 
 							<div className='flex justify-end'>
-								<Button type='submit'>
+								<Button
+									type='submit'
+									disabled={form.formState.disabled}
+								>
 									<PlusIcon className='size-4 mr-2' />
 									Add Question
 								</Button>
@@ -436,5 +303,225 @@ export default function QuestionForm({
 				</form>
 			</CardContent>
 		</Card>
+	)
+}
+
+function ChoiceQuestionFields({
+	form,
+	optionsField,
+	type
+}: {
+	form: UseFormReturn<QuestionFormSchema>
+	optionsField: UseFieldArrayReturn<QuestionFormSchema, 'options'>
+	type: 'single_correct' | 'multi_correct'
+}) {
+	return (
+		<FieldSet>
+			<FieldLegend variant='label'>Available Choices *</FieldLegend>
+			<FieldDescription>
+				Click the checkboxes to mark correct answers
+			</FieldDescription>
+			<FieldGroup className='gap-2'>
+				<ol
+					type='A'
+					className='list-[upper-alpha] pl-5 space-y-2'
+				>
+					{optionsField.fields.map((field, idx) => (
+						<li
+							key={field.id}
+							className='pl-3'
+						>
+							<Field
+								orientation='horizontal'
+								className='data-invalid:border-red-500'
+							>
+								<FieldContent className='flex flex-row items-center'>
+									<Controller
+										name={`options.${idx}.isCorrect`}
+										control={form.control}
+										render={({ field: checkboxField }) => {
+											if (type === 'single_correct') {
+												return (
+													<input
+														type='radio'
+														name='single_choice_options'
+														checked={checkboxField.value}
+														onChange={() => {
+															// ensure only this option is marked correct
+															optionsField.fields.forEach((_, i) =>
+																form.setValue(
+																	`options.${i}.isCorrect`,
+																	i === idx
+																)
+															)
+														}}
+														className='size-6 border-2'
+														disabled={checkboxField.disabled}
+													/>
+												)
+											}
+
+											return (
+												<Checkbox
+													checked={checkboxField.value}
+													onCheckedChange={checkboxField.onChange}
+													className='size-6 border-2'
+													disabled={checkboxField.disabled}
+												/>
+											)
+										}}
+									/>
+									<Controller
+										name={`options.${idx}.text`}
+										control={form.control}
+										render={({ field: inputField, fieldState }) => (
+											<InputGroup>
+												<InputGroupInput
+													{...inputField}
+													placeholder={`Enter option ${String.fromCharCode(
+														65 + idx
+													)}`}
+												/>
+												{optionsField.fields.length > MIN_QUESTION_OPTIONS && (
+													<InputGroupAddon align='inline-end'>
+														<InputGroupButton
+															onClick={() => optionsField.remove(idx)}
+															size='icon-xs'
+														>
+															<XIcon />
+														</InputGroupButton>
+													</InputGroupAddon>
+												)}
+											</InputGroup>
+										)}
+									/>
+								</FieldContent>
+							</Field>
+						</li>
+					))}
+				</ol>
+				{form.getFieldState('options').invalid && (
+					<FieldError errors={[form.getFieldState('options').error]} />
+				)}
+				{optionsField.fields.length < MAX_QUESTION_OPTIONS && (
+					<Button
+						variant='secondary'
+						onClick={() => optionsField.append({ text: '', isCorrect: false })}
+						className='ml-14'
+						disabled={form.formState.disabled}
+					>
+						Add option <PlusIcon />
+					</Button>
+				)}
+			</FieldGroup>
+		</FieldSet>
+	)
+}
+
+function TextQuestionFields({
+	control
+}: {
+	control: Control<QuestionFormSchema>
+}) {
+	return (
+		<>
+			<Controller
+				control={control}
+				name='acceptableAnswers'
+				render={({ field, fieldState }) => (
+					<Field data-invalid={fieldState.invalid}>
+						<FieldLabel htmlFor={field.name}>
+							Acceptable Answers (separated by Enter) *
+						</FieldLabel>
+						<TagsInput
+							id={field.name}
+							value={field.value}
+							onValueChange={field.onChange}
+							ref={field.ref}
+							disabled={field.disabled}
+						>
+							<TagsInputList>
+								{field.value.map(answer => (
+									<TagsInputItem
+										key={answer}
+										value={answer}
+									>
+										<TagsInputItemText />
+										<TagsInputItemDelete />
+									</TagsInputItem>
+								))}
+								<TagsInputInput />
+								<TagsInputClear />
+							</TagsInputList>
+						</TagsInput>
+						{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+					</Field>
+				)}
+			/>
+
+			<div className='grid grid-cols-2 gap-2 -mt-5'>
+				<Controller
+					name='ignoreCase'
+					control={control}
+					render={({ field, fieldState }) => (
+						<Field
+							orientation='horizontal'
+							data-invalid={fieldState.invalid}
+							className='border border-input p-3 rounded-sm'
+						>
+							<FieldContent>
+								<FieldLabel htmlFor={field.name}>Ignore case</FieldLabel>
+								<FieldDescription>
+									Treats uppercase and lowercase letters as the same when
+									checking answers. (e.g. <q>Apple</q> and <q>apple</q> are
+									considered same)
+								</FieldDescription>
+								{fieldState.invalid && (
+									<FieldError errors={[fieldState.error]} />
+								)}
+							</FieldContent>
+							<Switch
+								id={field.name}
+								name={field.name}
+								checked={field.value}
+								onCheckedChange={field.onChange}
+								aria-invalid={fieldState.invalid}
+								disabled={field.disabled}
+							/>
+						</Field>
+					)}
+				/>
+				<Controller
+					name='trimWhitespace'
+					control={control}
+					render={({ field, fieldState }) => (
+						<Field
+							orientation='horizontal'
+							data-invalid={fieldState.invalid}
+							className='border p-3 rounded-sm'
+						>
+							<FieldContent>
+								<FieldLabel htmlFor={field.name}>Trim whitespace</FieldLabel>
+								<FieldDescription>
+									Ignores extra spaces at the beginning or end of answers when
+									checking them.
+								</FieldDescription>
+								{fieldState.invalid && (
+									<FieldError errors={[fieldState.error]} />
+								)}
+							</FieldContent>
+							<Switch
+								id={field.name}
+								name={field.name}
+								checked={field.value}
+								onCheckedChange={field.onChange}
+								aria-invalid={fieldState.invalid}
+								disabled={field.disabled}
+							/>
+						</Field>
+					)}
+				/>
+			</div>
+		</>
 	)
 }

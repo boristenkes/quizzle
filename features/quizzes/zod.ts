@@ -1,4 +1,5 @@
 import { questionFormSchema } from '@/features/questions/zod'
+import { MAX_QUIZ_QUESTIONS, MIN_QUIZ_QUESTIONS } from '@/lib/constants'
 import { booleanSchema, integerSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
@@ -14,8 +15,12 @@ export const quizFormSchema = z.object({
 	isPublic: booleanSchema.default(true),
 	questions: questionFormSchema
 		.array()
-		.min(3, { error: 'Quiz must have at least 3 questions' })
-		.max(50, { error: 'Quiz can have up to 50 questions' })
+		.min(MIN_QUIZ_QUESTIONS, {
+			error: `Quiz must have at least ${MIN_QUIZ_QUESTIONS} questions`
+		})
+		.max(MAX_QUIZ_QUESTIONS, {
+			error: `Quiz can have up to ${MAX_QUIZ_QUESTIONS} questions`
+		})
 })
 
 export type QuizFormSchema = z.infer<typeof quizFormSchema>

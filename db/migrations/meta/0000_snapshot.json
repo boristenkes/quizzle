@@ -1,11 +1,11 @@
 {
-  "id": "d81063f6-4030-475b-8d7d-cd862f19c168",
+  "id": "570c8bc2-570e-4de3-82f7-75a0085d9711",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "quizzle.quizzle__accounts": {
-      "name": "quizzle__accounts",
+    "quizzle.accounts": {
+      "name": "accounts",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -52,13 +52,13 @@
         },
         "access_token_expires_at": {
           "name": "access_token_expires_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "refresh_token_expires_at": {
           "name": "refresh_token_expires_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -107,10 +107,10 @@
         }
       },
       "foreignKeys": {
-        "quizzle__accounts_user_id_quizzle__users_id_fk": {
-          "name": "quizzle__accounts_user_id_quizzle__users_id_fk",
-          "tableFrom": "quizzle__accounts",
-          "tableTo": "quizzle__users",
+        "accounts_user_id_users_id_fk": {
+          "name": "accounts_user_id_users_id_fk",
+          "tableFrom": "accounts",
+          "tableTo": "users",
           "schemaTo": "quizzle",
           "columnsFrom": [
             "user_id"
@@ -128,8 +128,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__sessions": {
-      "name": "quizzle__sessions",
+    "quizzle.sessions": {
+      "name": "sessions",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -140,7 +140,7 @@
         },
         "expires_at": {
           "name": "expires_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
         },
@@ -201,10 +201,10 @@
         }
       },
       "foreignKeys": {
-        "quizzle__sessions_user_id_quizzle__users_id_fk": {
-          "name": "quizzle__sessions_user_id_quizzle__users_id_fk",
-          "tableFrom": "quizzle__sessions",
-          "tableTo": "quizzle__users",
+        "sessions_user_id_users_id_fk": {
+          "name": "sessions_user_id_users_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
           "schemaTo": "quizzle",
           "columnsFrom": [
             "user_id"
@@ -218,8 +218,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "quizzle__sessions_token_unique": {
-          "name": "quizzle__sessions_token_unique",
+        "sessions_token_unique": {
+          "name": "sessions_token_unique",
           "nullsNotDistinct": false,
           "columns": [
             "token"
@@ -230,8 +230,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__verifications": {
-      "name": "quizzle__verifications",
+    "quizzle.verifications": {
+      "name": "verifications",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -254,7 +254,7 @@
         },
         "expires_at": {
           "name": "expires_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
         },
@@ -297,8 +297,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__question_options": {
-      "name": "quizzle__question_options",
+    "quizzle.question_options": {
+      "name": "question_options",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -351,10 +351,10 @@
         }
       },
       "foreignKeys": {
-        "quizzle__question_options_question_id_quizzle__questions_id_fk": {
-          "name": "quizzle__question_options_question_id_quizzle__questions_id_fk",
-          "tableFrom": "quizzle__question_options",
-          "tableTo": "quizzle__questions",
+        "question_options_question_id_questions_id_fk": {
+          "name": "question_options_question_id_questions_id_fk",
+          "tableFrom": "question_options",
+          "tableTo": "questions",
           "schemaTo": "quizzle",
           "columnsFrom": [
             "question_id"
@@ -372,8 +372,111 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__questions": {
-      "name": "quizzle__questions",
+    "quizzle.questions": {
+      "name": "questions",
+      "schema": "quizzle",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "question_type",
+          "typeSchema": "quizzle",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "explanation_html": {
+          "name": "explanation_html",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quiz_id": {
+          "name": "quiz_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "difficulty": {
+          "name": "difficulty",
+          "type": "question_difficulty",
+          "typeSchema": "quizzle",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'easy'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "questions_quiz_idx": {
+          "name": "questions_quiz_idx",
+          "columns": [
+            {
+              "expression": "quiz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "questions_quiz_id_quizzes_id_fk": {
+          "name": "questions_quiz_id_quizzes_id_fk",
+          "tableFrom": "questions",
+          "tableTo": "quizzes",
+          "schemaTo": "quizzle",
+          "columnsFrom": [
+            "quiz_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "quizzle.quizzes": {
+      "name": "quizzes",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -421,14 +524,6 @@
           "notNull": true,
           "default": true
         },
-        "difficulty": {
-          "name": "difficulty",
-          "type": "quizzle__quiz_difficulty",
-          "typeSchema": "quizzle",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'easy'"
-        },
         "creator_id": {
           "name": "creator_id",
           "type": "text",
@@ -474,10 +569,10 @@
         }
       },
       "foreignKeys": {
-        "quizzle__questions_creator_id_quizzle__users_id_fk": {
-          "name": "quizzle__questions_creator_id_quizzle__users_id_fk",
-          "tableFrom": "quizzle__questions",
-          "tableTo": "quizzle__users",
+        "quizzes_creator_id_users_id_fk": {
+          "name": "quizzes_creator_id_users_id_fk",
+          "tableFrom": "quizzes",
+          "tableTo": "users",
           "schemaTo": "quizzle",
           "columnsFrom": [
             "creator_id"
@@ -495,8 +590,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__text_question_settings": {
-      "name": "quizzle__text_question_settings",
+    "quizzle.text_question_settings": {
+      "name": "text_question_settings",
       "schema": "quizzle",
       "columns": {
         "question_id": {
@@ -528,10 +623,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "quizzle__text_question_settings_question_id_quizzle__questions_id_fk": {
-          "name": "quizzle__text_question_settings_question_id_quizzle__questions_id_fk",
-          "tableFrom": "quizzle__text_question_settings",
-          "tableTo": "quizzle__questions",
+        "text_question_settings_question_id_questions_id_fk": {
+          "name": "text_question_settings_question_id_questions_id_fk",
+          "tableFrom": "text_question_settings",
+          "tableTo": "questions",
           "schemaTo": "quizzle",
           "columnsFrom": [
             "question_id"
@@ -549,8 +644,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "quizzle.quizzle__users": {
-      "name": "quizzle__users",
+    "quizzle.users": {
+      "name": "users",
       "schema": "quizzle",
       "columns": {
         "id": {
@@ -563,7 +658,7 @@
           "name": "username",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "email": {
           "name": "email",
@@ -573,12 +668,13 @@
         },
         "email_verified": {
           "name": "email_verified",
-          "type": "timestamp with time zone",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": false
         },
-        "display_name": {
-          "name": "display_name",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -591,7 +687,7 @@
         },
         "role": {
           "name": "role",
-          "type": "quizzle__user_role",
+          "type": "user_role",
           "typeSchema": "quizzle",
           "primaryKey": false,
           "notNull": true,
@@ -599,6 +695,18 @@
         },
         "image": {
           "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "display_username": {
+          "name": "display_username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -653,15 +761,15 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "quizzle__users_username_unique": {
-          "name": "quizzle__users_username_unique",
+        "users_username_unique": {
+          "name": "users_username_unique",
           "nullsNotDistinct": false,
           "columns": [
             "username"
           ]
         },
-        "quizzle__users_email_unique": {
-          "name": "quizzle__users_email_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -674,17 +782,8 @@
     }
   },
   "enums": {
-    "quizzle.quizzle__question_type": {
-      "name": "quizzle__question_type",
-      "schema": "quizzle",
-      "values": [
-        "multi_choice",
-        "single_choice",
-        "text"
-      ]
-    },
-    "quizzle.quizzle__quiz_difficulty": {
-      "name": "quizzle__quiz_difficulty",
+    "quizzle.question_difficulty": {
+      "name": "question_difficulty",
       "schema": "quizzle",
       "values": [
         "easy",
@@ -692,8 +791,17 @@
         "hard"
       ]
     },
-    "quizzle.quizzle__user_role": {
-      "name": "quizzle__user_role",
+    "quizzle.question_type": {
+      "name": "question_type",
+      "schema": "quizzle",
+      "values": [
+        "multi_correct",
+        "single_correct",
+        "text"
+      ]
+    },
+    "quizzle.user_role": {
+      "name": "user_role",
       "schema": "quizzle",
       "values": [
         "user",
