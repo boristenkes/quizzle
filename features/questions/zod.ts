@@ -7,7 +7,7 @@ import { booleanSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
 export const questionOptionFormSchema = z.object({
-	text: requiredString,
+	value: requiredString,
 	isCorrect: booleanSchema.default(false)
 })
 

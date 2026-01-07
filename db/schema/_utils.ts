@@ -1,11 +1,9 @@
 import { timestamp } from 'drizzle-orm/pg-core'
 
-export const timestamps = ({ includeDeletedAt = false } = {}) => ({
+export const timestamps = {
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp({ withTimezone: true })
 		.notNull()
 		.defaultNow()
-		.$onUpdate(() => /* @__PURE__ */ new Date()),
-
-	...(includeDeletedAt ? { deletedAt: timestamp({ withTimezone: true }) } : {})
-})
+		.$onUpdate(() => /* @__PURE__ */ new Date())
+}

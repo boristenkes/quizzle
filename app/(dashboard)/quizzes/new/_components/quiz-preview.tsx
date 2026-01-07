@@ -1,3 +1,4 @@
+import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -7,17 +8,22 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { QuizFormSchema } from '@/features/quizzes/zod'
 import { SaveIcon } from 'lucide-react'
+import { FormState } from 'react-hook-form'
 
-export default function QuizPreview({ values }: { values: QuizFormSchema }) {
+export type QuizPreviewProps = {
+	values: QuizFormSchema
+	formState: FormState<QuizFormSchema>
+}
+
+export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Quiz Review</CardTitle>
-				<CardDescription>
-					Review your quiz before saving or previewing
-				</CardDescription>
+				<CardDescription>Review your quiz before publishing</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-6'>
 				<div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -73,17 +79,31 @@ export default function QuizPreview({ values }: { values: QuizFormSchema }) {
 					</div>
 				</div>
 
+				{formState.errors.root && (
+					<ErrorMessage message={formState.errors.root.message!} />
+				)}
+
 				<div className='flex gap-4'>
 					<Button
 						variant='outline'
 						className='flex-1'
+						type='button'
+						disabled={formState.isSubmitting}
 					>
 						<SaveIcon className='h-4 w-4 mr-2' />
 						Save Draft
 					</Button>
-					<Button className='flex-1'>
-						<SaveIcon className='h-4 w-4 mr-2' />
-						Publish Quiz
+					<Button
+						className='flex-1'
+						type='submit'
+						form='new-quiz-form'
+						disabled={formState.isSubmitting}
+					>
+						{!formState.isSubmitting && <SaveIcon className='size-4 mr-2' />}
+
+						{formState.isSubmitting ? 'Publishing' : 'Publish Quiz'}
+
+						{formState.isSubmitting && <Spinner className='size-4 ml-2' />}
 					</Button>
 				</div>
 			</CardContent>

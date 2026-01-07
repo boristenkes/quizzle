@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import { createQuiz } from '@/features/quizzes/actions'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
 import {
 	ArrowLeftIcon,
@@ -32,6 +33,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useFieldArray } from 'react-hook-form'
+import { toast } from 'sonner'
 import z from 'zod'
 import { PdfDropZone } from './_components/pdf-dropzone'
 import QuestionForm from './_components/question-form'
@@ -65,9 +67,20 @@ export default function NewQuizForm() {
 	}
 
 	const onSubmit = async (data: QuizFormSchema) => {
-		quizForm.reset(quizFormDefaults)
+		const response = await createQuiz(data)
+
+		if (!response.success) {
+			quizForm.setError('root', {
+				message:
+					response.message ?? 'Something went wrong. Please try again later.'
+			})
+			return
+		}
+
 		setFile(null)
 		setActiveTab('settings')
+		quizForm.reset(quizFormDefaults)
+		toast.success('Quiz created successfully')
 	}
 
 	return (
@@ -101,16 +114,19 @@ export default function NewQuizForm() {
 				</TabsList>
 
 				{/* Settings Tab */}
-				<TabsContent value='settings'>
-					<Card>
-						<CardHeader>
-							<CardTitle>Quiz Configuration</CardTitle>
-							<CardDescription>
-								Set up the basic information for your quiz
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<form onSubmit={quizForm.handleSubmit(onSubmit)}>
+				<form
+					onSubmit={quizForm.handleSubmit(onSubmit)}
+					id='new-quiz-form'
+				>
+					<TabsContent value='settings'>
+						<Card>
+							<CardHeader>
+								<CardTitle>Quiz Configuration</CardTitle>
+								<CardDescription>
+									Set up the basic information for your quiz
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
 								<FieldSet>
 									<FieldGroup>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -278,10 +294,10 @@ export default function NewQuizForm() {
 										</div>
 									</FieldGroup>
 								</FieldSet>
-							</form>
-						</CardContent>
-					</Card>
-				</TabsContent>
+							</CardContent>
+						</Card>
+					</TabsContent>
+				</form>
 
 				{/* Questions Tab */}
 				<TabsContent
@@ -313,11 +329,15 @@ export default function NewQuizForm() {
 
 				{/* Preview Tab */}
 				<TabsContent value='preview'>
-					<QuizPreview values={quizForm.getValues()} />
+					<QuizPreview
+						values={quizForm.getValues()}
+						formState={quizForm.formState}
+					/>
 
 					<Button
 						variant='outline'
 						size='lg'
+						type='button'
 						onClick={() => setActiveTab('questions')}
 						className='mt-4'
 					>

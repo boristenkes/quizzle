@@ -87,8 +87,8 @@ const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema = {
 	...baseQuestionDefaults,
 	type: 'multi_correct',
 	options: [
-		{ text: '', isCorrect: false },
-		{ text: '', isCorrect: false }
+		{ value: '', isCorrect: false },
+		{ value: '', isCorrect: false }
 	]
 }
 
@@ -131,6 +131,7 @@ export default function QuestionForm({
 					Create multiple choice or free text questions
 				</CardDescription>
 			</CardHeader>
+
 			<CardContent>
 				{questionsFieldArray.fields.length >= MAX_QUIZ_QUESTIONS && (
 					<Alert
@@ -148,9 +149,12 @@ export default function QuestionForm({
 					</Alert>
 				)}
 
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<FieldSet>
-						<FieldGroup>
+				<FieldSet>
+					<FieldGroup>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className='space-y-8'
+						>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<Controller
 									name='type'
@@ -291,16 +295,17 @@ export default function QuestionForm({
 
 							<div className='flex justify-end'>
 								<Button
-									type='submit'
+									type='button'
 									disabled={form.formState.disabled}
+									onClick={form.handleSubmit(onSubmit)}
 								>
 									<PlusIcon className='size-4 mr-2' />
 									Add Question
 								</Button>
 							</div>
-						</FieldGroup>
-					</FieldSet>
-				</form>
+						</form>
+					</FieldGroup>
+				</FieldSet>
 			</CardContent>
 		</Card>
 	)
@@ -372,7 +377,7 @@ function ChoiceQuestionFields({
 										}}
 									/>
 									<Controller
-										name={`options.${idx}.text`}
+										name={`options.${idx}.value`}
 										control={form.control}
 										render={({ field: inputField, fieldState }) => (
 											<InputGroup>
@@ -406,7 +411,7 @@ function ChoiceQuestionFields({
 				{optionsField.fields.length < MAX_QUESTION_OPTIONS && (
 					<Button
 						variant='secondary'
-						onClick={() => optionsField.append({ text: '', isCorrect: false })}
+						onClick={() => optionsField.append({ value: '', isCorrect: false })}
 						className='ml-14'
 						disabled={form.formState.disabled}
 					>

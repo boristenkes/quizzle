@@ -26,7 +26,7 @@ export const questions = quizzle.table(
 		order: integer().notNull(),
 		difficulty: questionDifficultyEnum().notNull().default('easy'),
 
-		...timestamps()
+		...timestamps
 	},
 	t => [index('questions_quiz_idx').on(t.quizId)]
 )

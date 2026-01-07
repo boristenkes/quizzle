@@ -23,7 +23,7 @@ export const users = quizzle.table(
 		displayUsername: text('display_username'), // required by better-auth
 		bio: text(),
 
-		...timestamps()
+		...timestamps
 	},
 	t => [
 		uniqueIndex('users_username_uidx').on(t.username),

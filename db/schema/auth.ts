@@ -16,7 +16,7 @@ export const sessions = quizzle.table(
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 
-		...timestamps()
+		...timestamps
 	},
 	table => [index('sessions_userId_idx').on(table.userId)]
 )
@@ -48,7 +48,7 @@ export const accounts = quizzle.table(
 		scope: text(),
 		password: text(),
 
-		...timestamps()
+		...timestamps
 	},
 	table => [index('accounts_userId_idx').on(table.userId)]
 )
@@ -71,7 +71,7 @@ export const verifications = quizzle.table(
 		value: text().notNull(),
 		expiresAt: timestamp({ withTimezone: true }).notNull(),
 
-		...timestamps()
+		...timestamps
 	},
 	table => [index('verifications_identifier_idx').on(table.identifier)]
 )

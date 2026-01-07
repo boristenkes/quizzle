@@ -71,14 +71,14 @@ export default function QuestionList({
 								<div className='grid grid-cols-2 gap-2 text-sm'>
 									{question.options.map((option, optIdx) => (
 										<div
-											key={option.text + optIdx}
+											key={option.value + optIdx}
 											className={`p-2 rounded border ${
 												option.isCorrect
 													? 'bg-green-50 border-green-200 text-green-800'
 													: 'bg-gray-50 border-gray-200'
 											}`}
 										>
-											{String.fromCharCode(65 + optIdx)}: {option.text}
+											{String.fromCharCode(65 + optIdx)}: {option.value}
 										</div>
 									))}
 								</div>

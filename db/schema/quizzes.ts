@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { boolean, index, integer, text } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle } from './_root'
 import { timestamps } from './_utils'
@@ -22,7 +22,8 @@ export const quizzes = quizzle.table(
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 
-		...timestamps({ includeDeletedAt: true })
+		...timestamps,
+		deletedAt: timestamp({ withTimezone: true })
 	},
 	t => [index('quizzes_creator_idx').on(t.creatorId)]
 )

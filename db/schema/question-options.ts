@@ -8,7 +8,6 @@ export const questionOptions = quizzle.table(
 	'question_options',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
-		label: text().notNull(),
 		value: text().notNull(),
 		isCorrect: boolean().notNull().default(false), // SERVER-ONLY
 

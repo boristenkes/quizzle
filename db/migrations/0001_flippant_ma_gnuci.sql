@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."question_options" DROP COLUMN "label";
