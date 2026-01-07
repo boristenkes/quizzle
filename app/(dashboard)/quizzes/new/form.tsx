@@ -23,7 +23,6 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
 	ArrowLeftIcon,
 	EyeIcon,
@@ -31,88 +30,42 @@ import {
 	FileTextIcon,
 	SettingsIcon
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { useState } from 'react'
+import { Controller, useFieldArray } from 'react-hook-form'
 import z from 'zod'
 import { PdfDropZone } from './_components/pdf-dropzone'
 import QuestionForm from './_components/question-form'
 import QuestionList from './_components/question-list'
 import QuizPreview from './_components/quiz-preview'
+import { quizFormDefaults, useQuizForm } from './_hooks/use-quiz-form'
 
 type Tab = 'settings' | 'questions' | 'preview'
-
-const STORAGE_KEY = 'quizzle:new-quiz-form'
-const formDefaults = {
-	title: '',
-	description: '',
-	totalPoints: 100,
-	timeLimitMinutes: 0,
-	isPublic: true,
-	questions: []
-}
 
 const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
 type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
 export default function NewQuizForm() {
-	const form = useForm<QuizFormSchema>({
-		defaultValues: formDefaults,
-		resolver: zodResolver(quizFormSchema) as any
-	})
+	const quizForm = useQuizForm()
 	const questionsFieldArray = useFieldArray({
-		control: form.control,
+		control: quizForm.control,
 		name: 'questions'
 	})
 	const [file, setFile] = useState<File | null>(null)
 	const [activeTab, setActiveTab] = useState<Tab>('settings')
 
-	useEffect(() => {
-		try {
-			const raw = localStorage.getItem(STORAGE_KEY)
-			if (raw) {
-				const parsed = JSON.parse(raw)
-				form.reset({
-					...form.getValues(),
-					...parsed
-				})
-			}
-		} catch {
-			/* ignore parse errors */
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
-
-	// Persist to localStorage on changes
-	useEffect(() => {
-		let timeoutId: NodeJS.Timeout
-
-		const subscription = form.watch(values => {
-			clearTimeout(timeoutId)
-			timeoutId = setTimeout(() => {
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(values))
-			}, 1000)
-
-			return () => {
-				clearTimeout(timeoutId)
-				subscription.unsubscribe()
-			}
-		})
-
-		return () => subscription.unsubscribe?.()
-	}, [form])
-
-	const switchTab = async (
+	async function switchTab(
 		tab: Tab,
-		fieldsToValidate: Parameters<typeof form.trigger>[0]
-	) => {
-		const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true })
+		fieldsToValidate: Parameters<typeof quizForm.trigger>[0]
+	) {
+		const isValid = await quizForm.trigger(fieldsToValidate, {
+			shouldFocus: true
+		})
 
 		if (isValid) setActiveTab(tab)
 	}
 
 	const onSubmit = async (data: QuizFormSchema) => {
-		localStorage.removeItem(STORAGE_KEY)
-		form.reset(formDefaults)
+		quizForm.reset(quizFormDefaults)
 		setFile(null)
 		setActiveTab('settings')
 	}
@@ -157,13 +110,13 @@ export default function NewQuizForm() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<form onSubmit={form.handleSubmit(onSubmit)}>
+							<form onSubmit={quizForm.handleSubmit(onSubmit)}>
 								<FieldSet>
 									<FieldGroup>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 											<Controller
 												name='title'
-												control={form.control}
+												control={quizForm.control}
 												render={({ field, fieldState }) => (
 													<Field data-invalid={fieldState.invalid}>
 														<FieldLabel htmlFor={field.name}>
@@ -188,7 +141,7 @@ export default function NewQuizForm() {
 
 											<Controller
 												name='timeLimitMinutes'
-												control={form.control}
+												control={quizForm.control}
 												render={({ field, fieldState }) => (
 													<Field data-invalid={fieldState.invalid}>
 														<FieldLabel htmlFor={field.name}>
@@ -216,7 +169,7 @@ export default function NewQuizForm() {
 
 										<Controller
 											name='description'
-											control={form.control}
+											control={quizForm.control}
 											render={({ field, fieldState }) => (
 												<Field data-invalid={fieldState.invalid}>
 													<FieldLabel htmlFor={field.name}>
@@ -240,7 +193,7 @@ export default function NewQuizForm() {
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 											<Controller
 												name='totalPoints'
-												control={form.control}
+												control={quizForm.control}
 												render={({ field, fieldState }) => (
 													<Field data-invalid={fieldState.invalid}>
 														<FieldLabel htmlFor={field.name}>
@@ -269,7 +222,7 @@ export default function NewQuizForm() {
 
 											<Controller
 												name='isPublic'
-												control={form.control}
+												control={quizForm.control}
 												render={({ field, fieldState }) => (
 													<Field
 														orientation='horizontal'
@@ -360,7 +313,7 @@ export default function NewQuizForm() {
 
 				{/* Preview Tab */}
 				<TabsContent value='preview'>
-					<QuizPreview values={form.getValues()} />
+					<QuizPreview values={quizForm.getValues()} />
 
 					<Button
 						variant='outline'

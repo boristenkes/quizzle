@@ -38,7 +38,7 @@ export default function QuestionList({
 						<GripVerticalIcon className='h-5 w-5 text-muted-foreground mt-1' />
 						<div className='flex-1 space-y-2'>
 							<div className='flex items-start justify-between'>
-								<div className='flex-1 flex items-start gap-2'>
+								<div className='flex-1 flex items-start gap-2 flex-wrap'>
 									<h4 className='font-medium'>
 										Q{index + 1}: {question.prompt}
 									</h4>
