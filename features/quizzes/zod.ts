@@ -6,7 +6,7 @@ import z from 'zod'
 export const quizFormSchema = z.object({
 	title: requiredString
 		.min(5, { error: 'Min 5 characters' })
-		.max(32, { error: 'Max 32 characters' }),
+		.max(50, { error: 'Max 50 characters' }),
 	description: requiredString
 		.min(16, { error: 'Min 16 characters' })
 		.max(256, { error: 'Max 256 characters' }),

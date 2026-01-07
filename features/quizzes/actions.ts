@@ -4,11 +4,14 @@ import { db } from '@/db'
 import {
 	questionOptions,
 	questions as questionsTable,
+	Quiz,
 	quizzes,
-	textQuestionSettings
+	textQuestionSettings,
+	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { ServerActionResponse } from '@/utils/types'
+import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
@@ -83,6 +86,52 @@ export async function createQuiz(
 		return { success: true }
 	} catch (error) {
 		console.error('[CREATE_QUIZ]:', error)
+		return { success: false }
+	}
+}
+
+export type GetQuizzesQuiz = Pick<
+	Quiz,
+	'id' | 'title' | 'description' | 'timeLimitSeconds'
+> & {
+	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
+	questionCount: number
+}
+
+export async function getQuizzes(): Promise<
+	ServerActionResponse<{ quizzes: GetQuizzesQuiz[] }>
+> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const results = await db.query.quizzes.findMany({
+			where: and(eq(quizzes.isPublished, true), isNull(quizzes.deletedAt)),
+			columns: {
+				id: true,
+				title: true,
+				description: true,
+				timeLimitSeconds: true
+			},
+			with: {
+				creator: {
+					columns: { id: true, username: true, name: true, image: true }
+				}
+			},
+			extras: {
+				questionCount: sql<number>`(
+					SELECT count(*) FROM ${questionsTable}
+					WHERE ${questionsTable}."quiz_id" = ${quizzes.id}
+				)`.as('question_count')
+				// Todo: averageRating, totalAttempts, averageScore,
+			},
+			orderBy: desc(quizzes.createdAt)
+		})
+
+		return { success: true, quizzes: results }
+	} catch (error) {
+		console.error('[GET_QUIZZES]:', error)
 		return { success: false }
 	}
 }

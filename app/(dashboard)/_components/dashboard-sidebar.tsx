@@ -45,10 +45,7 @@ export function DashboardSidebar() {
 		<Sidebar collapsible='icon'>
 			<SidebarContent className='bg-linear-to-b from-background to-secondary/20'>
 				<div className='h-16 px-4 border-b border-sidebar-border flex items-center'>
-					<Link
-						href='/'
-						className='p-4 border-b border-sidebar-border'
-					>
+					<Link href='/'>
 						<div className='flex items-center gap-2'>
 							<div className='w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center'>
 								<span className='text-primary-foreground font-bold text-sm'>
