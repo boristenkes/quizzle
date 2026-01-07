@@ -1,6 +1,5 @@
 'use client'
 
-import { PdfDropZone } from '@/app/(dashboard)/quizzes/new/pdf-dropzone'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -34,9 +33,11 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import QuestionForm from './question-form'
-import QuestionList from './question-list'
-import QuizPreview from './quiz-preview'
+import z from 'zod'
+import { PdfDropZone } from './_components/pdf-dropzone'
+import QuestionForm from './_components/question-form'
+import QuestionList from './_components/question-list'
+import QuizPreview from './_components/quiz-preview'
 
 type Tab = 'settings' | 'questions' | 'preview'
 
@@ -49,6 +50,9 @@ const formDefaults = {
 	isPublic: true,
 	questions: []
 }
+
+const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
+type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
 export default function NewQuizForm() {
 	const form = useForm<QuizFormSchema>({
@@ -96,6 +100,15 @@ export default function NewQuizForm() {
 
 		return () => subscription.unsubscribe?.()
 	}, [form])
+
+	const switchTab = async (
+		tab: Tab,
+		fieldsToValidate: Parameters<typeof form.trigger>[0]
+	) => {
+		const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true })
+
+		if (isValid) setActiveTab(tab)
+	}
 
 	const onSubmit = async (data: QuizFormSchema) => {
 		localStorage.removeItem(STORAGE_KEY)
@@ -298,7 +311,13 @@ export default function NewQuizForm() {
 											<Button
 												size='lg'
 												type='button'
-												onClick={() => setActiveTab('questions')}
+												onClick={() => {
+													const fieldsToValidate = Object.keys(
+														quizSettingsFormSchema.shape
+													) as (keyof QuizSettingsFormSchema)[]
+
+													switchTab('questions', fieldsToValidate)
+												}}
 											>
 												Next: Add Questions
 												<FileText className='ml-2 h-4 w-4' />
@@ -331,9 +350,7 @@ export default function NewQuizForm() {
 						</Button>
 						<Button
 							type='button'
-							onClick={async () => {
-								setActiveTab('preview')
-							}}
+							onClick={() => switchTab('preview', 'questions')}
 							size='lg'
 						>
 							Next: Preview <EyeIcon />
