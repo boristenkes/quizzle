@@ -37,8 +37,17 @@ export default function Theme() {
 						value={theme}
 						onValueChange={value => setTheme(value!)}
 					>
-						<SelectTrigger className='w-full sm:w-50'>
-							<SelectValue className='capitalize'>{theme}</SelectValue>
+						<SelectTrigger
+							className='w-full sm:w-50'
+							suppressHydrationWarning
+						>
+							<SelectValue
+								className='capitalize'
+								suppressHydrationWarning
+							>
+								<span className='hidden dark:inline'>Dark</span>
+								<span className='dark:hidden'>Light</span>
+							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
 							{themes.map(t => (

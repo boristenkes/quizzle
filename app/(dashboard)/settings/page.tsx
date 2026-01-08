@@ -1,5 +1,6 @@
+import PersistedTabs from '@/components/persisted-tabs'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getSession } from '@/lib/auth'
 import { BellIcon, PaletteIcon, Save, ShieldIcon, UserIcon } from 'lucide-react'
 import { Metadata } from 'next'
@@ -26,7 +27,7 @@ export default async function SettingsPage() {
 				</p>
 			</div>
 
-			<Tabs
+			<PersistedTabs
 				defaultValue='profile'
 				className='space-y-6'
 			>
@@ -103,7 +104,7 @@ export default async function SettingsPage() {
 					<Section.Theme />
 					<Section.LanguageRegion />
 				</TabsContent>
-			</Tabs>
+			</PersistedTabs>
 		</div>
 	)
 }

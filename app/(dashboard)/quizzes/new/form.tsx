@@ -1,5 +1,6 @@
 'use client'
 
+import PersistedTabs from '@/components/persisted-tabs'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -20,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { createQuiz } from '@/features/quizzes/actions'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
@@ -31,6 +32,7 @@ import {
 	FileTextIcon,
 	SettingsIcon
 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Controller, useFieldArray } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -53,7 +55,10 @@ export default function NewQuizForm() {
 		name: 'questions'
 	})
 	const [file, setFile] = useState<File | null>(null)
-	const [activeTab, setActiveTab] = useState<Tab>('settings')
+	const searchParams = useSearchParams()
+	const [activeTab, setActiveTab] = useState<Tab>(
+		(searchParams.get('tab') ?? 'settings') as Tab
+	)
 
 	async function switchTab(
 		tab: Tab,
@@ -85,9 +90,10 @@ export default function NewQuizForm() {
 
 	return (
 		<div>
-			<Tabs
+			<PersistedTabs
 				value={activeTab}
 				onValueChange={setActiveTab}
+				defaultValue='settings'
 			>
 				<TabsList className='grid w-full grid-cols-3 bg-indigo-100/10'>
 					<TabsTrigger
@@ -345,7 +351,7 @@ export default function NewQuizForm() {
 						Back to Questions
 					</Button>
 				</TabsContent>
-			</Tabs>
+			</PersistedTabs>
 		</div>
 	)
 }

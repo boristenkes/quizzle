@@ -9,7 +9,6 @@ import { cn } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { Account, User } from 'better-auth'
 import { LockIcon } from 'lucide-react'
-import React from 'react'
 import { toast } from 'sonner'
 
 export type AccountCardProps = React.ComponentProps<'div'> & {

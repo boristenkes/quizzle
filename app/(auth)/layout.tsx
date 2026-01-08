@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { ArrowLeftIcon, SparklesIcon } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
 
 export default function AuthLayout({
 	children

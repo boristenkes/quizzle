@@ -1,4 +1,5 @@
 // import { NotificationsPopover } from '@/components/NotificationsPopover'
+import { ThemeSwitch } from '@/components/theme-switch'
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -34,6 +35,7 @@ export default function DashboardNavbar() {
 				<div className='flex items-center gap-2'>
 					{/* <NotificationsPopover /> */}
 
+					<ThemeSwitch />
 					<UserButton />
 				</div>
 			</div>
