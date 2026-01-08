@@ -23,7 +23,9 @@ export default async function DashboardLayout({
 				<div className='flex flex-col flex-1'>
 					<DashboardNavbar />
 
-					<div className='bg-neutral-100 h-full w-full'>{children}</div>
+					<div className='bg-neutral-100 dark:bg-neutral-900/20 h-full w-full'>
+						{children}
+					</div>
 				</div>
 			</div>
 

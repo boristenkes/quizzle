@@ -1,3 +1,5 @@
+'use client'
+
 import {
 	Card,
 	CardContent,
@@ -14,8 +16,11 @@ import {
 	SelectValue
 } from '@/components/ui/select'
 import { Palette } from 'lucide-react'
+import { useTheme } from 'next-themes'
 
 export default function Theme() {
+	const { theme, setTheme, themes } = useTheme()
+
 	return (
 		<Card>
 			<CardHeader>
@@ -28,14 +33,23 @@ export default function Theme() {
 			<CardContent className='space-y-4'>
 				<div className='space-y-2'>
 					<Label>Color Theme</Label>
-					<Select defaultValue='system'>
+					<Select
+						value={theme}
+						onValueChange={value => setTheme(value!)}
+					>
 						<SelectTrigger className='w-full sm:w-50'>
-							<SelectValue />
+							<SelectValue className='capitalize'>{theme}</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='light'>Light</SelectItem>
-							<SelectItem value='dark'>Dark</SelectItem>
-							<SelectItem value='system'>System</SelectItem>
+							{themes.map(t => (
+								<SelectItem
+									key={t}
+									value={t}
+									className='capitalize'
+								>
+									{t}
+								</SelectItem>
+							))}
 						</SelectContent>
 					</Select>
 				</div>

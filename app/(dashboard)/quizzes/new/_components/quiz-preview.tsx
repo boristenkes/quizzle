@@ -59,23 +59,23 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 				</div>
 
 				<div className='grid grid-cols-3 gap-4 text-center'>
-					<div className='p-4 bg-green-50 rounded-lg'>
-						<p className='text-2xl font-bold text-green-600'>
+					<div className='p-4 bg-green-50 text-green-600 rounded-lg dark:bg-green-600/40 dark:text-green-200'>
+						<p className='text-2xl font-bold'>
 							{values.questions.filter(q => q.difficulty === 'easy').length}
 						</p>
-						<p className='text-sm text-green-600'>Easy Questions</p>
+						<p className='text-sm'>Easy Questions</p>
 					</div>
-					<div className='p-4 bg-yellow-50 rounded-lg'>
-						<p className='text-2xl font-bold text-yellow-600'>
+					<div className='p-4 bg-yellow-50 text-yellow-600 rounded-lg dark:bg-yellow-600/50 dark:text-yellow-200'>
+						<p className='text-2xl font-bold '>
 							{values.questions.filter(q => q.difficulty === 'medium').length}
 						</p>
-						<p className='text-sm text-yellow-600'>Medium Questions</p>
+						<p className='text-sm'>Medium Questions</p>
 					</div>
-					<div className='p-4 bg-red-50 rounded-lg'>
-						<p className='text-2xl font-bold text-red-600'>
+					<div className='p-4 bg-red-50 text-red-600 rounded-lg  dark:bg-red-500/40 dark:text-red-200'>
+						<p className='text-2xl font-bold'>
 							{values.questions.filter(q => q.difficulty === 'hard').length}
 						</p>
-						<p className='text-sm text-red-600'>Hard Questions</p>
+						<p className='text-sm'>Hard Questions</p>
 					</div>
 				</div>
 

@@ -27,7 +27,7 @@ export default function LanguageRegion() {
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				<div className='grid gap-4 sm:grid-cols-2'>
-					<div className='space-y-2'>
+					<div className='space-y-3'>
 						<Label>Language</Label>
 						<Select defaultValue='en'>
 							<SelectTrigger>
@@ -42,7 +42,7 @@ export default function LanguageRegion() {
 							</SelectContent>
 						</Select>
 					</div>
-					<div className='space-y-2'>
+					<div className='space-y-3'>
 						<Label>Timezone</Label>
 						<Select defaultValue='America/Los_Angeles'>
 							<SelectTrigger>

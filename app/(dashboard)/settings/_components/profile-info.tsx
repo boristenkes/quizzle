@@ -92,10 +92,10 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 
 							{imageUrl && (
 								<Button
-									variant='outline'
+									variant='destructive'
 									size='icon-xs'
 									aria-label='Remove profile picture'
-									className='absolute top-0 right-0'
+									className='absolute top-0 right-0 z-10'
 									onClick={() => setImageUrl(null)}
 								>
 									<XIcon />
