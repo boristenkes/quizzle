@@ -13,6 +13,7 @@ import { getSession } from '@/lib/auth'
 import { ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import z from 'zod'
 import { questionCountQuery } from './drizzle'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
@@ -140,6 +141,48 @@ export async function getQuizzes(): Promise<
 		return { success: true, quizzes: results }
 	} catch (error) {
 		console.error('[GET_QUIZZES]:', error)
+		return { success: false }
+	}
+}
+
+export type GetUserQuizzesQuiz = Quiz & {
+	questionCount: number
+}
+
+export async function getUserQuizzes(
+	userId: User['id'],
+	{ page = 1, pageSize = 6 }
+): Promise<ServerActionResponse<{ quizzes: GetUserQuizzesQuiz[] }>> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const parsedUserId = z.ulid().parse(userId)
+
+		const currentUserId = session.user.id
+		const foreignQuizzesFilters =
+			currentUserId !== parsedUserId
+				? [eq(quizzes.isPublic, true), eq(quizzes.isPublished, true)]
+				: []
+
+		const results = await db.query.quizzes.findMany({
+			where: and(
+				eq(quizzes.creatorId, parsedUserId),
+				isNull(quizzes.deletedAt),
+				...foreignQuizzesFilters
+			),
+			extras: {
+				questionCount: questionCountQuery
+			},
+			offset: (page - 1) * pageSize,
+			limit: pageSize,
+			orderBy: desc(quizzes.createdAt)
+		})
+
+		return { success: true, quizzes: results }
+	} catch (error) {
+		console.error('[GET_USER_QUIZZES]:', error)
 		return { success: false }
 	}
 }

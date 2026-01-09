@@ -11,7 +11,7 @@ export const quizFormSchema = z.object({
 		.min(16, { error: 'Min 16 characters' })
 		.max(512, { error: 'Max 512 characters' }),
 	timeLimitMinutes: integerSchema
-		.min(1, { error: 'Min 1 minute' })
+		.min(0, { error: 'Min 1 minute' })
 		.max(120, { error: 'Max 120 minutes (2h)' })
 		.optional(),
 	totalPoints: integerSchema.positive(),

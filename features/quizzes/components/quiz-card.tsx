@@ -17,6 +17,7 @@ import {
 	UsersIcon
 } from 'lucide-react'
 import Link from 'next/link'
+import TimeLimit from './time-limit'
 
 export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 	return (
@@ -66,11 +67,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					<div className='flex items-center gap-2'>
 						<ClockIcon className='size-4 text-muted-foreground' />
 						<span>
-							{quiz.timeLimitSeconds ? (
-								`${quiz.timeLimitSeconds / 60}m limit`
-							) : (
-								<em>No time limit</em>
-							)}
+							<TimeLimit limit={quiz.timeLimitSeconds} />
 						</span>
 					</div>
 					<div className='flex items-center gap-2'>

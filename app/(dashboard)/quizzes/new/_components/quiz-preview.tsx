@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
+import TimeLimit from '@/features/quizzes/components/time-limit'
 import { QuizFormSchema } from '@/features/quizzes/zod'
 import { SaveIcon } from 'lucide-react'
 import { FormState } from 'react-hook-form'
@@ -42,11 +43,7 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 					<div className='space-y-2'>
 						<Label className='text-sm font-medium'>Time Limit</Label>
 						<p className='text-base text-muted-foreground'>
-							{values.timeLimitMinutes ? (
-								`${values.timeLimitMinutes} minutes`
-							) : (
-								<em>No time limit</em>
-							)}
+							<TimeLimit limit={values.timeLimitMinutes} />
 						</p>
 					</div>
 				</div>

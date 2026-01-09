@@ -5,15 +5,16 @@ import { FileText, Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import RecentQuizzes from './recent-quizzes'
 
 export default async function DashboardPage() {
-	const isAuthenticated = await getSession().then(Boolean)
+	const session = await getSession()
 
-	if (!isAuthenticated) redirect('/sign-in')
+	if (!session) redirect('/sign-in')
 
 	return (
 		<main className='container mx-auto py-6 px-1 flex-1 overflow-y-auto'>
-			<div className='relative overflow-hidden rounded-2xl bg-gradient-hero shadow-elevated'>
+			<div className='relative overflow-hidden rounded-2xl bg-gradient-hero shadow-elevated mb-8'>
 				<div className='absolute inset-0 bg-indigo-500'>
 					<Image
 						src={heroImage}
@@ -61,6 +62,8 @@ export default async function DashboardPage() {
 					</div>
 				</div>
 			</div>
+
+			<RecentQuizzes userId={session.user.id} />
 		</main>
 	)
 }
