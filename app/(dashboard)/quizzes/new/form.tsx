@@ -32,7 +32,7 @@ import {
 	FileTextIcon,
 	SettingsIcon
 } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Controller, useFieldArray } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -59,6 +59,7 @@ export default function NewQuizForm() {
 	const [activeTab, setActiveTab] = useState<Tab>(
 		(searchParams.get('tab') ?? 'settings') as Tab
 	)
+	const router = useRouter()
 
 	async function switchTab(
 		tab: Tab,
@@ -85,7 +86,12 @@ export default function NewQuizForm() {
 		setFile(null)
 		setActiveTab('settings')
 		quizForm.reset(quizFormDefaults)
-		toast.success('Quiz created successfully')
+		toast.success('Quiz created successfully', {
+			action: {
+				label: 'View Quiz',
+				onClick: () => router.push(`/quizzes/${response.quizId}`)
+			}
+		})
 	}
 
 	return (

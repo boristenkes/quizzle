@@ -15,10 +15,16 @@ import {
 } from '@/components/ui/select'
 import { getQuizzes } from '@/features/quizzes/actions'
 import QuizCard from '@/features/quizzes/components/quiz-card'
+import { getSession } from '@/lib/auth'
 import { questionDifficulties } from '@/lib/constants'
 import { Filter, Globe, SearchIcon } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 export default async function DisoverPage() {
+	const isAuthenticated = await getSession().then(Boolean)
+
+	if (!isAuthenticated) redirect('/sign-in')
+
 	const response = await getQuizzes()
 
 	if (!response.success)
@@ -93,7 +99,7 @@ export default async function DisoverPage() {
 
 						<Button
 							variant='outline'
-							className='flex items-center gap-2 grow'
+							className='flex items-center gap-2 grow h-auto'
 						>
 							<Filter className='size-4' />
 							More Filters

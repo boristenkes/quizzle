@@ -6,11 +6,14 @@ import z from 'zod'
 export const quizFormSchema = z.object({
 	title: requiredString
 		.min(5, { error: 'Min 5 characters' })
-		.max(50, { error: 'Max 50 characters' }),
+		.max(100, { error: 'Max 100 characters' }),
 	description: requiredString
 		.min(16, { error: 'Min 16 characters' })
-		.max(256, { error: 'Max 256 characters' }),
-	timeLimitMinutes: integerSchema.optional(),
+		.max(512, { error: 'Max 512 characters' }),
+	timeLimitMinutes: integerSchema
+		.min(1, { error: 'Min 1 minute' })
+		.max(120, { error: 'Max 120 minutes (2h)' })
+		.optional(),
 	totalPoints: integerSchema.positive(),
 	isPublic: booleanSchema.default(true),
 	questions: questionFormSchema

@@ -11,13 +11,14 @@ import {
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, isNull, sql } from 'drizzle-orm'
+import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import { questionCountQuery } from './drizzle'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
 	data: QuizFormSchema
-): Promise<ServerActionResponse> {
+): Promise<ServerActionResponse<{ quizId: Quiz['id'] }>> {
 	try {
 		const session = await getSession()
 
@@ -26,6 +27,14 @@ export async function createQuiz(
 		const currentUser = session.user
 
 		const { questions, ...quizData } = quizFormSchema.parse(data)
+
+		if (quizData.timeLimitMinutes) {
+			// @ts-ignore db expects timeLimitSeconds
+			quizData.timeLimitSeconds = quizData.timeLimitMinutes * 60
+		}
+		delete quizData.timeLimitMinutes
+
+		let quizId: Quiz['id'] = ''
 
 		// Insert questions
 		await db.transaction(async tx => {
@@ -36,6 +45,8 @@ export async function createQuiz(
 					creatorId: currentUser.id
 				})
 				.returning({ id: quizzes.id })
+
+			quizId = newQuiz.id
 
 			const baseQuestionsData = questions.map((question, index) => ({
 				id: ulid(),
@@ -83,7 +94,7 @@ export async function createQuiz(
 			}
 		})
 
-		return { success: true }
+		return { success: true, quizId }
 	} catch (error) {
 		console.error('[CREATE_QUIZ]:', error)
 		return { success: false }
@@ -120,11 +131,8 @@ export async function getQuizzes(): Promise<
 				}
 			},
 			extras: {
-				questionCount: sql<number>`(
-					SELECT count(*) FROM ${questionsTable}
-					WHERE ${questionsTable}."quiz_id" = ${quizzes.id}
-				)`.as('question_count')
-				// Todo: averageRating, totalAttempts, averageScore,
+				questionCount: questionCountQuery
+				// TODO: averageRating, totalAttempts, averageScore,
 			},
 			orderBy: desc(quizzes.createdAt)
 		})

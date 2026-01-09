@@ -66,25 +66,7 @@ export default function QuestionList({
 									<Trash2Icon className='h-4 w-4' />
 								</Button>
 							</div>
-							{(question.type === 'multi_correct' ||
-								question.type === 'single_correct') && (
-								<div className='grid grid-cols-2 gap-2 text-sm'>
-									{question.options.map((option, optIdx) => (
-										<div
-											key={option.value + optIdx}
-											className={`p-2 rounded border ${
-												option.isCorrect
-													? 'bg-green-50 border-green-200 text-green-800'
-													: 'bg-gray-50 border-gray-200'
-											}`}
-										>
-											{String.fromCharCode(65 + optIdx)}: {option.value}
-										</div>
-									))}
-								</div>
-							)}
-
-							{question.type === 'text' && (
+							{question.type === 'text' ? (
 								<div className='flex flex-wrap gap-2'>
 									{question.acceptableAnswers.map((answer, optIdx) => (
 										<Badge
@@ -94,6 +76,21 @@ export default function QuestionList({
 										>
 											{answer} <CheckIcon />
 										</Badge>
+									))}
+								</div>
+							) : (
+								<div className='grid grid-cols-2 gap-2 text-sm'>
+									{question.options.map((option, optIdx) => (
+										<div
+											key={option.value + optIdx}
+											className={`p-2 rounded border ${
+												option.isCorrect
+													? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-800/80 dark:text-neutral-50'
+													: 'bg-gray-50 border-gray-200 dark:bg-gray-900/80 dark:border-gray-700'
+											}`}
+										>
+											{String.fromCharCode(65 + optIdx)}: {option.value}
+										</div>
 									))}
 								</div>
 							)}
