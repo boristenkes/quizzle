@@ -15,6 +15,13 @@
       "when": 1767808695734,
       "tag": "0001_flippant_ma_gnuci",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768046066533,
+      "tag": "0002_sad_red_skull",
+      "breakpoints": true
     }
   ]
 }

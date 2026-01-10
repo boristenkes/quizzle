@@ -26,11 +26,10 @@ export type UserQuizListProps = {
 export default function UserQuizList({ quizzes }: UserQuizListProps) {
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
-			{quizzes.map((quiz, index) => (
+			{quizzes.map(quiz => (
 				<Card
 					key={quiz.id}
 					className='hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in'
-					style={{ animationDelay: `${index * 150}ms` }}
 				>
 					<CardHeader className='pb-3'>
 						<div className='flex items-start justify-between'>

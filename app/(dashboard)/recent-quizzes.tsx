@@ -1,9 +1,17 @@
 import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
+import {
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle
+} from '@/components/ui/empty'
 import { User } from '@/db/schema'
 import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList from '@/features/quizzes/components/user-quiz-list'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, FolderOpenIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export type RecentQuizzesProps = {
@@ -28,8 +36,9 @@ export default async function RecentQuizzes({ userId }: RecentQuizzesProps) {
 				<h2 className='text-2xl font-bold'>Recent Quizzes</h2>
 				<Button
 					variant='outline'
+					nativeButton={false}
 					render={
-						<Link href='/my-quizzes'>
+						<Link href='/discover'>
 							View All
 							<BarChart3 className='ml-2 h-4 w-4' />
 						</Link>
@@ -37,7 +46,37 @@ export default async function RecentQuizzes({ userId }: RecentQuizzesProps) {
 				/>
 			</div>
 
-			<UserQuizList quizzes={response.quizzes} />
+			{response.quizzes.length > 0 ? (
+				<UserQuizList quizzes={response.quizzes} />
+			) : (
+				<RecentQuizzesEmpty />
+			)}
 		</div>
+	)
+}
+
+function RecentQuizzesEmpty() {
+	return (
+		<Empty>
+			<EmptyHeader>
+				<EmptyMedia>
+					<FolderOpenIcon />
+				</EmptyMedia>
+				<EmptyTitle>No results</EmptyTitle>
+				<EmptyDescription>
+					You haven&apos;t published any quizzes recently
+				</EmptyDescription>
+			</EmptyHeader>
+			<EmptyContent>
+				<Button
+					nativeButton={false}
+					render={
+						<Link href='/quizzes/new'>
+							Create New Quiz <PlusIcon />
+						</Link>
+					}
+				/>
+			</EmptyContent>
+		</Empty>
 	)
 }
