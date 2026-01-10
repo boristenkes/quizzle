@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzes" ADD COLUMN "question_count" integer DEFAULT 0 NOT NULL;

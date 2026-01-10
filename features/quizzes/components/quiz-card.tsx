@@ -22,13 +22,13 @@ import TimeLimit from './time-limit'
 
 export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 	return (
-		<Card>
-			<CardHeader>
+		<Card className='flex flex-col gap-3'>
+			<CardHeader className='grow'>
 				<div className='flex items-start justify-between gap-2'>
 					<div>
 						<Link
 							href={`/quizzes/${quiz.slug}/${quiz.id}`}
-							className='hover:text-primary transition-colors'
+							className='hover:text-primary transition-colors space-y-2'
 						>
 							<CardTitle className='text-lg line-clamp-2'>
 								{quiz.title}
@@ -37,7 +37,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 								{quiz.description}
 							</CardDescription>
 						</Link>
-						<div className='text-xs text-muted-foreground mt-2'>
+						<div className='text-xs text-muted-foreground mt-4'>
 							<Link
 								href={`/users/${quiz.creator.id}`}
 								className='hover:text-indigo-500 hover:underline transition-colors inline-flex items-center gap-2'
@@ -59,7 +59,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent className='flex flex-col gap-4 h-full'>
+			<CardContent className='space-y-4'>
 				<div className='grid grid-cols-2 gap-3 text-sm'>
 					<div className='flex items-center gap-2'>
 						<FileTextIcon className='size-4 text-muted-foreground' />
@@ -81,7 +81,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					</div>
 				</div>
 
-				<div className='flex gap-2 grow items-end'>
+				<div className='flex gap-2'>
 					<Button
 						variant='outline'
 						size='sm'

@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzes" ALTER COLUMN "question_count" DROP DEFAULT;

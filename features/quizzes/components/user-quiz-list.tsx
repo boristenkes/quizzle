@@ -21,7 +21,6 @@ import TimeLimit from './time-limit'
 
 export type UserQuizListProps = {
 	quizzes: (Quiz & {
-		questionCount: number
 		averageRating: number
 		totalAttempts: number
 		averageScore: number

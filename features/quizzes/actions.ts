@@ -10,6 +10,7 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
+import { slugify } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
@@ -17,7 +18,6 @@ import z from 'zod'
 import {
 	averageRatingQuery,
 	averageScoreQuery,
-	questionCountQuery,
 	totalAttemptsQuery
 } from './queries'
 import { quizFormSchema, QuizFormSchema } from './zod'
@@ -48,6 +48,8 @@ export async function createQuiz(
 				.insert(quizzes)
 				.values({
 					...quizData,
+					slug: slugify(quizData.title),
+					questionCount: questions.length,
 					creatorId: currentUser.id
 				})
 				.returning({ id: quizzes.id })
@@ -109,10 +111,9 @@ export async function createQuiz(
 
 export type GetQuizzesQuiz = Pick<
 	Quiz,
-	'id' | 'slug' | 'title' | 'description' | 'timeLimitSeconds'
+	'id' | 'slug' | 'title' | 'description' | 'timeLimitSeconds' | 'questionCount'
 > & {
 	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
-	questionCount: number
 	averageRating: number
 	totalAttempts: number
 	averageScore: number
@@ -133,7 +134,8 @@ export async function getQuizzes(): Promise<
 				title: true,
 				slug: true,
 				description: true,
-				timeLimitSeconds: true
+				timeLimitSeconds: true,
+				questionCount: true
 			},
 			with: {
 				creator: {
@@ -141,7 +143,6 @@ export async function getQuizzes(): Promise<
 				}
 			},
 			extras: {
-				questionCount: questionCountQuery,
 				averageRating: averageRatingQuery,
 				totalAttempts: totalAttemptsQuery,
 				averageScore: averageScoreQuery
@@ -157,7 +158,6 @@ export async function getQuizzes(): Promise<
 }
 
 export type GetUserQuizzesQuiz = Quiz & {
-	questionCount: number
 	averageRating: number
 	totalAttempts: number
 	averageScore: number
@@ -187,7 +187,6 @@ export async function getUserQuizzes(
 				...foreignQuizzesFilters
 			),
 			extras: {
-				questionCount: questionCountQuery,
 				averageRating: averageRatingQuery,
 				totalAttempts: totalAttemptsQuery,
 				averageScore: averageScoreQuery
