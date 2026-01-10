@@ -20,36 +20,43 @@ import Link from 'next/link'
 import TimeLimit from './time-limit'
 
 export type UserQuizListProps = {
-	quizzes: (Quiz & { questionCount: number })[]
+	quizzes: (Quiz & {
+		questionCount: number
+		averageRating: number
+		totalAttempts: number
+		averageScore: number
+	})[]
 }
 
 export default function UserQuizList({ quizzes }: UserQuizListProps) {
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
 			{quizzes.map(quiz => (
-				<Card
-					key={quiz.id}
-					className='hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in'
-				>
+				<Card key={quiz.id}>
 					<CardHeader className='pb-3'>
 						<div className='flex items-start justify-between'>
 							<div className='flex-1'>
-								<CardTitle className='text-lg line-clamp-1'>
-									{quiz.title}
-								</CardTitle>
+								<Link
+									href={`/quizzes/${quiz.slug}/${quiz.id}`}
+									className='hover:text-indigo-500 transition-colors'
+								>
+									<CardTitle className='text-lg line-clamp-1'>
+										{quiz.title}
+									</CardTitle>
+								</Link>
 								<CardDescription className='line-clamp-2 mt-1'>
 									{quiz.description}
 								</CardDescription>
 							</div>
 							<Badge
-								className={getDifficultyColor(quiz.difficulty ?? 'hard')}
+								className={getDifficultyColor('hard')}
 								variant='outline'
 							>
-								{quiz.difficulty ?? 'hard'}
+								{'Hard'}
 							</Badge>
 						</div>
 					</CardHeader>
-					<CardContent className='space-y-4'>
+					<CardContent className='space-y-4 flex flex-col justify-end h-full'>
 						<div className='grid grid-cols-2 gap-4 text-sm'>
 							<div className='flex items-center gap-2'>
 								<FileTextIcon className='h-4 w-4 text-muted-foreground' />
@@ -61,11 +68,11 @@ export default function UserQuizList({ quizzes }: UserQuizListProps) {
 							</div>
 							<div className='flex items-center gap-2'>
 								<UsersIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.attempts ?? 0} attempts</span>
+								<span>{quiz.totalAttempts} attempts</span>
 							</div>
 							<div className='flex items-center gap-2'>
 								<TrendingUpIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.avgScore ?? 0}% avg</span>
+								<span>{quiz.averageScore}% avg</span>
 							</div>
 						</div>
 

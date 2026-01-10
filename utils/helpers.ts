@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
+import slugifyOriginal from 'slugify'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,6 +10,13 @@ export const delay = (ms: number) =>
 	new Promise(resolve => setTimeout(resolve, ms))
 
 export const { isArray } = Array
+
+export const slugify = (str: string) => {
+	return slugifyOriginal(str, {
+		lower: true,
+		strict: true
+	})
+}
 
 export function isEmpty(value: unknown): value is [] | Record<string, never> {
 	if (!value || typeof value !== 'object') return true

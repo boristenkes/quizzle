@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { GetQuizzesQuiz } from '@/features/quizzes/actions'
 import {
 	ClockIcon,
@@ -23,10 +24,10 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 	return (
 		<Card>
 			<CardHeader>
-				<div className='flex items-start justify-between'>
+				<div className='flex items-start justify-between gap-2'>
 					<div>
 						<Link
-							href={`/quizzes/${quiz.id}`}
+							href={`/quizzes/${quiz.slug}/${quiz.id}`}
 							className='hover:text-primary transition-colors'
 						>
 							<CardTitle className='text-lg line-clamp-2'>
@@ -54,7 +55,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					</div>
 					<div className='flex items-center gap-1 text-sm'>
 						<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
-						<span>4.5</span>
+						<span>{quiz.averageRating}</span>
 					</div>
 				</div>
 			</CardHeader>
@@ -72,11 +73,11 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					</div>
 					<div className='flex items-center gap-2'>
 						<UsersIcon className='size-4 text-muted-foreground' />
-						<span>15,420 attempts</span>
+						<span>{quiz.totalAttempts} attempts</span>
 					</div>
 					<div className='flex items-center gap-2'>
 						<TrendingUpIcon className='size-4 text-muted-foreground' />
-						<span>73% avg</span>
+						<span>{quiz.averageScore}% avg</span>
 					</div>
 				</div>
 
@@ -99,6 +100,64 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 							</Link>
 						}
 					/>
+				</div>
+			</CardContent>
+		</Card>
+	)
+}
+
+export function QuizCardSkeleton() {
+	return (
+		<Card>
+			<CardHeader>
+				<div className='flex items-start justify-between'>
+					<div>
+						<div className='hover:text-primary transition-colors'>
+							{/* Title */}
+							<Skeleton className='w-80 h-7 rounded-lg mb-2' />
+
+							{/* Description */}
+							<Skeleton className='w-96 h-4 rounded-lg mb-1' />
+							<Skeleton className='w-72 h-4 rounded-lg' />
+						</div>
+						<div className='text-xs text-muted-foreground mt-2'>
+							<div className='inline-flex items-center gap-2'>
+								{/* Avatar */}
+								<Skeleton className='size-6 rounded-full' />
+								{/* Creator name */}
+								<Skeleton className='w-14 h-4 rounded-lg' />
+							</div>
+						</div>
+					</div>
+					{/* Rating */}
+					<Skeleton className='w-10 h-5 rounded-lg' />
+				</div>
+			</CardHeader>
+			<CardContent className='flex flex-col gap-4 h-full'>
+				{/* Statistics */}
+				<div className='grid grid-cols-2 gap-3 text-sm'>
+					<div className='flex items-center gap-2'>
+						<Skeleton className='size-4 rounded-lg' />
+						<Skeleton className='w-21.25 h-5 rounded-lg' />
+					</div>
+					<div className='flex items-center gap-2'>
+						<Skeleton className='size-4 rounded-lg' />
+						<Skeleton className='w-21.25 h-5 rounded-lg' />
+					</div>
+					<div className='flex items-center gap-2'>
+						<Skeleton className='size-4 rounded-lg' />
+						<Skeleton className='w-21.25 h-5 rounded-lg' />
+					</div>
+					<div className='flex items-center gap-2'>
+						<Skeleton className='size-4 rounded-lg' />
+						<Skeleton className='w-21.25 h-5 rounded-lg' />
+					</div>
+				</div>
+
+				{/* Action buttons */}
+				<div className='flex gap-2 grow items-end'>
+					<Skeleton className='h-8 rounded-lg basis-1/4' />
+					<Skeleton className='h-8 rounded-lg flex-1' />
 				</div>
 			</CardContent>
 		</Card>

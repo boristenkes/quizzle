@@ -1,0 +1,1 @@
+CREATE INDEX "quiz_attempts_quiz_is_completed" ON "quizzle"."quiz_attempts" USING btree ("quiz_id","is_completed");

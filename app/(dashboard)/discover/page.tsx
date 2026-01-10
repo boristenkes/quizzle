@@ -1,14 +1,5 @@
-import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-	Empty,
-	EmptyContent,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle
-} from '@/components/ui/empty'
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -21,29 +12,17 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select'
-import { getQuizzes } from '@/features/quizzes/actions'
-import QuizCard from '@/features/quizzes/components/quiz-card'
 import { getSession } from '@/lib/auth'
 import { questionDifficulties } from '@/lib/constants'
-import { Filter, FolderOpenIcon, Globe, SearchIcon } from 'lucide-react'
+import { Filter, Globe, SearchIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
+import QuizList, { QuizListSkeleton } from './quiz-list'
 
 export default async function DisoverPage() {
 	const isAuthenticated = await getSession().then(Boolean)
 
 	if (!isAuthenticated) redirect('/sign-in')
-
-	const response = await getQuizzes()
-
-	if (!response.success)
-		return (
-			<ErrorMessage
-				message={response.message ?? 'Failed to fetch quizzes'}
-				className='my-6 ml-6'
-			/>
-		)
-
-	const { quizzes } = response
 
 	return (
 		<div className='container mx-auto p-6 space-y-6'>
@@ -123,18 +102,9 @@ export default async function DisoverPage() {
 			</div>
 
 			{/* Quiz Grid */}
-			{quizzes.length > 0 ? (
-				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-					{quizzes.map(quiz => (
-						<QuizCard
-							key={quiz.id}
-							quiz={quiz}
-						/>
-					))}
-				</div>
-			) : (
-				<QuizListEmptyState />
-			)}
+			<Suspense fallback={<QuizListSkeleton />}>
+				<QuizList />
+			</Suspense>
 
 			{/* Pagination */}
 			<p>
@@ -180,23 +150,5 @@ export default async function DisoverPage() {
 				</div>
 			)} */}
 		</div>
-	)
-}
-
-function QuizListEmptyState() {
-	return (
-		<Empty>
-			<EmptyHeader>
-				<EmptyMedia>
-					<FolderOpenIcon />
-				</EmptyMedia>
-				<EmptyTitle>No results</EmptyTitle>
-				<EmptyDescription className='text-balance'>
-					We couldn&apos;t find any quizzes that match your filters. <br />
-					Try adjusting your filters to be less strict.
-				</EmptyDescription>
-			</EmptyHeader>
-			<EmptyContent></EmptyContent>
-		</Empty>
 	)
 }

@@ -28,7 +28,8 @@ export const attempts = quizzle.table(
 	},
 	t => [
 		index('quiz_attempts_quiz_idx').on(t.quizId),
-		index('quiz_attempts_user_idx').on(t.userId)
+		index('quiz_attempts_user_idx').on(t.userId),
+		index('quiz_attempts_quiz_is_completed').on(t.quizId, t.isCompleted)
 	]
 )
 

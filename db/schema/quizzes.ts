@@ -11,6 +11,7 @@ export const quizzes = quizzle.table(
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		title: text().notNull(),
+		slug: text(),
 		description: text().notNull(),
 
 		timeLimitSeconds: integer(),

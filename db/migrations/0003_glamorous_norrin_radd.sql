@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzes" ADD COLUMN "slug" text;

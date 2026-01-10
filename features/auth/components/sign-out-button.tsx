@@ -10,17 +10,13 @@ export type SignOutButtonProps =
 
 export default function SignOutButton({
 	unstyled = false,
-	onClick,
 	...props
 }: SignOutButtonProps) {
 	const router = useRouter()
 
-	const handleClick = async (
-		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-	) => {
+	const handleClick = async () => {
 		await authClient.signOut()
 		router.replace('/sign-in')
-		onClick?.(e as any)
 	}
 
 	if (unstyled)

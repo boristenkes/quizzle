@@ -14,7 +14,12 @@ import { ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import z from 'zod'
-import { questionCountQuery } from './drizzle'
+import {
+	averageRatingQuery,
+	averageScoreQuery,
+	questionCountQuery,
+	totalAttemptsQuery
+} from './queries'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
@@ -104,10 +109,13 @@ export async function createQuiz(
 
 export type GetQuizzesQuiz = Pick<
 	Quiz,
-	'id' | 'title' | 'description' | 'timeLimitSeconds'
+	'id' | 'slug' | 'title' | 'description' | 'timeLimitSeconds'
 > & {
 	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
 	questionCount: number
+	averageRating: number
+	totalAttempts: number
+	averageScore: number
 }
 
 export async function getQuizzes(): Promise<
@@ -123,6 +131,7 @@ export async function getQuizzes(): Promise<
 			columns: {
 				id: true,
 				title: true,
+				slug: true,
 				description: true,
 				timeLimitSeconds: true
 			},
@@ -132,8 +141,10 @@ export async function getQuizzes(): Promise<
 				}
 			},
 			extras: {
-				questionCount: questionCountQuery
-				// TODO: averageRating, totalAttempts, averageScore,
+				questionCount: questionCountQuery,
+				averageRating: averageRatingQuery,
+				totalAttempts: totalAttemptsQuery,
+				averageScore: averageScoreQuery
 			},
 			orderBy: desc(quizzes.createdAt)
 		})
@@ -147,6 +158,9 @@ export async function getQuizzes(): Promise<
 
 export type GetUserQuizzesQuiz = Quiz & {
 	questionCount: number
+	averageRating: number
+	totalAttempts: number
+	averageScore: number
 }
 
 export async function getUserQuizzes(
@@ -173,7 +187,10 @@ export async function getUserQuizzes(
 				...foreignQuizzesFilters
 			),
 			extras: {
-				questionCount: questionCountQuery
+				questionCount: questionCountQuery,
+				averageRating: averageRatingQuery,
+				totalAttempts: totalAttemptsQuery,
+				averageScore: averageScoreQuery
 			},
 			offset: (page - 1) * pageSize,
 			limit: pageSize,
