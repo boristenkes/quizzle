@@ -1,7 +1,6 @@
 import { relations } from 'drizzle-orm'
 import { index, text, timestamp } from 'drizzle-orm/pg-core'
-import { quizzle } from './_root'
-import { timestamps } from './_utils'
+import { quizzle, timestamps } from './_root'
 import { users } from './users'
 
 export const sessions = quizzle.table(

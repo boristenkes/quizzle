@@ -13,7 +13,7 @@ import {
 	SelectValue
 } from '@/components/ui/select'
 import { getSession } from '@/lib/auth'
-import { questionDifficulties } from '@/lib/constants'
+import { difficulties } from '@/lib/constants'
 import { Filter, Globe, SearchIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -72,7 +72,7 @@ export default async function DisoverPage() {
 								<SelectValue>Difficulty</SelectValue>
 							</SelectTrigger>
 							<SelectContent>
-								{questionDifficulties.map(difficulty => (
+								{difficulties.map(difficulty => (
 									<SelectItem
 										key={difficulty}
 										value={difficulty.toLowerCase()}

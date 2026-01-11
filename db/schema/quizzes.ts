@@ -1,9 +1,9 @@
 import { relations } from 'drizzle-orm'
 import { boolean, index, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
-import { quizzle } from './_root'
-import { timestamps } from './_utils'
+import { difficultyEnum, quizzle, timestamps } from './_root'
 import { questions } from './questions'
+import { quizCategories } from './quiz-categories'
 import { users } from './users'
 
 export const quizzes = quizzle.table(
@@ -13,6 +13,7 @@ export const quizzes = quizzle.table(
 		title: text().notNull(),
 		slug: text(),
 		description: text().notNull(),
+		difficulty: difficultyEnum().notNull().default('easy'),
 
 		timeLimitSeconds: integer(),
 		totalPoints: integer().notNull().default(100),
@@ -23,6 +24,9 @@ export const quizzes = quizzle.table(
 		creatorId: text()
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
+		categoryId: text().references(() => quizCategories.id, {
+			onDelete: 'set null'
+		}),
 
 		...timestamps,
 		deletedAt: timestamp({ withTimezone: true })
@@ -34,6 +38,10 @@ export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
 	creator: one(users, {
 		fields: [quizzes.creatorId],
 		references: [users.id]
+	}),
+	category: one(quizCategories, {
+		fields: [quizzes.categoryId],
+		references: [quizCategories.id]
 	}),
 	questions: many(questions)
 }))

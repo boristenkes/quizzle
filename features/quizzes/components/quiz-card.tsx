@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -9,6 +10,8 @@ import {
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GetQuizzesQuiz } from '@/features/quizzes/actions'
+import { getDifficultyColor } from '@/utils/format'
+import { cn } from '@/utils/helpers'
 import {
 	ClockIcon,
 	FileTextIcon,
@@ -53,9 +56,26 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 							</Link>
 						</div>
 					</div>
-					<div className='flex items-center gap-1 text-sm'>
-						<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
-						<span>{quiz.averageRating}</span>
+
+					<div className='flex items-start justify-between mb-2 gap-2'>
+						<div className='flex gap-2'>
+							{quiz.category && (
+								<Badge variant='outline'>{quiz.category.name}</Badge>
+							)}
+							<Badge
+								className={cn(
+									getDifficultyColor(quiz.difficulty),
+									'capitalize'
+								)}
+								variant='outline'
+							>
+								{quiz.difficulty}
+							</Badge>
+						</div>
+						<div className='flex items-center gap-1 text-sm'>
+							<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
+							<span>{quiz.averageRating}</span>
+						</div>
 					</div>
 				</div>
 			</CardHeader>

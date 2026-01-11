@@ -1,8 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import { check, index, integer, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
-import { quizzle } from './_root'
-import { timestamps } from './_utils'
+import { quizzle, timestamps } from './_root'
 import { quizzes } from './quizzes'
 import { users } from './users'
 

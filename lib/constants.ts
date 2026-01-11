@@ -16,9 +16,9 @@ export const questionTypeLabel: Record<QuestionType, string> = {
 	text: 'Text'
 }
 
-export const questionDifficulties = ['easy', 'medium', 'hard'] as const
+export const difficulties = ['easy', 'medium', 'hard'] as const
 
-export type QuestionDifficulty = (typeof questionDifficulties)[number]
+export type QuestionDifficulty = (typeof difficulties)[number]
 
 export const MIN_QUIZ_QUESTIONS = 3
 export const MAX_QUIZ_QUESTIONS = 50

@@ -5,12 +5,13 @@ import {
 	questionOptions,
 	questions as questionsTable,
 	Quiz,
+	QuizCategory,
 	quizzes,
 	textQuestionSettings,
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
-import { slugify } from '@/utils/helpers'
+import { pickColumns, slugify } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
@@ -112,9 +113,16 @@ export async function createQuiz(
 
 export type GetQuizzesQuiz = Pick<
 	Quiz,
-	'id' | 'slug' | 'title' | 'description' | 'timeLimitSeconds' | 'questionCount'
+	| 'id'
+	| 'slug'
+	| 'title'
+	| 'description'
+	| 'timeLimitSeconds'
+	| 'questionCount'
+	| 'difficulty'
 > & {
 	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
+	category: Pick<QuizCategory, 'name'> | null
 	averageRating: number
 	totalAttempts: number
 	averageScore: number
@@ -130,17 +138,21 @@ export async function getQuizzes(): Promise<
 
 		const results = await db.query.quizzes.findMany({
 			where: and(eq(quizzes.isPublished, true), isNull(quizzes.deletedAt)),
-			columns: {
-				id: true,
-				title: true,
-				slug: true,
-				description: true,
-				timeLimitSeconds: true,
-				questionCount: true
-			},
+			columns: pickColumns(
+				'id',
+				'title',
+				'slug',
+				'description',
+				'timeLimitSeconds',
+				'questionCount',
+				'difficulty'
+			),
 			with: {
 				creator: {
-					columns: { id: true, username: true, name: true, image: true }
+					columns: pickColumns('id', 'username', 'name', 'image')
+				},
+				category: {
+					columns: pickColumns('name')
 				}
 			},
 			extras: {
@@ -237,23 +249,18 @@ export async function getQuizById(
 				isNull(quizzes.deletedAt),
 				eq(quizzes.isPublished, true)
 			),
-			columns: {
-				id: true,
-				title: true,
-				description: true,
-				isPublic: true,
-				questionCount: true,
-				timeLimitSeconds: true,
-				createdAt: true
-			},
+			columns: pickColumns(
+				'id',
+				'title',
+				'description',
+				'isPublic',
+				'questionCount',
+				'timeLimitSeconds',
+				'createdAt'
+			),
 			with: {
 				creator: {
-					columns: {
-						id: true,
-						name: true,
-						username: true,
-						image: true
-					}
+					columns: pickColumns('id', 'name', 'username', 'image')
 				}
 			},
 			extras: {

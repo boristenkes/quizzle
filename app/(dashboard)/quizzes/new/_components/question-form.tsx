@@ -49,10 +49,10 @@ import {
 } from '@/features/questions/zod'
 import { QuizFormSchema } from '@/features/quizzes/zod'
 import {
+	difficulties,
 	MAX_QUESTION_OPTIONS,
 	MAX_QUIZ_QUESTIONS,
 	MIN_QUESTION_OPTIONS,
-	questionDifficulties,
 	QuestionType,
 	questionTypeLabel,
 	questionTypes
@@ -220,7 +220,7 @@ export default function QuestionForm({
 													<SelectValue className='capitalize' />
 												</SelectTrigger>
 												<SelectContent>
-													{questionDifficulties.map(difficulty => (
+													{difficulties.map(difficulty => (
 														<SelectItem
 															key={difficulty}
 															value={difficulty}

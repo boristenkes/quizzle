@@ -57,6 +57,20 @@
       "when": 1768082996468,
       "tag": "0007_long_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1768091083430,
+      "tag": "0008_normal_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1768091547655,
+      "tag": "0009_tiny_power_man",
+      "breakpoints": true
     }
   ]
 }

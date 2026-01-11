@@ -63,6 +63,14 @@ export function getUploadthingKey(url: string | undefined | null) {
 	return key
 }
 
+export function pickColumns<T>(...columns: (keyof T)[]): Record<keyof T, true> {
+	const result = columns.reduce((prev, curr) => {
+		return { ...prev, [curr]: true }
+	}, {})
+
+	return result as Record<keyof T, true>
+}
+
 declare global {
 	interface Array<T> {
 		count(callback: (value: T, index: number, array: T[]) => boolean): number

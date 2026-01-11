@@ -1,7 +1,7 @@
 import {
 	MAX_QUESTION_OPTIONS,
 	MIN_QUESTION_OPTIONS,
-	questionDifficulties
+	difficulties
 } from '@/lib/constants'
 import { booleanSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
@@ -51,7 +51,7 @@ export const textQuestionFormSchema = z.object({
 export const baseQuestionFormSchema = z.object({
 	prompt: requiredString,
 	explanationHTML: requiredString,
-	difficulty: z.enum(questionDifficulties)
+	difficulty: z.enum(difficulties)
 })
 
 export const questionFormSchema = z.discriminatedUnion('type', [
