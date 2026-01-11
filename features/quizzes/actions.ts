@@ -18,7 +18,8 @@ import z from 'zod'
 import {
 	averageRatingQuery,
 	averageScoreQuery,
-	totalAttemptsQuery
+	totalAttemptsQuery,
+	totalReviewsQuery
 } from './queries'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
@@ -199,6 +200,80 @@ export async function getUserQuizzes(
 		return { success: true, quizzes: results }
 	} catch (error) {
 		console.error('[GET_USER_QUIZZES]:', error)
+		return { success: false }
+	}
+}
+
+export type GetQuizByIdQuiz = Pick<
+	Quiz,
+	| 'id'
+	| 'title'
+	| 'description'
+	| 'isPublic'
+	| 'questionCount'
+	| 'timeLimitSeconds'
+	| 'createdAt'
+> & {
+	creator: Pick<User, 'id' | 'name' | 'username' | 'image'>
+	averageRating: number
+	totalReviews: number
+	averageScore: number
+	totalAttempts: number
+}
+
+export async function getQuizById(
+	quizId: Quiz['id']
+): Promise<ServerActionResponse<{ quiz: GetQuizByIdQuiz }>> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const parsedQuizId = z.ulid().parse(quizId)
+
+		const quiz = await db.query.quizzes.findFirst({
+			where: and(
+				eq(quizzes.id, parsedQuizId),
+				isNull(quizzes.deletedAt),
+				eq(quizzes.isPublished, true)
+			),
+			columns: {
+				id: true,
+				title: true,
+				description: true,
+				isPublic: true,
+				questionCount: true,
+				timeLimitSeconds: true,
+				createdAt: true
+			},
+			with: {
+				creator: {
+					columns: {
+						id: true,
+						name: true,
+						username: true,
+						image: true
+					}
+				}
+			},
+			extras: {
+				averageRating: averageRatingQuery,
+				totalReviews: totalReviewsQuery,
+				averageScore: averageScoreQuery,
+				totalAttempts: totalAttemptsQuery
+			}
+		})
+
+		if (!quiz)
+			return {
+				success: false,
+				message:
+					"Quiz not found. It's possible it has been deleted by the author"
+			}
+
+		return { success: true, quiz }
+	} catch (error) {
+		console.error('[GET_QUIZ_BY_ID]:', error)
 		return { success: false }
 	}
 }

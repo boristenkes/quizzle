@@ -86,7 +86,11 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 						variant='outline'
 						size='sm'
 						nativeButton={false}
-						render={<Link href={`/quizzes/${quiz.id}`}>View Details</Link>}
+						render={
+							<Link href={`/quizzes/${quiz.slug}/${quiz.id}`}>
+								View Details
+							</Link>
+						}
 					/>
 
 					<Button
