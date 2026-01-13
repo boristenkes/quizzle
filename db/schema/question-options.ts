@@ -2,9 +2,9 @@ import { relations } from 'drizzle-orm'
 import { boolean, index, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle } from './_root'
-import { questions } from './questions'
+import { questionsTable } from './questions'
 
-export const questionOptions = quizzle.table(
+export const questionOptionsTable = quizzle.table(
 	'question_options',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
@@ -13,20 +13,20 @@ export const questionOptions = quizzle.table(
 
 		questionId: text()
 			.notNull()
-			.references(() => questions.id, { onDelete: 'cascade' })
+			.references(() => questionsTable.id, { onDelete: 'cascade' })
 	},
 	t => [index('question_options_question_idx').on(t.questionId)]
 )
 
 export const questionOptionsRelations = relations(
-	questionOptions,
+	questionOptionsTable,
 	({ one }) => ({
-		question: one(questions, {
-			fields: [questionOptions.questionId],
-			references: [questions.id]
+		question: one(questionsTable, {
+			fields: [questionOptionsTable.questionId],
+			references: [questionsTable.id]
 		})
 	})
 )
 
-export type QuestionOption = typeof questionOptions.$inferSelect
-export type NewQuestionOption = typeof questionOptions.$inferInsert
+export type QuestionOption = typeof questionOptionsTable.$inferSelect
+export type NewQuestionOption = typeof questionOptionsTable.$inferInsert

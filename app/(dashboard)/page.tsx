@@ -40,7 +40,7 @@ export default async function DashboardPage() {
 								className='bg-white text-primary hover:bg-white/90 font-semibold'
 								nativeButton={false}
 								render={
-									<Link href='/create'>
+									<Link href='/quizzes/new'>
 										<Plus className='mr-2 h-5 w-5' />
 										Create New Quiz
 									</Link>

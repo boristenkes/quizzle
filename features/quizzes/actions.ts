@@ -2,12 +2,12 @@
 
 import { db } from '@/db'
 import {
-	questionOptions,
-	questions as questionsTable,
+	questionOptionsTable,
+	questionsTable,
 	Quiz,
 	QuizCategory,
-	quizzes,
-	textQuestionSettings,
+	quizzesTable,
+	textQuestionSettingsTable,
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
@@ -47,14 +47,14 @@ export async function createQuiz(
 		// Insert questions
 		await db.transaction(async tx => {
 			const [newQuiz] = await tx
-				.insert(quizzes)
+				.insert(quizzesTable)
 				.values({
 					...quizData,
 					slug: slugify(quizData.title),
 					questionCount: questions.length,
 					creatorId: currentUser.id
 				})
-				.returning({ id: quizzes.id })
+				.returning({ id: quizzesTable.id })
 
 			quizId = newQuiz.id
 
@@ -84,7 +84,7 @@ export async function createQuiz(
 			})
 
 			if (optionsToInsert.length > 0) {
-				await tx.insert(questionOptions).values(optionsToInsert)
+				await tx.insert(questionOptionsTable).values(optionsToInsert)
 			}
 
 			// Handle text questions settings
@@ -100,7 +100,7 @@ export async function createQuiz(
 			})
 
 			if (textSettingsToInsert.length > 0) {
-				await tx.insert(textQuestionSettings).values(textSettingsToInsert)
+				await tx.insert(textQuestionSettingsTable).values(textSettingsToInsert)
 			}
 		})
 
@@ -136,8 +136,11 @@ export async function getQuizzes(): Promise<
 
 		if (!session) throw new Error('Unauthorized')
 
-		const results = await db.query.quizzes.findMany({
-			where: and(eq(quizzes.isPublished, true), isNull(quizzes.deletedAt)),
+		const results = await db.query.quizzesTable.findMany({
+			where: and(
+				eq(quizzesTable.isPublished, true),
+				isNull(quizzesTable.deletedAt)
+			),
 			columns: pickColumns(
 				'id',
 				'title',
@@ -160,7 +163,7 @@ export async function getQuizzes(): Promise<
 				totalAttempts: totalAttemptsQuery,
 				averageScore: averageScoreQuery
 			},
-			orderBy: desc(quizzes.createdAt)
+			orderBy: desc(quizzesTable.createdAt)
 		})
 
 		return { success: true, quizzes: results }
@@ -190,13 +193,13 @@ export async function getUserQuizzes(
 		const currentUserId = session.user.id
 		const foreignQuizzesFilters =
 			currentUserId !== parsedUserId
-				? [eq(quizzes.isPublic, true), eq(quizzes.isPublished, true)]
+				? [eq(quizzesTable.isPublic, true), eq(quizzesTable.isPublished, true)]
 				: []
 
-		const results = await db.query.quizzes.findMany({
+		const quizzes = await db.query.quizzesTable.findMany({
 			where: and(
-				eq(quizzes.creatorId, parsedUserId),
-				isNull(quizzes.deletedAt),
+				eq(quizzesTable.creatorId, parsedUserId),
+				isNull(quizzesTable.deletedAt),
 				...foreignQuizzesFilters
 			),
 			extras: {
@@ -206,10 +209,10 @@ export async function getUserQuizzes(
 			},
 			offset: (page - 1) * pageSize,
 			limit: pageSize,
-			orderBy: desc(quizzes.createdAt)
+			orderBy: desc(quizzesTable.createdAt)
 		})
 
-		return { success: true, quizzes: results }
+		return { success: true, quizzes }
 	} catch (error) {
 		console.error('[GET_USER_QUIZZES]:', error)
 		return { success: false }
@@ -221,12 +224,14 @@ export type GetQuizByIdQuiz = Pick<
 	| 'id'
 	| 'title'
 	| 'description'
+	| 'difficulty'
 	| 'isPublic'
 	| 'questionCount'
 	| 'timeLimitSeconds'
 	| 'createdAt'
 > & {
 	creator: Pick<User, 'id' | 'name' | 'username' | 'image'>
+	category: Pick<QuizCategory, 'name'> | null
 	averageRating: number
 	totalReviews: number
 	averageScore: number
@@ -243,16 +248,17 @@ export async function getQuizById(
 
 		const parsedQuizId = z.ulid().parse(quizId)
 
-		const quiz = await db.query.quizzes.findFirst({
+		const quiz = await db.query.quizzesTable.findFirst({
 			where: and(
-				eq(quizzes.id, parsedQuizId),
-				isNull(quizzes.deletedAt),
-				eq(quizzes.isPublished, true)
+				eq(quizzesTable.id, parsedQuizId),
+				isNull(quizzesTable.deletedAt),
+				eq(quizzesTable.isPublished, true)
 			),
 			columns: pickColumns(
 				'id',
 				'title',
 				'description',
+				'difficulty',
 				'isPublic',
 				'questionCount',
 				'timeLimitSeconds',
@@ -261,6 +267,9 @@ export async function getQuizById(
 			with: {
 				creator: {
 					columns: pickColumns('id', 'name', 'username', 'image')
+				},
+				category: {
+					columns: pickColumns('name')
 				}
 			},
 			extras: {

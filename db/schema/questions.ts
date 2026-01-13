@@ -3,12 +3,12 @@ import { relations } from 'drizzle-orm'
 import { index, integer, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { difficultyEnum, quizzle, timestamps } from './_root'
-import { questionOptions } from './question-options'
-import { quizzes } from './quizzes'
+import { questionOptionsTable } from './question-options'
+import { quizzesTable } from './quizzes'
 
 export const questionTypeEnum = quizzle.enum('question_type', questionTypes)
 
-export const questions = quizzle.table(
+export const questionsTable = quizzle.table(
 	'questions',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
@@ -17,7 +17,7 @@ export const questions = quizzle.table(
 		explanationHTML: text(),
 		quizId: text()
 			.notNull()
-			.references(() => quizzes.id, { onDelete: 'cascade' }),
+			.references(() => quizzesTable.id, { onDelete: 'cascade' }),
 		order: integer().notNull(),
 		difficulty: difficultyEnum().notNull().default('easy'),
 
@@ -26,13 +26,16 @@ export const questions = quizzle.table(
 	t => [index('questions_quiz_idx').on(t.quizId)]
 )
 
-export const questionsRelations = relations(questions, ({ one, many }) => ({
-	quiz: one(quizzes, {
-		fields: [questions.quizId],
-		references: [quizzes.id]
-	}),
-	options: many(questionOptions)
-}))
+export const questionsRelations = relations(
+	questionsTable,
+	({ one, many }) => ({
+		quiz: one(quizzesTable, {
+			fields: [questionsTable.quizId],
+			references: [quizzesTable.id]
+		}),
+		options: many(questionOptionsTable)
+	})
+)
 
-export type Question = typeof questions.$inferSelect
-export type NewQuestion = typeof questions.$inferInsert
+export type Question = typeof questionsTable.$inferSelect
+export type NewQuestion = typeof questionsTable.$inferInsert

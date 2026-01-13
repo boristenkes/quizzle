@@ -1,6 +1,7 @@
 'use client'
 
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
+import { Difficulty } from '@/lib/constants'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -13,6 +14,8 @@ export const quizFormDefaults = {
 	totalPoints: 100,
 	timeLimitMinutes: 0,
 	isPublic: true,
+	categoryId: null,
+	difficulty: 'easy' as Difficulty,
 	questions: []
 }
 

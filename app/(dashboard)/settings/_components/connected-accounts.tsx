@@ -10,7 +10,7 @@ import '@/utils/format'
 import AccountCard from './account-card'
 
 export default async function ConnectedAccounts() {
-	const accounts = await db.query.accounts.findMany({
+	const accounts = await db.query.accountsTable.findMany({
 		columns: {
 			id: true,
 			providerId: true

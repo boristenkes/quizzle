@@ -1,3 +1,5 @@
+'use client'
+
 import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
+import { useCategories } from '@/context/categories'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { QuizFormSchema } from '@/features/quizzes/zod'
 import { SaveIcon } from 'lucide-react'
@@ -20,6 +23,11 @@ export type QuizPreviewProps = {
 }
 
 export default function QuizPreview({ values, formState }: QuizPreviewProps) {
+	const categories = useCategories()
+	const chosenCategory = categories?.find(
+		category => category.id === values.categoryId
+	)
+
 	return (
 		<Card>
 			<CardHeader>
@@ -43,7 +51,19 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 					<div className='space-y-2'>
 						<Label className='text-sm font-medium'>Time Limit</Label>
 						<p className='text-base text-muted-foreground'>
-							<TimeLimit limit={values.timeLimitMinutes} />
+							<TimeLimit limit={(values.timeLimitMinutes ?? 0) * 60} />
+						</p>
+					</div>
+					<div className='space-y-2'>
+						<Label className='text-sm font-medium'>Difficulty</Label>
+						<p className='text-base text-muted-foreground capitalize'>
+							{values.difficulty}
+						</p>
+					</div>
+					<div className='space-y-2'>
+						<Label className='text-sm font-medium'>Category</Label>
+						<p className='text-base text-muted-foreground capitalize'>
+							{chosenCategory?.name}
 						</p>
 					</div>
 				</div>

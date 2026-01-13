@@ -1,5 +1,9 @@
 import { questionFormSchema } from '@/features/questions/zod'
-import { MAX_QUIZ_QUESTIONS, MIN_QUIZ_QUESTIONS } from '@/lib/constants'
+import {
+	difficulties,
+	MAX_QUIZ_QUESTIONS,
+	MIN_QUIZ_QUESTIONS
+} from '@/lib/constants'
 import { booleanSchema, integerSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
@@ -11,11 +15,13 @@ export const quizFormSchema = z.object({
 		.min(16, { error: 'Min 16 characters' })
 		.max(512, { error: 'Max 512 characters' }),
 	timeLimitMinutes: integerSchema
-		.min(0, { error: 'Min 1 minute' })
+		.min(0, { error: 'Time limit cannot be less than 0' })
 		.max(120, { error: 'Max 120 minutes (2h)' })
 		.optional(),
 	totalPoints: integerSchema.positive(),
 	isPublic: booleanSchema.default(true),
+	categoryId: z.ulid().optional().nullable(),
+	difficulty: z.enum(difficulties).default('easy'),
 	questions: questionFormSchema
 		.array()
 		.min(MIN_QUIZ_QUESTIONS, {

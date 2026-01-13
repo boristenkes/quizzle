@@ -2,10 +2,10 @@ import { relations, sql } from 'drizzle-orm'
 import { check, index, integer, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle, timestamps } from './_root'
-import { quizzes } from './quizzes'
-import { users } from './users'
+import { quizzesTable } from './quizzes'
+import { usersTable } from './users'
 
-export const reviews = quizzle.table(
+export const reviewsTable = quizzle.table(
 	'reviews',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
@@ -14,10 +14,10 @@ export const reviews = quizzle.table(
 
 		quizId: text()
 			.notNull()
-			.references(() => quizzes.id, { onDelete: 'cascade' }),
+			.references(() => quizzesTable.id, { onDelete: 'cascade' }),
 		userId: text()
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
+			.references(() => usersTable.id, { onDelete: 'cascade' }),
 
 		...timestamps
 	},
@@ -29,16 +29,16 @@ export const reviews = quizzle.table(
 	]
 )
 
-export const reviewsRelations = relations(reviews, ({ one }) => ({
-	quiz: one(quizzes, {
-		fields: [reviews.quizId],
-		references: [quizzes.id]
+export const reviewsRelations = relations(reviewsTable, ({ one }) => ({
+	quiz: one(quizzesTable, {
+		fields: [reviewsTable.quizId],
+		references: [quizzesTable.id]
 	}),
-	user: one(users, {
-		fields: [reviews.userId],
-		references: [users.id]
+	user: one(usersTable, {
+		fields: [reviewsTable.userId],
+		references: [usersTable.id]
 	})
 }))
 
-export type Review = typeof reviews.$inferSelect
-export type NewReview = typeof reviews.$inferInsert
+export type Review = typeof reviewsTable.$inferSelect
+export type NewReview = typeof reviewsTable.$inferInsert

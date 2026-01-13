@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Quiz } from '@/db/schema'
 import { getDifficultyColor } from '@/utils/format'
+import { cn } from '@/utils/helpers'
 import {
 	ClockIcon,
 	FileTextIcon,
@@ -48,10 +49,13 @@ export default function UserQuizList({ quizzes }: UserQuizListProps) {
 								</CardDescription>
 							</div>
 							<Badge
-								className={getDifficultyColor('hard')}
+								className={cn(
+									getDifficultyColor(quiz.difficulty),
+									'capitalize'
+								)}
 								variant='outline'
 							>
-								{'Hard'}
+								{quiz.difficulty}
 							</Badge>
 						</div>
 					</CardHeader>

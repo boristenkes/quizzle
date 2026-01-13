@@ -1,3 +1,4 @@
+import { getCategories } from '@/features/categories/actions'
 import { getSession } from '@/lib/auth'
 import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
@@ -13,22 +14,22 @@ export default async function NewQuizPage() {
 
 	if (!isAuthenticated) redirect('/sign-in')
 
+	const categories = await getCategories()
+
 	return (
 		<main className='px-4 py-16 space-y-8'>
-			<header className='container mx-auto max-w-4xl space-y-6'>
-				<div className='space-y-2'>
-					<h1 className='text-3xl font-bold flex items-center gap-2'>
-						<PlusIcon className='h-8 w-8 text-primary' />
-						Create New Quiz
-					</h1>
-					<p className='text-muted-foreground'>
-						Build engaging quizzes with AI assistance
-					</p>
-				</div>
+			<header className='container mx-auto max-w-4xl space-y-2'>
+				<h1 className='text-3xl font-bold flex items-center gap-2'>
+					<PlusIcon className='h-8 w-8 text-primary' />
+					Create New Quiz
+				</h1>
+				<p className='text-muted-foreground'>
+					Build engaging quizzes with AI assistance
+				</p>
 			</header>
 
 			<div className='container mx-auto max-w-4xl space-y-6'>
-				<NewQuizForm />
+				<NewQuizForm categories={categories} />
 			</div>
 		</main>
 	)

@@ -2,11 +2,11 @@ import { relations } from 'drizzle-orm'
 import { boolean, index, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle, timestamps } from './_root'
-import { attemptQuestions } from './attempt-questions'
-import { quizzes } from './quizzes'
-import { users } from './users'
+import { attemptQuestionsTable } from './attempt-questions'
+import { quizzesTable } from './quizzes'
+import { usersTable } from './users'
 
-export const attempts = quizzle.table(
+export const attemptsTable = quizzle.table(
 	'quiz_attempts',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
@@ -18,10 +18,10 @@ export const attempts = quizzle.table(
 
 		quizId: text()
 			.notNull()
-			.references(() => quizzes.id, { onDelete: 'cascade' }),
+			.references(() => quizzesTable.id, { onDelete: 'cascade' }),
 		userId: text()
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
+			.references(() => usersTable.id, { onDelete: 'cascade' }),
 
 		...timestamps
 	},
@@ -32,17 +32,17 @@ export const attempts = quizzle.table(
 	]
 )
 
-export const attemptsRelations = relations(attempts, ({ one, many }) => ({
-	quiz: one(quizzes, {
-		fields: [attempts.quizId],
-		references: [quizzes.id]
+export const attemptsRelations = relations(attemptsTable, ({ one, many }) => ({
+	quiz: one(quizzesTable, {
+		fields: [attemptsTable.quizId],
+		references: [quizzesTable.id]
 	}),
-	user: one(users, {
-		fields: [attempts.userId],
-		references: [users.id]
+	user: one(usersTable, {
+		fields: [attemptsTable.userId],
+		references: [usersTable.id]
 	}),
-	questions: many(attemptQuestions)
+	questions: many(attemptQuestionsTable)
 }))
 
-export type Attempt = typeof attempts.$inferSelect
-export type NewAttempt = typeof attempts.$inferInsert
+export type Attempt = typeof attemptsTable.$inferSelect
+export type NewAttempt = typeof attemptsTable.$inferInsert

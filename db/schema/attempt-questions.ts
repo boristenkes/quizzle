@@ -2,8 +2,8 @@ import { relations } from 'drizzle-orm'
 import { index, integer, json, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle } from './_root'
-import { attempts } from './attempts'
-import { questions } from './questions'
+import { attemptsTable } from './attempts'
+import { questionsTable } from './questions'
 
 type AttemptQuestionsQuestionPublic =
 	| {
@@ -33,14 +33,16 @@ type AttemptQuestionsQuestionPrivate =
 			correctOptionIds: string[]
 	  }
 
-export const attemptQuestions = quizzle.table(
+export const attemptQuestionsTable = quizzle.table(
 	'quiz_attempt_questions',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		attemptId: text()
 			.notNull()
-			.references(() => attempts.id, { onDelete: 'cascade' }),
-		questionId: text().references(() => questions.id, { onDelete: 'set null' }),
+			.references(() => attemptsTable.id, { onDelete: 'cascade' }),
+		questionId: text().references(() => questionsTable.id, {
+			onDelete: 'set null'
+		}),
 
 		questionPublic: json().$type<AttemptQuestionsQuestionPublic>().notNull(),
 		questionPrivate: json().$type<AttemptQuestionsQuestionPrivate>().notNull(),
@@ -54,19 +56,19 @@ export const attemptQuestions = quizzle.table(
 )
 
 export const attemptQuestionsRelations = relations(
-	attemptQuestions,
+	attemptQuestionsTable,
 	({ one }) => ({
-		attempt: one(attempts, {
-			fields: [attemptQuestions.attemptId],
-			references: [attempts.id]
+		attempt: one(attemptsTable, {
+			fields: [attemptQuestionsTable.attemptId],
+			references: [attemptsTable.id]
 		}),
-		question: one(questions, {
-			fields: [attemptQuestions.questionId],
-			references: [questions.id]
+		question: one(questionsTable, {
+			fields: [attemptQuestionsTable.questionId],
+			references: [questionsTable.id]
 		})
 	})
 )
 
-export type AttemptQuestion = typeof attemptQuestions.$inferSelect
+export type AttemptQuestion = typeof attemptQuestionsTable.$inferSelect
 export type PublicAttemptQuestion = Omit<AttemptQuestion, 'questionPrivate'>
-export type NewAttemptQuestion = typeof attemptQuestions.$inferInsert
+export type NewAttemptQuestion = typeof attemptQuestionsTable.$inferInsert

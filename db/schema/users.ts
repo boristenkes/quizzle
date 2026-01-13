@@ -3,12 +3,12 @@ import { relations } from 'drizzle-orm'
 import { boolean, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle, timestamps } from './_root'
-import { accounts, sessions } from './auth'
-import { quizzes } from './quizzes'
+import { accountsTable, sessionsTable } from './auth'
+import { quizzesTable } from './quizzes'
 
 export const userRoleEnum = quizzle.enum('user_role', userRoles)
 
-export const users = quizzle.table(
+export const usersTable = quizzle.table(
 	'users',
 	{
 		id: text().primaryKey().$defaultFn(ulid),
@@ -30,11 +30,11 @@ export const users = quizzle.table(
 	]
 )
 
-export const usersRelations = relations(users, ({ many }) => ({
-	quizzes: many(quizzes),
-	sessions: many(sessions),
-	accounts: many(accounts)
+export const usersRelations = relations(usersTable, ({ many }) => ({
+	quizzes: many(quizzesTable),
+	sessions: many(sessionsTable),
+	accounts: many(accountsTable)
 }))
 
-export type User = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
+export type User = typeof usersTable.$inferSelect
+export type NewUser = typeof usersTable.$inferInsert

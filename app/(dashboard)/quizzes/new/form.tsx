@@ -19,12 +19,23 @@ import {
 	FieldSet
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { createQuiz } from '@/features/quizzes/actions'
+import CategoryCombobox, {
+	CategoryComboboxProps
+} from '@/features/quizzes/components/category-combobox'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
+import { difficulties } from '@/lib/constants'
 import {
 	ArrowLeftIcon,
 	EyeIcon,
@@ -48,7 +59,11 @@ type Tab = 'settings' | 'questions' | 'preview'
 const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
 type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
-export default function NewQuizForm() {
+export default function NewQuizForm({
+	categories
+}: {
+	categories: CategoryComboboxProps['categories']
+}) {
 	const quizForm = useQuizForm()
 	const questionsFieldArray = useFieldArray({
 		control: quizForm.control,
@@ -179,6 +194,7 @@ export default function NewQuizForm() {
 															{...field}
 															type='number'
 															min={0}
+															step={5}
 															id={field.name}
 															name={field.name}
 															aria-invalid={fieldState.invalid}
@@ -187,6 +203,69 @@ export default function NewQuizForm() {
 														<FieldDescription>
 															Leave at 0 to indicate there is no time limit
 														</FieldDescription>
+														{fieldState.invalid && (
+															<FieldError errors={[fieldState.error]} />
+														)}
+													</Field>
+												)}
+											/>
+										</div>
+
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+											<Controller
+												name='categoryId'
+												control={quizForm.control}
+												render={({ field, fieldState }) => (
+													<Field data-invalid={fieldState.invalid}>
+														<FieldLabel htmlFor={field.name}>
+															Category
+														</FieldLabel>
+														<CategoryCombobox
+															value={field.value}
+															setValue={field.onChange}
+															categories={categories}
+														/>
+														<FieldDescription>
+															Essential for searching and filtering
+														</FieldDescription>
+														{fieldState.invalid && (
+															<FieldError errors={[fieldState.error]} />
+														)}
+													</Field>
+												)}
+											/>
+
+											<Controller
+												name='difficulty'
+												control={quizForm.control}
+												render={({ field, fieldState }) => (
+													<Field data-invalid={fieldState.invalid}>
+														<FieldLabel htmlFor={field.name}>
+															Difficulty *
+														</FieldLabel>
+														<Select
+															value={field.value}
+															onValueChange={field.onChange}
+															defaultValue='easy'
+															id={field.name}
+															name={field.name}
+															disabled={field.disabled}
+														>
+															<SelectTrigger aria-invalid={fieldState.invalid}>
+																<SelectValue className='capitalize' />
+															</SelectTrigger>
+															<SelectContent>
+																{difficulties.map(difficulty => (
+																	<SelectItem
+																		key={difficulty}
+																		value={difficulty}
+																		className='capitalize'
+																	>
+																		{difficulty}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
 														{fieldState.invalid && (
 															<FieldError errors={[fieldState.error]} />
 														)}

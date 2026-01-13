@@ -1,9 +1,9 @@
 import { relations } from 'drizzle-orm'
 import { index, text, timestamp } from 'drizzle-orm/pg-core'
 import { quizzle, timestamps } from './_root'
-import { users } from './users'
+import { usersTable } from './users'
 
-export const sessions = quizzle.table(
+export const sessionsTable = quizzle.table(
 	'sessions',
 	{
 		id: text().primaryKey(),
@@ -13,24 +13,24 @@ export const sessions = quizzle.table(
 		userAgent: text(),
 		userId: text()
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
+			.references(() => usersTable.id, { onDelete: 'cascade' }),
 
 		...timestamps
 	},
 	table => [index('sessions_userId_idx').on(table.userId)]
 )
 
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-	user: one(users, {
-		fields: [sessions.userId],
-		references: [users.id]
+export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
+	user: one(usersTable, {
+		fields: [sessionsTable.userId],
+		references: [usersTable.id]
 	})
 }))
 
-export type Session = typeof sessions.$inferSelect
-export type NewSession = typeof sessions.$inferInsert
+export type Session = typeof sessionsTable.$inferSelect
+export type NewSession = typeof sessionsTable.$inferInsert
 
-export const accounts = quizzle.table(
+export const accountsTable = quizzle.table(
 	'accounts',
 	{
 		id: text().primaryKey(),
@@ -38,7 +38,7 @@ export const accounts = quizzle.table(
 		providerId: text().notNull(),
 		userId: text()
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
+			.references(() => usersTable.id, { onDelete: 'cascade' }),
 		accessToken: text(),
 		refreshToken: text(),
 		idToken: text(),
@@ -52,17 +52,17 @@ export const accounts = quizzle.table(
 	table => [index('accounts_userId_idx').on(table.userId)]
 )
 
-export const accountsRelations = relations(accounts, ({ one }) => ({
-	user: one(users, {
-		fields: [accounts.userId],
-		references: [users.id]
+export const accountsRelations = relations(accountsTable, ({ one }) => ({
+	user: one(usersTable, {
+		fields: [accountsTable.userId],
+		references: [usersTable.id]
 	})
 }))
 
-export type Account = typeof accounts.$inferSelect
-export type NewAccount = typeof accounts.$inferInsert
+export type Account = typeof accountsTable.$inferSelect
+export type NewAccount = typeof accountsTable.$inferInsert
 
-export const verifications = quizzle.table(
+export const verificationsTable = quizzle.table(
 	'verifications',
 	{
 		id: text().primaryKey(),
@@ -75,5 +75,5 @@ export const verifications = quizzle.table(
 	table => [index('verifications_identifier_idx').on(table.identifier)]
 )
 
-export type Verification = typeof verifications.$inferSelect
-export type NewVerification = typeof verifications.$inferInsert
+export type Verification = typeof verificationsTable.$inferSelect
+export type NewVerification = typeof verificationsTable.$inferInsert

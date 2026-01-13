@@ -1,6 +1,10 @@
 import { db } from '@/db'
-import { users } from '@/db/schema'
-import { accounts, sessions, verifications } from '@/db/schema/auth'
+import { usersTable } from '@/db/schema'
+import {
+	accountsTable,
+	sessionsTable,
+	verificationsTable
+} from '@/db/schema/auth'
 import { usernameSchema } from '@/features/auth/zod'
 import { getUploadthingKey } from '@/utils/helpers'
 import { betterAuth } from 'better-auth'
@@ -19,7 +23,12 @@ export const auth = betterAuth({
 		provider: 'pg',
 		camelCase: false,
 		usePlural: true,
-		schema: { users, sessions, accounts, verifications }
+		schema: {
+			users: usersTable,
+			sessions: sessionsTable,
+			accounts: accountsTable,
+			verifications: verificationsTable
+		}
 	}),
 	emailAndPassword: {
 		enabled: true,

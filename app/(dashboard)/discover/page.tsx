@@ -12,17 +12,26 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select'
+import { getCategories } from '@/features/categories/actions'
+import CategoryCombobox from '@/features/quizzes/components/category-combobox'
 import { getSession } from '@/lib/auth'
 import { difficulties } from '@/lib/constants'
 import { Filter, Globe, SearchIcon } from 'lucide-react'
+import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import QuizList, { QuizListSkeleton } from './quiz-list'
+
+export const metadata: Metadata = {
+	title: 'Discover'
+}
 
 export default async function DisoverPage() {
 	const isAuthenticated = await getSession().then(Boolean)
 
 	if (!isAuthenticated) redirect('/sign-in')
+
+	const categories = await getCategories()
 
 	return (
 		<div className='container mx-auto p-6 space-y-6'>
@@ -51,21 +60,23 @@ export default async function DisoverPage() {
 							/>
 						</InputGroup>
 
-						<Select>
+						{/* @ts-ignore TODO */}
+						<CategoryCombobox categories={categories} />
+						{/* <Select>
 							<SelectTrigger>
 								<SelectValue>Category</SelectValue>
 							</SelectTrigger>
 							<SelectContent>
-								{['Programming', 'Science', 'Mathematics'].map(category => (
+								{categories.map(category => (
 									<SelectItem
-										key={category}
-										value={category.toLowerCase()}
+										key={category.id}
+										value={category.id}
 									>
-										{category}
+										{category.name}
 									</SelectItem>
 								))}
 							</SelectContent>
-						</Select>
+						</Select> */}
 
 						<Select>
 							<SelectTrigger>

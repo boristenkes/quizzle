@@ -1,4 +1,4 @@
-import { QuestionDifficulty } from '@/lib/constants'
+import { Difficulty } from '@/lib/constants'
 
 export const intFormatter = new Intl.NumberFormat('en-US', {
 	style: 'decimal'
@@ -18,7 +18,7 @@ export const dateFormatter = new Intl.DateTimeFormat('en-US', {
 	year: 'numeric'
 })
 
-export const getDifficultyColor = (difficulty: QuestionDifficulty) => {
+export const getDifficultyColor = (difficulty: Difficulty) => {
 	switch (difficulty.toLowerCase()) {
 		case 'easy':
 			return 'bg-green-100 text-green-800 border-green-200'

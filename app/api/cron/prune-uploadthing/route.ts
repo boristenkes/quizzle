@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { db } from '@/db'
-import { users } from '@/db/schema'
+import { usersTable } from '@/db/schema'
 import { uploadthing } from '@/lib/uploadthing'
 import { and, isNotNull, like } from 'drizzle-orm'
 
@@ -14,10 +14,10 @@ export async function GET() {
 
 	const uploadthingKeys = files.map(f => f.key)
 
-	const userImages = (await db.query.users.findMany({
+	const userImages = (await db.query.usersTable.findMany({
 		where: and(
-			isNotNull(users.image),
-			like(users.image, 'https://zyuyzp7rol.ufs.sh/f/%')
+			isNotNull(usersTable.image),
+			like(usersTable.image, 'https://zyuyzp7rol.ufs.sh/f/%')
 		),
 		columns: { image: true }
 	})) as { image: string }[]

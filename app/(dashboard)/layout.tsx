@@ -1,5 +1,6 @@
 // import { NotificationsPopover } from '@/components/NotificationsPopover'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { CategoriesProvider } from '@/context/categories'
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin'
 import { cookies } from 'next/headers'
 import { extractRouterConfig } from 'uploadthing/server'
@@ -17,19 +18,21 @@ export default async function DashboardLayout({
 
 	return (
 		<SidebarProvider defaultOpen={defaultOpen}>
-			<div className='min-h-screen flex w-full bg-background'>
-				<DashboardSidebar />
+			<CategoriesProvider>
+				<div className='min-h-screen flex w-full bg-background'>
+					<DashboardSidebar />
 
-				<div className='flex flex-col flex-1'>
-					<DashboardNavbar />
+					<div className='flex flex-col flex-1'>
+						<DashboardNavbar />
 
-					<div className='bg-neutral-100 dark:bg-neutral-900/20 h-full w-full'>
-						{children}
+						<div className='bg-neutral-100 dark:bg-neutral-900/20 h-full w-full'>
+							{children}
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+				<NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+			</CategoriesProvider>
 		</SidebarProvider>
 	)
 }
