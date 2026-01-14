@@ -7,6 +7,8 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { User } from '@/db/schema'
 import { getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {
@@ -22,9 +24,13 @@ import TimeLimit from './time-limit'
 
 export type UserQuizListProps = {
 	quizzes: GetUserQuizzesQuiz[]
+	currentUserId: User['id']
 }
 
-export default function UserQuizList({ quizzes }: UserQuizListProps) {
+export default function UserQuizList({
+	quizzes,
+	currentUserId
+}: UserQuizListProps) {
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
 			{quizzes.map(quiz => (
@@ -90,13 +96,67 @@ export default function UserQuizList({ quizzes }: UserQuizListProps) {
 									</Link>
 								}
 							/>
-							<Button
-								variant='outline'
-								size='sm'
-								nativeButton={false}
-								render={<Link href={`/quizzes/${quiz.id}/edit`}>Edit</Link>}
-							/>
+							{quiz.creatorId === currentUserId && (
+								<Button
+									variant='outline'
+									size='sm'
+									nativeButton={false}
+									render={
+										<Link href={`/quizzes/edit/${quiz.slug}/${quiz.id}`}>
+											Edit
+										</Link>
+									}
+								/>
+							)}
 						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	)
+}
+
+export function UserQuizListSkeleton({ itemCount }: { itemCount: number }) {
+	return (
+		<div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
+			{Array.from({ length: itemCount }).map((_, idx) => (
+				<Card key={idx}>
+					<CardHeader className='pb-3'>
+						<div className='flex items-start'>
+							<div className='grow'>
+								{/* Title */}
+								<Skeleton className='w-80 h-7 rounded-lg mb-2' />
+
+								{/* Description */}
+								<Skeleton className='w-96 h-4 rounded-lg mb-1' />
+								<Skeleton className='w-72 h-4 rounded-lg' />
+							</div>
+
+							{/* Badges */}
+							<Skeleton className='h-5 w-12 rounded-full' />
+						</div>
+					</CardHeader>
+					<CardContent className='space-y-4 flex flex-col justify-end h-full'>
+						<div className='grid grid-cols-2 gap-3 text-sm'>
+							<div className='flex items-center gap-2'>
+								<Skeleton className='size-4 rounded-lg' />
+								<Skeleton className='w-21.25 h-5 rounded-lg' />
+							</div>
+							<div className='flex items-center gap-2'>
+								<Skeleton className='size-4 rounded-lg' />
+								<Skeleton className='w-21.25 h-5 rounded-lg' />
+							</div>
+							<div className='flex items-center gap-2'>
+								<Skeleton className='size-4 rounded-lg' />
+								<Skeleton className='w-21.25 h-5 rounded-lg' />
+							</div>
+							<div className='flex items-center gap-2'>
+								<Skeleton className='size-4 rounded-lg' />
+								<Skeleton className='w-21.25 h-5 rounded-lg' />
+							</div>
+						</div>
+
+						<Skeleton className='h-8 rounded-lg' />
 					</CardContent>
 				</Card>
 			))}

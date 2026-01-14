@@ -47,6 +47,16 @@ export function pickColumns<T>(...columns: (keyof T)[]): Record<keyof T, true> {
 	return result as Record<keyof T, true>
 }
 
+export function omitColumns<T>(
+	...columns: (keyof T)[]
+): Record<keyof T, false> {
+	const result = columns.reduce((prev, curr) => {
+		return { ...prev, [curr]: false }
+	}, {})
+
+	return result as Record<keyof T, false>
+}
+
 declare global {
 	interface Array<T> {
 		count(callback: (value: T, index: number, array: T[]) => boolean): number

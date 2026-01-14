@@ -1,7 +1,6 @@
 export { default as ConnectedAccounts } from './connected-accounts'
 export { default as DangerZone } from './danger-zone'
 export { default as EmailNotifications } from './email-notifications'
-export { default as LanguageRegion } from './language-region'
 export { default as ProfileInfo } from './profile-info'
 export { default as ProfileVisibility } from './profile-visibility'
 export { default as PushNotifications } from './push-notifications'

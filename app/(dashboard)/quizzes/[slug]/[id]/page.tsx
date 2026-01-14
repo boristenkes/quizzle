@@ -53,7 +53,7 @@ export default async function QuizDetailsPage({
 	const { quiz } = response
 
 	return (
-		<div className='container mx-auto p-6 space-y-8 max-w-6xl'>
+		<div className='container mx-auto py-6 px-4 space-y-8 max-w-6xl'>
 			{/* Back Button */}
 			<BackButton
 				variant='ghost'

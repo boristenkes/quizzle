@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 	if (!session) redirect('/sign-in')
 
 	return (
-		<main className='container mx-auto py-6 px-1 flex-1 overflow-y-auto'>
+		<main className='container mx-auto py-6 px-4 flex-1 overflow-y-auto'>
 			<div className='relative overflow-hidden rounded-2xl bg-gradient-hero shadow-elevated mb-8'>
 				<div className='absolute inset-0 bg-indigo-500'>
 					<Image
@@ -63,7 +63,10 @@ export default async function DashboardPage() {
 				</div>
 			</div>
 
-			<RecentQuizzes userId={session.user.id} />
+			<RecentQuizzes
+				userId={session.user.id}
+				currentUserId={session.user.id}
+			/>
 		</main>
 	)
 }

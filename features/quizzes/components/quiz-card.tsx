@@ -31,19 +31,19 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					<div>
 						<Link
 							href={`/quizzes/${quiz.slug}/${quiz.id}`}
-							className='hover:text-primary transition-colors space-y-2'
+							className='hover:text-primary transition-colors'
 						>
 							<CardTitle className='text-lg line-clamp-2'>
 								{quiz.title}
 							</CardTitle>
-							<CardDescription className='line-clamp-2'>
-								{quiz.description}
-							</CardDescription>
 						</Link>
+						<CardDescription className='line-clamp-2 mt-2'>
+							{quiz.description}
+						</CardDescription>
 						<div className='text-xs text-muted-foreground mt-4'>
 							<Link
 								href={`/users/${quiz.creator.id}`}
-								className='hover:text-indigo-500 hover:underline transition-colors inline-flex items-center gap-2'
+								className='hover:text-indigo-500 font-medium transition-colors inline-flex items-center gap-2'
 							>
 								<Avatar size='sm'>
 									<AvatarImage

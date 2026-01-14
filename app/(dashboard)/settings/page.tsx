@@ -19,7 +19,7 @@ export default async function SettingsPage() {
 	const currentUser = session.user
 
 	return (
-		<div className='container mx-auto p-6 max-w-4xl space-y-8'>
+		<div className='container mx-auto py-6 px-4 max-w-4xl space-y-8'>
 			<div>
 				<h1 className='text-3xl font-bold'>Settings</h1>
 				<p className='text-muted-foreground'>
@@ -97,12 +97,8 @@ export default async function SettingsPage() {
 				</TabsContent>
 
 				{/* Appearance tab */}
-				<TabsContent
-					value='appearance'
-					className='space-y-6'
-				>
+				<TabsContent value='appearance'>
 					<Section.Theme />
-					<Section.LanguageRegion />
 				</TabsContent>
 			</PersistedTabs>
 		</div>

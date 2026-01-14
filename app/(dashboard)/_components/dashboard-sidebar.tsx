@@ -19,6 +19,7 @@ import {
 	LayoutDashboardIcon,
 	PlusIcon,
 	SettingsIcon,
+	SparklesIcon,
 	TrophyIcon
 } from 'lucide-react'
 import Link from 'next/link'
@@ -47,10 +48,8 @@ export function DashboardSidebar() {
 				<div className='h-16 px-4 border-b border-sidebar-border flex items-center'>
 					<Link href='/'>
 						<div className='flex items-center gap-2'>
-							<div className='w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center'>
-								<span className='text-primary-foreground font-bold text-sm'>
-									Q
-								</span>
+							<div className='size-8 bg-indigo-500 rounded-lg flex items-center justify-center'>
+								<SparklesIcon className='text-primary-foreground size-4' />
 							</div>
 							{!isCollapsed && (
 								<div>

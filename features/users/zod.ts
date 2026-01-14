@@ -9,7 +9,6 @@ export const userSchema = z.object({
 	email: z.email(),
 	emailVerified: z.boolean(),
 	name: requiredString,
-	passwordHash: requiredString.optional(),
 	role: z.enum(['user', 'admin']).default('user'),
 	image: z.url().optional().nullable(),
 	displayUsername: requiredString.optional(),

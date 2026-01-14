@@ -34,7 +34,7 @@ export default async function DisoverPage() {
 	const categories = await getCategories()
 
 	return (
-		<div className='container mx-auto p-6 space-y-6'>
+		<div className='container mx-auto py-6 px-4 space-y-6'>
 			{/* Header */}
 			<div className='space-y-2'>
 				<h1 className='text-3xl font-bold flex items-center gap-2'>

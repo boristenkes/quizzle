@@ -182,7 +182,7 @@ export type GetUserQuizzesQuiz = Quiz & {
 
 export async function getUserQuizzes(
 	userId: User['id'],
-	{ page = 1, pageSize = 6 }
+	{ page = 1, pageSize = 6 } = {}
 ): Promise<ServerActionResponse<{ quizzes: GetUserQuizzesQuiz[] }>> {
 	try {
 		const session = await getSession()

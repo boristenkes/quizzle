@@ -16,9 +16,13 @@ import Link from 'next/link'
 
 export type RecentQuizzesProps = {
 	userId: User['id']
+	currentUserId: User['id']
 }
 
-export default async function RecentQuizzes({ userId }: RecentQuizzesProps) {
+export default async function RecentQuizzes({
+	userId,
+	currentUserId
+}: RecentQuizzesProps) {
 	const response = await getUserQuizzes(userId, { pageSize: 3 })
 
 	if (!response.success)
@@ -47,7 +51,10 @@ export default async function RecentQuizzes({ userId }: RecentQuizzesProps) {
 			</div>
 
 			{response.quizzes.length > 0 ? (
-				<UserQuizList quizzes={response.quizzes} />
+				<UserQuizList
+					quizzes={response.quizzes}
+					currentUserId={currentUserId}
+				/>
 			) : (
 				<RecentQuizzesEmpty />
 			)}

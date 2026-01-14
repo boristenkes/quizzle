@@ -1,4 +1,5 @@
 // import { NotificationsPopover } from '@/components/NotificationsPopover'
+import Footer from '@/components/footer'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { CategoriesProvider } from '@/context/categories'
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin'
@@ -22,12 +23,12 @@ export default async function DashboardLayout({
 				<div className='min-h-screen flex w-full bg-background'>
 					<DashboardSidebar />
 
-					<div className='flex flex-col flex-1'>
+					<div className='flex flex-col flex-1 bg-neutral-100 dark:bg-neutral-900/20'>
 						<DashboardNavbar />
 
-						<div className='bg-neutral-100 dark:bg-neutral-900/20 h-full w-full'>
-							{children}
-						</div>
+						<div className='grow'>{children}</div>
+
+						<Footer />
 					</div>
 				</div>
 
