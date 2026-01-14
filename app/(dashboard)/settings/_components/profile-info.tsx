@@ -53,6 +53,18 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 
 		if (imageUrl !== user.image) dirtyValues.image = imageUrl
 
+		if (dirtyValues.username) {
+			const { data } = await authClient.isUsernameAvailable({
+				username: dirtyValues.username
+			})
+
+			if (!data?.available) {
+				return form.setError('username', {
+					message: 'Username already taken. Please pick another one.'
+				})
+			}
+		}
+
 		const response = await authClient.updateUser(dirtyValues)
 
 		if (response.error) {
@@ -149,21 +161,22 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 								</Field>
 							)}
 						/>
+
 						<Controller
-							name='email'
+							name='username'
 							control={form.control}
 							render={({ field, fieldState }) => (
 								<Field data-invalid={fieldState.invalid}>
-									<FieldLabel htmlFor={field.name}>Email</FieldLabel>
+									<FieldLabel htmlFor={field.name}>Username</FieldLabel>
 									<Input
 										{...field}
 										id={field.name}
 										aria-invalid={fieldState.invalid}
-										placeholder='john.doe@example.com'
-										autoComplete='email'
+										placeholder='johndoe'
+										autoComplete='username'
 										disabled={isSubmitting}
 									/>
-									<FieldDescription>Enter your email address</FieldDescription>
+									<FieldDescription>Enter your username</FieldDescription>
 									{fieldState.invalid && (
 										<FieldError errors={[fieldState.error]} />
 									)}
@@ -171,6 +184,28 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 							)}
 						/>
 					</div>
+
+					<Controller
+						name='email'
+						control={form.control}
+						render={({ field, fieldState }) => (
+							<Field data-invalid={fieldState.invalid}>
+								<FieldLabel htmlFor={field.name}>Email</FieldLabel>
+								<Input
+									{...field}
+									id={field.name}
+									aria-invalid={fieldState.invalid}
+									placeholder='john.doe@example.com'
+									autoComplete='email'
+									disabled={isSubmitting}
+								/>
+								<FieldDescription>Enter your email address</FieldDescription>
+								{fieldState.invalid && (
+									<FieldError errors={[fieldState.error]} />
+								)}
+							</Field>
+						)}
+					/>
 
 					<Controller
 						name='bio'

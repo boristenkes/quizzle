@@ -12,7 +12,7 @@ import {
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { pickColumns, slugify } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
+import { Nullable, ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import z from 'zod'
@@ -174,6 +174,7 @@ export async function getQuizzes(): Promise<
 }
 
 export type GetUserQuizzesQuiz = Quiz & {
+	category: Nullable<Pick<QuizCategory, 'id' | 'name' | 'slug'>>
 	averageRating: number
 	totalAttempts: number
 	averageScore: number
@@ -202,6 +203,11 @@ export async function getUserQuizzes(
 				isNull(quizzesTable.deletedAt),
 				...foreignQuizzesFilters
 			),
+			with: {
+				category: {
+					columns: pickColumns('id', 'name', 'slug')
+				}
+			},
 			extras: {
 				averageRating: averageRatingQuery,
 				totalAttempts: totalAttemptsQuery,

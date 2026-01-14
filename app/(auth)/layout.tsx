@@ -1,3 +1,4 @@
+import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { ArrowLeftIcon, SparklesIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -9,17 +10,21 @@ export default function AuthLayout({
 }) {
 	return (
 		<div className='min-h-screen p-4 bg-linear-to-br from-accent/10 via-secondary/30 to-accent/20'>
-			<Button
-				variant='outline'
-				className='m-4'
-				nativeButton={false}
-				render={
-					<Link href='/'>
-						<ArrowLeftIcon className='mr-2 h-4 w-4' />
-						Back to Home
-					</Link>
-				}
-			/>
+			<div className='flex items-center justify-between gap-4'>
+				<Button
+					variant='outline'
+					className='m-4'
+					nativeButton={false}
+					render={
+						<Link href='/'>
+							<ArrowLeftIcon className='mr-2 h-4 w-4' />
+							Back to Home
+						</Link>
+					}
+				/>
+
+				<ThemeSwitch />
+			</div>
 
 			<main className='w-full max-w-md space-y-6 mx-auto py-4'>
 				{/* Logo */}

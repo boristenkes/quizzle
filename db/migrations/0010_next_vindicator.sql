@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."users" DROP COLUMN "password_hash";

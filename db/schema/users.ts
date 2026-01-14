@@ -16,7 +16,6 @@ export const usersTable = quizzle.table(
 		email: text().notNull().unique(),
 		emailVerified: boolean().default(false).notNull(),
 		name: text().notNull(),
-		passwordHash: text(),
 		role: userRoleEnum().notNull().default('user'),
 		image: text(),
 		displayUsername: text('display_username'), // required by better-auth

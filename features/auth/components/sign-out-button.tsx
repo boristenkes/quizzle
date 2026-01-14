@@ -2,7 +2,7 @@
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { authClient } from '@/lib/auth.client'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 
 export type SignOutButtonProps =
 	| ({ unstyled?: true } & React.ComponentProps<'button'>)
@@ -22,15 +22,15 @@ export default function SignOutButton({
 	if (unstyled)
 		return (
 			<button
-				onClick={handleClick}
 				{...(props as React.ComponentProps<'button'>)}
+				onClick={handleClick}
 			/>
 		)
 
 	return (
 		<Button
-			onClick={handleClick}
 			{...props}
+			onClick={handleClick}
 		/>
 	)
 }

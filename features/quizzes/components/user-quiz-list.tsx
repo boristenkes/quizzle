@@ -7,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
-import { Quiz } from '@/db/schema'
 import { getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {
@@ -18,14 +17,11 @@ import {
 	UsersIcon
 } from 'lucide-react'
 import Link from 'next/link'
+import { GetUserQuizzesQuiz } from '../actions'
 import TimeLimit from './time-limit'
 
 export type UserQuizListProps = {
-	quizzes: (Quiz & {
-		averageRating: number
-		totalAttempts: number
-		averageScore: number
-	})[]
+	quizzes: GetUserQuizzesQuiz[]
 }
 
 export default function UserQuizList({ quizzes }: UserQuizListProps) {
@@ -34,8 +30,8 @@ export default function UserQuizList({ quizzes }: UserQuizListProps) {
 			{quizzes.map(quiz => (
 				<Card key={quiz.id}>
 					<CardHeader className='pb-3'>
-						<div className='flex items-start justify-between'>
-							<div className='flex-1'>
+						<div className='flex items-start justify-between gap-2'>
+							<div className='grow'>
 								<Link
 									href={`/quizzes/${quiz.slug}/${quiz.id}`}
 									className='hover:text-indigo-500 transition-colors'
@@ -48,6 +44,9 @@ export default function UserQuizList({ quizzes }: UserQuizListProps) {
 									{quiz.description}
 								</CardDescription>
 							</div>
+							{quiz.category && (
+								<Badge variant='outline'>{quiz.category.name}</Badge>
+							)}
 							<Badge
 								className={cn(
 									getDifficultyColor(quiz.difficulty),

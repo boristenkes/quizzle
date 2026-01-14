@@ -1,4 +1,5 @@
 import { usernameSchema } from '@/features/auth/zod'
+import { pickColumns } from '@/utils/helpers'
 import { requiredString } from '@/utils/zod'
 import z from 'zod'
 
@@ -24,12 +25,7 @@ export const userSchema = z.object({
 export type UserSchema = z.infer<typeof userSchema>
 
 export const editUserSchema = userSchema
-	.pick({
-		name: true,
-		email: true,
-		bio: true,
-		image: true
-	})
+	.pick(pickColumns('name', 'username', 'email', 'bio', 'image'))
 	.partial()
 
 export type EditUserSchema = z.infer<typeof editUserSchema>

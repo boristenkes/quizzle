@@ -39,7 +39,7 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 					<div className='space-y-2'>
 						<Label className='text-sm font-medium'>Title</Label>
 						<p className='text-base text-muted-foreground'>
-							{values.title || 'Untitled Quiz'}
+							{values.title || <em>Untitled Quiz</em>}
 						</p>
 					</div>
 					<div className='space-y-2'>
@@ -63,7 +63,7 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 					<div className='space-y-2'>
 						<Label className='text-sm font-medium'>Category</Label>
 						<p className='text-base text-muted-foreground capitalize'>
-							{chosenCategory?.name}
+							{chosenCategory?.name ?? <em>No category provided</em>}
 						</p>
 					</div>
 				</div>
@@ -71,26 +71,26 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 				<div className='space-y-2'>
 					<Label className='text-sm font-medium'>Description</Label>
 					<p className='text-base text-muted-foreground'>
-						{values.description || 'No description provided'}
+						{values.description || <em>No description provided</em>}
 					</p>
 				</div>
 
 				<div className='grid grid-cols-3 gap-4 text-center'>
 					<div className='p-4 bg-green-50 text-green-600 rounded-lg dark:bg-green-600/40 dark:text-green-200'>
 						<p className='text-2xl font-bold'>
-							{values.questions.filter(q => q.difficulty === 'easy').length}
+							{values.questions.count(q => q.difficulty === 'easy')}
 						</p>
 						<p className='text-sm'>Easy Questions</p>
 					</div>
 					<div className='p-4 bg-yellow-50 text-yellow-600 rounded-lg dark:bg-yellow-600/50 dark:text-yellow-200'>
 						<p className='text-2xl font-bold '>
-							{values.questions.filter(q => q.difficulty === 'medium').length}
+							{values.questions.count(q => q.difficulty === 'medium')}
 						</p>
 						<p className='text-sm'>Medium Questions</p>
 					</div>
 					<div className='p-4 bg-red-50 text-red-600 rounded-lg  dark:bg-red-500/40 dark:text-red-200'>
 						<p className='text-2xl font-bold'>
-							{values.questions.filter(q => q.difficulty === 'hard').length}
+							{values.questions.count(q => q.difficulty === 'hard')}
 						</p>
 						<p className='text-sm'>Hard Questions</p>
 					</div>
@@ -107,7 +107,7 @@ export default function QuizPreview({ values, formState }: QuizPreviewProps) {
 						type='button'
 						disabled={formState.isSubmitting}
 					>
-						<SaveIcon className='h-4 w-4 mr-2' />
+						<SaveIcon className='size-4 mr-2' />
 						Save Draft
 					</Button>
 					<Button

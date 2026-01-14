@@ -6,15 +6,14 @@ import {
 	verificationsTable
 } from '@/db/schema/auth'
 import { usernameSchema } from '@/features/auth/zod'
-import { getUploadthingKey } from '@/utils/helpers'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { username } from 'better-auth/plugins'
+import crypto from 'crypto'
 import { headers } from 'next/headers'
 import { cache } from 'react'
 import { ulid } from 'ulid'
 import { env } from './env'
-import { uploadthing } from './uploadthing'
 
 export const auth = betterAuth({
 	appName: 'Quizzle',
@@ -64,21 +63,40 @@ export const auth = betterAuth({
 			role: { type: 'string', defaultValue: 'user' }
 		},
 		deleteUser: {
-			enabled: true,
-			async afterDelete(user) {
-				const imageKey = getUploadthingKey(user.image)
-
-				if (!imageKey) return
-
-				const response = await uploadthing.deleteFiles(imageKey)
-
-				if (!response.success)
-					console.error('[DELETE_USER_IMAGE]:', { response, imageKey })
-			}
+			enabled: true
 		},
 		changeEmail: {
 			enabled: true,
 			updateEmailWithoutVerification: true
+		}
+	},
+	databaseHooks: {
+		user: {
+			create: {
+				async before(user, _context) {
+					// Fallback username
+					if (!user.username) {
+						let candidate = user.email.split('@')[0]
+
+						const exists = await db.query.usersTable
+							.findFirst({
+								where: (table, { eq }) => eq(table.username, candidate),
+								columns: { id: true }
+							})
+							.then(Boolean)
+
+						if (exists) {
+							const suffix = crypto.randomBytes(4).toString('hex')
+							candidate = `${candidate}_${suffix}`
+						}
+
+						user.username = candidate
+						user.displayUsername = candidate
+					}
+
+					return { data: user }
+				}
+			}
 		}
 	}
 })

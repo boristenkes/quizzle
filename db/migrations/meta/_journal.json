@@ -71,6 +71,13 @@
       "when": 1768091547655,
       "tag": "0009_tiny_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1768405542567,
+      "tag": "0010_next_vindicator",
+      "breakpoints": true
     }
   ]
 }
