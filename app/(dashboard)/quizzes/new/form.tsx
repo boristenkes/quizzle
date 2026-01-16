@@ -31,9 +31,7 @@ import { Switch } from '@/components/ui/switch'
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { createQuiz } from '@/features/quizzes/actions'
-import CategoryCombobox, {
-	CategoryComboboxProps
-} from '@/features/quizzes/components/category-combobox'
+import CategoryCombobox from '@/features/quizzes/components/category-combobox'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
 import { difficulties } from '@/lib/constants'
 import {
@@ -59,11 +57,7 @@ type Tab = 'settings' | 'questions' | 'preview'
 const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
 type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
-export default function NewQuizForm({
-	categories
-}: {
-	categories: CategoryComboboxProps['categories']
-}) {
+export default function NewQuizForm() {
 	const quizForm = useQuizForm()
 	const questionsFieldArray = useFieldArray({
 		control: quizForm.control,
@@ -223,7 +217,6 @@ export default function NewQuizForm({
 														<CategoryCombobox
 															value={field.value}
 															setValue={field.onChange}
-															categories={categories}
 														/>
 														<FieldDescription>
 															Essential for searching and filtering

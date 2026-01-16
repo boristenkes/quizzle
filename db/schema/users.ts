@@ -4,6 +4,7 @@ import { boolean, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle, timestamps } from './_root'
 import { accountsTable, sessionsTable } from './auth'
+import { followsTable } from './follows'
 import { quizzesTable } from './quizzes'
 
 export const userRoleEnum = quizzle.enum('user_role', userRoles)
@@ -32,7 +33,9 @@ export const usersTable = quizzle.table(
 export const usersRelations = relations(usersTable, ({ many }) => ({
 	quizzes: many(quizzesTable),
 	sessions: many(sessionsTable),
-	accounts: many(accountsTable)
+	accounts: many(accountsTable),
+	followers: many(followsTable, { relationName: 'followers' }),
+	followings: many(followsTable, { relationName: 'followings' })
 }))
 
 export type User = typeof usersTable.$inferSelect

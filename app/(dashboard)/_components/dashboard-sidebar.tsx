@@ -12,6 +12,7 @@ import {
 	useSidebar
 } from '@/components/ui/sidebar'
 import NavLink from '@/components/utils/nav-link'
+import { cn } from '@/utils/helpers'
 import {
 	BarChart3Icon,
 	FileTextIcon,
@@ -45,7 +46,12 @@ export function DashboardSidebar() {
 	return (
 		<Sidebar collapsible='icon'>
 			<SidebarContent className='bg-linear-to-b from-background to-secondary/20'>
-				<div className='h-16 px-4 border-b border-sidebar-border flex items-center'>
+				<div
+					className={cn(
+						'h-16 px-4 border-b border-sidebar-border flex items-center',
+						isCollapsed && 'justify-center'
+					)}
+				>
 					<Link href='/'>
 						<div className='flex items-center gap-2'>
 							<div className='size-8 bg-indigo-500 rounded-lg flex items-center justify-center'>

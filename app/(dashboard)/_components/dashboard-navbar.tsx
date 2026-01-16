@@ -14,21 +14,19 @@ export default function DashboardNavbar() {
 		<header className='h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40'>
 			<div className='h-full px-4 flex items-center justify-between'>
 				<div className='flex items-center gap-4'>
-					<SidebarTrigger className='lg:hidden' />
+					<SidebarTrigger size='icon' />
 
 					{/* Search */}
-					<div className='hidden md:flex items-center gap-2 max-w-sm'>
-						<InputGroup>
-							<InputGroupInput
-								type='search'
-								className='bg-secondary/50'
-								placeholder='Search...'
-							/>
-							<InputGroupAddon>
-								<SearchIcon className='size-4 text-muted-foregroun' />
-							</InputGroupAddon>
-						</InputGroup>
-					</div>
+					<InputGroup className='hidden md:flex items-center gap-2 max-w-sm'>
+						<InputGroupInput
+							type='search'
+							className='bg-secondary/50'
+							placeholder='Search...'
+						/>
+						<InputGroupAddon>
+							<SearchIcon className='size-4 text-muted-foregroun' />
+						</InputGroupAddon>
+					</InputGroup>
 				</div>
 
 				{/* Right side */}

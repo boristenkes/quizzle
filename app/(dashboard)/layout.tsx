@@ -26,7 +26,7 @@ export default async function DashboardLayout({
 					<div className='flex flex-col flex-1 bg-neutral-100 dark:bg-neutral-900/20'>
 						<DashboardNavbar />
 
-						<div className='grow'>{children}</div>
+						<div className='grow min-h-[calc(100dvh-4rem)]'>{children}</div>
 
 						<Footer />
 					</div>

@@ -1,4 +1,3 @@
-import { getCategories } from '@/features/categories/actions'
 import { getSession } from '@/lib/auth'
 import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
@@ -14,8 +13,6 @@ export default async function NewQuizPage() {
 
 	if (!isAuthenticated) redirect('/sign-in')
 
-	const categories = await getCategories()
-
 	return (
 		<main className='px-4 py-16 space-y-8'>
 			<header className='container mx-auto max-w-4xl space-y-2'>
@@ -29,7 +26,7 @@ export default async function NewQuizPage() {
 			</header>
 
 			<div className='container mx-auto max-w-4xl space-y-6'>
-				<NewQuizForm categories={categories} />
+				<NewQuizForm />
 			</div>
 		</main>
 	)

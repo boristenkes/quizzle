@@ -119,7 +119,7 @@ export default function Footer() {
 					</p>
 					<div className='flex items-center gap-4'>
 						<p className='text-sm text-muted-foreground'>
-							Created by{' '}
+							Developed by{' '}
 							<a
 								href='https://boristenkes.com'
 								target='_blank'

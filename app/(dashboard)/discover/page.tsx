@@ -16,7 +16,7 @@ import { getCategories } from '@/features/categories/actions'
 import CategoryCombobox from '@/features/quizzes/components/category-combobox'
 import { getSession } from '@/lib/auth'
 import { difficulties } from '@/lib/constants'
-import { Filter, Globe, SearchIcon } from 'lucide-react'
+import { Filter, FilterIcon, Globe, SearchIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -36,18 +36,28 @@ export default async function DisoverPage() {
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-6'>
 			{/* Header */}
-			<div className='space-y-2'>
-				<h1 className='text-3xl font-bold flex items-center gap-2'>
-					<Globe className='h-8 w-8 text-primary' />
-					Discover Public Quizzes
-				</h1>
-				<p className='text-muted-foreground'>
-					Explore thousands of quizzes created by our community
-				</p>
+			<div className='flex justify-between items-start gap-2'>
+				<div className='space-y-2'>
+					<h1 className='text-3xl font-bold flex items-center gap-2'>
+						<Globe className='h-8 w-8 text-primary' />
+						Discover Public Quizzes
+					</h1>
+					<p className='text-muted-foreground'>
+						Explore thousands of quizzes created by our community
+					</p>
+				</div>
+
+				<Button
+					variant='outline'
+					size='icon-lg'
+					className='lg:hidden'
+				>
+					<FilterIcon className='size-4' />
+				</Button>
 			</div>
 
 			{/* Filters */}
-			<Card>
+			<Card className='max-lg:hidden'>
 				<CardContent>
 					<div className='flex gap-4'>
 						<InputGroup>

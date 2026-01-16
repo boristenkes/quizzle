@@ -4,23 +4,17 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import BackButton from '@/components/utils/back-button'
 import { getUser } from '@/features/users/actions'
+import FollowButton from '@/features/users/components/follow-button'
 import { getSession } from '@/lib/auth'
 import { dateFormatter } from '@/utils/format'
-import {
-	ArrowLeft,
-	Calendar,
-	FileTextIcon,
-	SettingsIcon,
-	TargetIcon,
-	TrendingUpIcon,
-	UsersIcon
-} from 'lucide-react'
+import { ArrowLeft, Calendar, SettingsIcon } from 'lucide-react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import UserDetailsPageQuizList, {
 	UserDetailsPageQuizListSkeleton
 } from './quiz-list'
+import UserStatistics from './user-statistics'
 
 export type UserDetailsPageProps = {
 	params: Promise<{ identifier: string }>
@@ -79,14 +73,14 @@ export default async function UserDetailsPage({
 
 							<div className='flex-1 space-y-3'>
 								<div>
-									<h1 className='text-3xl font-bold'>{user.name}</h1>
-									<p className='text-muted-foreground'>{user.username}</p>
+									<h1 className='text-3xl font-bold mb-1'>{user.name}</h1>
+									<p className='text-muted-foreground'>@{user.username}</p>
 								</div>
 								{user.bio && (
 									<pre className='font-[inherit] text-sm'>{user.bio}</pre>
 								)}
 								<span className='flex items-center gap-1 text-muted-foreground'>
-									<Calendar className='h-4 w-4' />
+									<Calendar className='size-4' />
 									Joined{' '}
 									<time dateTime={user.createdAt.toISOString()}>
 										{dateFormatter.format(user.createdAt)}
@@ -112,61 +106,33 @@ export default async function UserDetailsPage({
 							</div>
 
 							<div className='flex items-center gap-2'>
-								{session.user.id === user.id && (
+								{session.user.id === user.id ? (
 									<Button
 										variant='outline'
-										size='icon-lg'
+										size='lg'
 										nativeButton={false}
 										render={
 											<Link href='/settings?tab=profile'>
-												<SettingsIcon />
+												Edit Profile <SettingsIcon />
 											</Link>
 										}
 									/>
+								) : (
+									<FollowButton
+										currentUserId={session.user.id}
+										targetUserId={user.id}
+									/>
 								)}
-
-								<Button
-									size='lg'
-									className='px-4'
-								>
-									Follow
-								</Button>
 							</div>
 						</div>
 					</CardContent>
 				</Card>
 
 				{/* Stats */}
-				<div className='grid grid-cols-2 gap-4 basis-1/3'>
-					<Card>
-						<CardContent className='p-4 text-center'>
-							<FileTextIcon className='h-5 w-5 mx-auto mb-2 text-primary' />
-							<p className='text-2xl font-bold'>{user.quizCount}</p>
-							<p className='text-xs text-muted-foreground'>Quizzes Created</p>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardContent className='p-4 text-center'>
-							<UsersIcon className='h-5 w-5 mx-auto mb-2 text-primary' />
-							<p className='text-2xl font-bold'>{user.totalAttempts}</p>
-							<p className='text-xs text-muted-foreground'>Total Attempts</p>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardContent className='p-4 text-center'>
-							<TrendingUpIcon className='h-5 w-5 mx-auto mb-2 text-green-500' />
-							<p className='text-2xl font-bold'>2.3K</p>
-							<p className='text-xs text-muted-foreground'>Followers</p>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardContent className='p-4 text-center'>
-							<TargetIcon className='h-5 w-5 mx-auto mb-2 text-blue-500' />
-							<p className='text-2xl font-bold'>156</p>
-							<p className='text-xs text-muted-foreground'>Following</p>
-						</CardContent>
-					</Card>
-				</div>
+				<UserStatistics
+					user={user}
+					className='basis-1/3'
+				/>
 			</div>
 
 			{/* Tabs */}

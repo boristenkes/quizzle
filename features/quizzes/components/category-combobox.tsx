@@ -25,9 +25,9 @@ import { useEffect, useState } from 'react'
 type Category = Pick<QuizCategory, 'id' | 'name' | 'slug'>
 
 export type CategoryComboboxProps = {
-	categories: Nullable<Category[]>
 	value: Nullable<Category['id']>
 	setValue: SetState<Nullable<Category['id']>>
+	useSlug?: boolean
 	props?: Partial<{
 		popoverContent: React.ComponentProps<typeof PopoverContent>
 	}>
@@ -36,20 +36,22 @@ export type CategoryComboboxProps = {
 export default function CategoryCombobox({
 	value,
 	setValue,
+	useSlug = false,
 	props = {}
 }: CategoryComboboxProps) {
 	const [open, setOpen] = useState(false)
 	const searchParams = useSearchParams()
 	const categories = useCategories()
+	const identifier = useSlug ? 'slug' : 'id'
 
-	const getCategory = (identifier: string | null) => {
-		return categories?.find(c => [c.id, c.slug].includes(identifier!))
+	const getCategory = (id: string | null) => {
+		return categories?.find(c => [c.id, c.slug].includes(id!))
 	}
 
 	useEffect(() => {
 		if (searchParams.has('category')) {
 			const targetCategory = getCategory(searchParams.get('category'))
-			setValue(targetCategory?.id)
+			setValue(targetCategory?.[identifier])
 		}
 	}, [])
 
@@ -87,12 +89,12 @@ export default function CategoryCombobox({
 								<CommandItem
 									key={category.slug}
 									value={category.slug}
-									data-checked={value === category.id}
+									data-checked={value === category[identifier]}
 									onSelect={currentValue => {
 										setValue(
 											currentValue === value
 												? null
-												: getCategory(currentValue)?.id
+												: getCategory(currentValue)?.[identifier]
 										)
 										setOpen(false)
 									}}
