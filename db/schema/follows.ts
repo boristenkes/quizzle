@@ -1,5 +1,5 @@
-import { relations } from 'drizzle-orm'
-import { index, primaryKey, text, timestamp } from 'drizzle-orm/pg-core'
+import { ne, relations } from 'drizzle-orm'
+import { check, index, primaryKey, text, timestamp } from 'drizzle-orm/pg-core'
 import { quizzle } from './_root'
 import { usersTable } from './users'
 
@@ -17,7 +17,8 @@ export const followsTable = quizzle.table(
 	t => [
 		primaryKey({ columns: [t.followerId, t.followingId] }),
 		index('follows_follower_id').on(t.followerId),
-		index('follows_following_id').on(t.followingId)
+		index('follows_following_id').on(t.followingId),
+		check('follows_no_self_follow_check', ne(t.followerId, t.followingId))
 	]
 )
 

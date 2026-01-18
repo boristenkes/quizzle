@@ -1,25 +1,10 @@
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput
-} from '@/components/ui/input-group'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue
-} from '@/components/ui/select'
-import { getCategories } from '@/features/categories/actions'
-import CategoryCombobox from '@/features/quizzes/components/category-combobox'
 import { getSession } from '@/lib/auth'
-import { difficulties } from '@/lib/constants'
-import { Filter, FilterIcon, Globe, SearchIcon } from 'lucide-react'
+import { FilterIcon, Globe } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import DiscoverPageFilters from './filters'
 import QuizList, { QuizListSkeleton } from './quiz-list'
 
 export const metadata: Metadata = {
@@ -30,8 +15,6 @@ export default async function DisoverPage() {
 	const isAuthenticated = await getSession().then(Boolean)
 
 	if (!isAuthenticated) redirect('/sign-in')
-
-	const categories = await getCategories()
 
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-6'>
@@ -57,64 +40,7 @@ export default async function DisoverPage() {
 			</div>
 
 			{/* Filters */}
-			<Card className='max-lg:hidden'>
-				<CardContent>
-					<div className='flex gap-4'>
-						<InputGroup>
-							<InputGroupAddon>
-								<SearchIcon className='size-4 text-muted-foreground' />
-							</InputGroupAddon>
-							<InputGroupInput
-								placeholder='Search quizzes...'
-								className='pl-9'
-							/>
-						</InputGroup>
-
-						{/* @ts-ignore TODO */}
-						<CategoryCombobox categories={categories} />
-						{/* <Select>
-							<SelectTrigger>
-								<SelectValue>Category</SelectValue>
-							</SelectTrigger>
-							<SelectContent>
-								{categories.map(category => (
-									<SelectItem
-										key={category.id}
-										value={category.id}
-									>
-										{category.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select> */}
-
-						<Select>
-							<SelectTrigger>
-								<SelectValue>Difficulty</SelectValue>
-							</SelectTrigger>
-							<SelectContent>
-								{difficulties.map(difficulty => (
-									<SelectItem
-										key={difficulty}
-										value={difficulty.toLowerCase()}
-										className='capitalize'
-									>
-										{difficulty}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-
-						<Button
-							variant='outline'
-							className='flex items-center gap-2 grow h-auto'
-						>
-							<Filter className='size-4' />
-							More Filters
-						</Button>
-					</div>
-				</CardContent>
-			</Card>
+			<DiscoverPageFilters />
 
 			{/* Results Info */}
 			<div className='flex items-center justify-between'>

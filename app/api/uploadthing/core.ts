@@ -7,7 +7,7 @@ const f = createUploadthing()
 export const ourFileRouter = {
 	avatarUploader: f({
 		image: {
-			maxFileSize: '2MB',
+			maxFileSize: '4MB',
 			maxFileCount: 1
 		}
 	})

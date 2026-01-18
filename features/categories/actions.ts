@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth'
 import { pickColumns } from '@/utils/helpers'
 
 export async function getCategories() {
-	const isAuthenticated = await getSession()
+	const isAuthenticated = await getSession().then(Boolean)
 
 	if (!isAuthenticated) throw new Error('Unauthorized')
 

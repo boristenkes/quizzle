@@ -31,5 +31,5 @@ export type EditUserSchema = z.infer<typeof editUserSchema>
 
 export const userImageFileSchema = z
 	.file()
-	.max(2 * 1024 * 1024)
+	.max(4 * 1024 * 1024) // 4MB
 	.mime(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
