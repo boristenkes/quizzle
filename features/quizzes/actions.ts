@@ -11,6 +11,7 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
+import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { Nullable, ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
@@ -63,7 +64,7 @@ export async function createQuiz(
 				quizId: newQuiz.id,
 				prompt: question.prompt,
 				type: question.type,
-				explanationHTML: question.explanationHTML,
+				explanationHTML: sanitizeHTML(question.explanationHTML),
 				difficulty: question.difficulty,
 				order: index + 1
 			}))

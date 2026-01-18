@@ -11,7 +11,7 @@ export const quizzesTable = quizzle.table(
 	{
 		id: text().primaryKey().$defaultFn(ulid),
 		title: text().notNull(),
-		slug: text(),
+		slug: text().notNull(),
 		description: text().notNull(),
 		difficulty: difficultyEnum().notNull().default('easy'),
 
@@ -31,7 +31,10 @@ export const quizzesTable = quizzle.table(
 		...timestamps,
 		deletedAt: timestamp({ withTimezone: true })
 	},
-	t => [index('quizzes_creator_idx').on(t.creatorId)]
+	t => [
+		index('quizzes_creator_idx').on(t.creatorId),
+		index('quizzes_category_idx').on(t.categoryId)
+	]
 )
 
 export const quizzesRelations = relations(quizzesTable, ({ one, many }) => ({

@@ -1,3 +1,4 @@
+import RichTextEditor from '@/components/rich-text-editor'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -277,15 +278,16 @@ export default function QuestionForm({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldLabel htmlFor={field.name}>Explanation</FieldLabel>
-										<Textarea
-											{...field}
-											id={field.name}
-											aria-invalid={fieldState.invalid}
-											placeholder='This is correct because...'
-										/>
 										<FieldDescription>
 											Explanation displayed after answering
 										</FieldDescription>
+										<RichTextEditor
+											{...field}
+											value={field.value}
+											onChange={field.onChange}
+											disabled={field.disabled}
+											aria-invalid={fieldState.invalid}
+										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />
 										)}
