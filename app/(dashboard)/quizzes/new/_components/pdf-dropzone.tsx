@@ -1,57 +1,49 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/helpers'
-import { FileText, Loader2, Sparkles, Upload, X } from 'lucide-react'
+import {
+	FileTextIcon,
+	Loader2Icon,
+	Sparkles,
+	SparklesIcon,
+	Upload,
+	XIcon
+} from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { useDropzone, type DropzoneOptions } from 'react-dropzone'
 
-interface PdfDropZoneProps {
+export type PDFDropzoneProps = DropzoneOptions & {
 	onFileSelect: (file: File) => void
 	onClear?: () => void
 	isProcessing?: boolean
 }
 
-export function PdfDropZone({
+export function PDFDropzone({
 	onFileSelect,
 	onClear,
-	isProcessing = false
-}: PdfDropZoneProps) {
-	const [isDragActive, setIsDragActive] = useState(false)
+	isProcessing = false,
+	...props
+}: PDFDropzoneProps) {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-	const handleDrag = useCallback((e: React.DragEvent) => {
-		e.preventDefault()
-		e.stopPropagation()
-		if (e.type === 'dragenter' || e.type === 'dragover') {
-			setIsDragActive(true)
-		} else if (e.type === 'dragleave') {
-			setIsDragActive(false)
-		}
-	}, [])
+	const onDrop = useCallback(
+		(acceptedFiles: File[]) => {
+			const file = acceptedFiles[0]
+			if (!file) return
 
-	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
-			e.preventDefault()
-			e.stopPropagation()
-			setIsDragActive(false)
-
-			const files = e.dataTransfer.files
-			if (files?.[0]?.type === 'application/pdf') {
-				setSelectedFile(files[0])
-				onFileSelect(files[0])
-			}
+			setSelectedFile(file)
+			onFileSelect(file)
 		},
 		[onFileSelect]
 	)
 
-	const handleFileInput = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const files = e.target.files
-			if (files?.[0]) {
-				setSelectedFile(files[0])
-				onFileSelect(files[0])
-			}
-		},
-		[onFileSelect]
-	)
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		onDrop,
+		accept: { 'application/pdf': [] },
+		multiple: false,
+		...props
+	})
 
 	const handleClear = useCallback(() => {
 		setSelectedFile(null)
@@ -63,8 +55,8 @@ export function PdfDropZone({
 			<div className='relative border-2 border-dashed border-primary/40 rounded-xl p-6 bg-primary/5'>
 				<div className='flex items-center justify-between'>
 					<div className='flex items-center gap-4'>
-						<div className='w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center'>
-							<FileText className='h-6 w-6 text-primary' />
+						<div className='size-12 bg-primary/10 rounded-lg flex items-center justify-center'>
+							<FileTextIcon className='size-6 text-primary' />
 						</div>
 						<div>
 							<p className='font-medium text-foreground'>{selectedFile.name}</p>
@@ -76,7 +68,7 @@ export function PdfDropZone({
 					<div className='flex items-center gap-2'>
 						{isProcessing ? (
 							<div className='flex items-center gap-2 text-primary'>
-								<Loader2 className='h-4 w-4 animate-spin' />
+								<Loader2Icon className='size-4 animate-spin' />
 								<span className='text-sm font-medium'>AI is analyzing...</span>
 							</div>
 						) : (
@@ -85,7 +77,7 @@ export function PdfDropZone({
 									size='sm'
 									className='gap-2'
 								>
-									<Sparkles className='h-4 w-4' />
+									<SparklesIcon className='size-4' />
 									Generate Questions
 								</Button>
 								<Button
@@ -94,7 +86,7 @@ export function PdfDropZone({
 									onClick={handleClear}
 									className='text-muted-foreground hover:text-destructive'
 								>
-									<X className='h-4 w-4' />
+									<XIcon className='size-4' />
 								</Button>
 							</>
 						)}
@@ -106,10 +98,7 @@ export function PdfDropZone({
 
 	return (
 		<div
-			onDragEnter={handleDrag}
-			onDragLeave={handleDrag}
-			onDragOver={handleDrag}
-			onDrop={handleDrop}
+			{...getRootProps()}
 			className={cn(
 				'relative border-2 border-dashed rounded-xl p-8 transition-all duration-200 cursor-pointer',
 				isDragActive
@@ -117,22 +106,17 @@ export function PdfDropZone({
 					: 'border-border hover:border-primary/50 hover:bg-secondary/50'
 			)}
 		>
-			<input
-				type='file'
-				accept='.pdf'
-				onChange={handleFileInput}
-				className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-			/>
+			<input {...getInputProps()} />
 			<div className='flex flex-col items-center justify-center gap-4 text-center'>
 				<div
 					className={cn(
-						'w-16 h-16 rounded-full flex items-center justify-center transition-colors',
+						'size-16 rounded-full flex items-center justify-center transition-colors',
 						isDragActive ? 'bg-primary/20' : 'bg-secondary'
 					)}
 				>
 					<Upload
 						className={cn(
-							'h-8 w-8 transition-colors',
+							'size-8 transition-colors',
 							isDragActive ? 'text-primary' : 'text-muted-foreground'
 						)}
 					/>

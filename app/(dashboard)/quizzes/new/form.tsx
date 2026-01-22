@@ -46,7 +46,7 @@ import { useState } from 'react'
 import { Controller, useFieldArray } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
-import { PdfDropZone } from './_components/pdf-dropzone'
+import { PDFDropzone } from './_components/pdf-dropzone'
 import QuestionForm from './_components/question-form'
 import QuestionList from './_components/question-list'
 import QuizPreview from './_components/quiz-preview'
@@ -358,7 +358,7 @@ export default function NewQuizForm() {
 											</span>
 										</div>
 
-										<PdfDropZone onFileSelect={setFile} />
+										<PDFDropzone onFileSelect={setFile} />
 
 										<div className='flex justify-end'>
 											<Button
