@@ -60,12 +60,30 @@ export function ResponsiveDialog({
 	)
 }
 
-export const ResponsiveDialogTrigger = (
-	props: React.ComponentProps<typeof DrawerTrigger>
-) => {
+export const ResponsiveDialogTrigger = ({
+	children,
+	...props
+}: React.ComponentProps<typeof DrawerTrigger>) => {
 	const Trigger = useResponsiveDialog(DialogTrigger, DrawerTrigger)
 
-	return <Trigger {...props} />
+	if (Trigger.name === DialogTrigger.name) {
+		return (
+			<Trigger
+				// @ts-expect-error
+				render={children}
+				{...props}
+			/>
+		)
+	} else {
+		return (
+			<Trigger
+				asChild
+				{...props}
+			>
+				{children}
+			</Trigger>
+		)
+	}
 }
 
 export const ResponsiveDialogContent = (

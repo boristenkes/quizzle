@@ -69,6 +69,7 @@ import {
 	useForm,
 	UseFormReturn
 } from 'react-hook-form'
+import GenerateQuestionsDialog from './generate-questions-dialog'
 
 const baseQuestionDefaults: BaseQuestionFormSchema = {
 	prompt: '',
@@ -119,14 +120,17 @@ export default function QuestionForm({
 			<CardHeader>
 				<div className='flex items-center gap-2'>
 					<CardTitle>Add Question</CardTitle>
-					<Button
-						variant='outline'
-						size='sm'
-						className='ml-auto'
-					>
-						<SparklesIcon className='size-4 mr-2' />
-						AI Generate
-					</Button>
+
+					<GenerateQuestionsDialog onGenerate={questionsFieldArray.append}>
+						<Button
+							variant='outline'
+							size='sm'
+							className='ml-auto'
+						>
+							<SparklesIcon className='size-4 mr-2' />
+							AI Generate
+						</Button>
+					</GenerateQuestionsDialog>
 				</div>
 				<CardDescription>
 					Create multiple choice or free text questions

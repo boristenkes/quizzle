@@ -27,7 +27,7 @@ import { quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
 	data: QuizFormSchema
-): Promise<ServerActionResponse<{ quizId: Quiz['id'] }>> {
+): Promise<ServerActionResponse> {
 	try {
 		const session = await getSession()
 
@@ -43,8 +43,6 @@ export async function createQuiz(
 		}
 		delete quizData.timeLimitMinutes
 
-		let quizId: Quiz['id'] = ''
-
 		// Insert questions
 		await db.transaction(async tx => {
 			const [newQuiz] = await tx
@@ -56,8 +54,6 @@ export async function createQuiz(
 					creatorId: currentUser.id
 				})
 				.returning({ id: quizzesTable.id })
-
-			quizId = newQuiz.id
 
 			const baseQuestionsData = questions.map((question, index) => ({
 				id: ulid(),
@@ -105,7 +101,7 @@ export async function createQuiz(
 			}
 		})
 
-		return { success: true, quizId }
+		return { success: true }
 	} catch (error) {
 		console.error('[CREATE_QUIZ]:', error)
 		return { success: false }

@@ -1,12 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { formatFileSize } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {
 	FileTextIcon,
 	Loader2Icon,
 	Sparkles,
-	SparklesIcon,
 	Upload,
 	XIcon
 } from 'lucide-react'
@@ -26,6 +26,7 @@ export function PDFDropzone({
 	...props
 }: PDFDropzoneProps) {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
+	const [isOpen, setIsOpen] = useState(false)
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
@@ -34,6 +35,7 @@ export function PDFDropzone({
 
 			setSelectedFile(file)
 			onFileSelect(file)
+			setIsOpen(true)
 		},
 		[onFileSelect]
 	)
@@ -61,7 +63,7 @@ export function PDFDropzone({
 						<div>
 							<p className='font-medium text-foreground'>{selectedFile.name}</p>
 							<p className='text-sm text-muted-foreground'>
-								{(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+								{formatFileSize(selectedFile.size)}
 							</p>
 						</div>
 					</div>
@@ -72,23 +74,14 @@ export function PDFDropzone({
 								<span className='text-sm font-medium'>AI is analyzing...</span>
 							</div>
 						) : (
-							<>
-								<Button
-									size='sm'
-									className='gap-2'
-								>
-									<SparklesIcon className='size-4' />
-									Generate Questions
-								</Button>
-								<Button
-									variant='ghost'
-									size='icon'
-									onClick={handleClear}
-									className='text-muted-foreground hover:text-destructive'
-								>
-									<XIcon className='size-4' />
-								</Button>
-							</>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={handleClear}
+								className='text-muted-foreground hover:text-destructive'
+							>
+								<XIcon className='size-4' />
+							</Button>
 						)}
 					</div>
 				</div>

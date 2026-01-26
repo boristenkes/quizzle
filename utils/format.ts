@@ -30,3 +30,13 @@ export const getDifficultyColor = (difficulty: Difficulty) => {
 			return 'bg-gray-100 text-gray-800 border-gray-200'
 	}
 }
+
+export function formatFileSize(sizeBytes: number) {
+	if (sizeBytes === 0) return '0 Bytes'
+
+	const units = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+	const i = Math.floor(Math.log(sizeBytes) / Math.log(1024))
+	const formattedSize = parseFloat((sizeBytes / Math.pow(1024, i)).toFixed(2))
+
+	return `${formattedSize} ${units[i]}`
+}
