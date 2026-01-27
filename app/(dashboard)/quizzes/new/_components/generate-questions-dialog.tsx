@@ -34,6 +34,7 @@ import { SparklesIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import z from 'zod'
 import { PDFDropzone } from './pdf-dropzone'
 
 type GenerateQuestionsDialogProps = React.ComponentProps<
@@ -75,10 +76,9 @@ export default function GenerateQuestionsDialog({
 		const pdfValidation = pdfFileSchema.safeParse(pdfFile)
 
 		if (!pdfValidation.success) {
-			form.setError('root', {
-				message: pdfValidation.error.message
+			return form.setError('root', {
+				message: z.prettifyError(pdfValidation.error)
 			})
-			return
 		}
 
 		const formData = new FormData()
@@ -91,12 +91,11 @@ export default function GenerateQuestionsDialog({
 		})
 
 		if (!response.success) {
-			form.setError('root', {
+			return form.setError('root', {
 				message:
 					response.message ??
 					'AI failed to generate questions. Please try again later.'
 			})
-			return
 		}
 
 		toast.success('Questions generated successfully')

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { getSession } from '@/lib/auth'
 import heroImage from '@/public/assets/hero-quiz.jpg'
-import { FileText, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -34,31 +34,17 @@ export default async function DashboardPage() {
 							Create intelligent quizzes, engage learners, and track progress
 							with AI-powered insights.
 						</p>
-						<div className='flex flex-col sm:flex-row gap-4 animate-slide-up'>
-							<Button
-								size='lg'
-								className='bg-white text-primary hover:bg-white/90 font-semibold'
-								nativeButton={false}
-								render={
-									<Link href='/quizzes/new'>
-										<Plus className='mr-2 h-5 w-5' />
-										Create New Quiz
-									</Link>
-								}
-							/>
-							<Button
-								variant='outline'
-								size='lg'
-								className='border-white text-white bg-white/10 hover:bg-white/90'
-								nativeButton={false}
-								render={
-									<Link href='/import'>
-										<FileText className='mr-2 h-5 w-5' />
-										Import from PDF
-									</Link>
-								}
-							/>
-						</div>
+						<Button
+							size='lg'
+							className='bg-white text-primary hover:bg-white/90 font-semibold'
+							nativeButton={false}
+							render={
+								<Link href='/quizzes/new'>
+									<Plus className='mr-2 h-5 w-5' />
+									Create New Quiz
+								</Link>
+							}
+						/>
 					</div>
 				</div>
 			</div>

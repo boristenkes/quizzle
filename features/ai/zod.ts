@@ -38,6 +38,6 @@ export type GenerateQuestionsConfigSchema = z.infer<
 >
 
 export const pdfFileSchema = z
-	.file()
+	.file({ error: 'PDF file is required' })
 	.max(4 * 1024 * 1024) // 4MB
 	.mime('application/pdf')

@@ -56,7 +56,7 @@ export default function RichTextEditor({
 	}
 
 	return (
-		<div className='border p-2 rounded-lg'>
+		<div className='border-2 p-2 rounded-lg has-[.ProseMirror-focused]:border-neutral-100'>
 			{/* Toolbar */}
 			<div className='flex flex-wrap gap-1 p-1 rounded-md'>
 				{/* Headings */}
@@ -168,6 +168,7 @@ export default function RichTextEditor({
 				<EditorContent
 					editor={editor}
 					disabled={disabled}
+					className='[&>div]:outline-0!'
 					{...props}
 				/>
 			</div>
