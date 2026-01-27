@@ -21,14 +21,13 @@ import {
 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { useFieldArray } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
 import QuestionForm from './_components/question-form'
 import QuestionList from './_components/question-list'
 import QuizConfiguration from './_components/quiz-configuration'
 import QuizPreview from './_components/quiz-preview'
-import { quizFormDefaults, useQuizForm } from './_hooks/use-quiz-form'
+import { quizFormDefaults, useQuizForm } from './_context/quiz-form'
 
 type Tab = 'settings' | 'questions' | 'preview'
 
@@ -36,12 +35,7 @@ const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
 type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
 export default function NewQuizForm() {
-	const quizForm = useQuizForm()
-	const questionsFieldArray = useFieldArray({
-		control: quizForm.control,
-		name: 'questions'
-	})
-	const [file, setFile] = useState<File | null>(null)
+	const { form, questionsFieldArray } = useQuizForm()
 	const searchParams = useSearchParams()
 	const [activeTab, setActiveTab] = useState<Tab>(
 		(searchParams.get('tab') ?? 'settings') as Tab
@@ -49,9 +43,9 @@ export default function NewQuizForm() {
 
 	async function switchTab(
 		tab: Tab,
-		fieldsToValidate: Parameters<typeof quizForm.trigger>[0]
+		fieldsToValidate: Parameters<typeof form.trigger>[0]
 	) {
-		const isValid = await quizForm.trigger(fieldsToValidate, {
+		const isValid = await form.trigger(fieldsToValidate, {
 			shouldFocus: true
 		})
 
@@ -62,16 +56,15 @@ export default function NewQuizForm() {
 		const response = await createQuiz(data)
 
 		if (!response.success) {
-			quizForm.setError('root', {
+			form.setError('root', {
 				message:
 					response.message ?? 'Something went wrong. Please try again later.'
 			})
 			return
 		}
 
-		setFile(null)
 		setActiveTab('settings')
-		quizForm.reset(quizFormDefaults)
+		form.reset(quizFormDefaults)
 		toast.success('Quiz created successfully')
 	}
 
@@ -107,47 +100,49 @@ export default function NewQuizForm() {
 				</TabsList>
 
 				{/* Settings Tab */}
-				<TabsContent value='settings'>
-					<Card>
-						<CardHeader>
-							<CardTitle>Quiz Configuration</CardTitle>
-							<CardDescription>
-								Set up the basic information for your quiz
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<QuizConfiguration
-								quizForm={quizForm}
-								onSubmit={onSubmit}
-							/>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					id='new-quiz-form'
+				>
+					<TabsContent value='settings'>
+						<Card>
+							<CardHeader>
+								<CardTitle>Quiz Configuration</CardTitle>
+								<CardDescription>
+									Set up the basic information for your quiz
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<QuizConfiguration />
 
-							<div className='flex justify-end mt-8'>
-								<Button
-									size='lg'
-									type='button'
-									onClick={() => {
-										const fieldsToValidate = Object.keys(
-											quizSettingsFormSchema.shape
-										) as (keyof QuizSettingsFormSchema)[]
+								<div className='flex justify-end mt-8'>
+									<Button
+										size='lg'
+										type='button'
+										onClick={() => {
+											const fieldsToValidate = Object.keys(
+												quizSettingsFormSchema.shape
+											) as (keyof QuizSettingsFormSchema)[]
 
-										switchTab('questions', fieldsToValidate)
-									}}
-								>
-									Next: Add Questions
-									<FileText className='ml-2 h-4 w-4' />
-								</Button>
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
+											switchTab('questions', fieldsToValidate)
+										}}
+									>
+										Next: Add Questions
+										<FileText className='ml-2 h-4 w-4' />
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					</TabsContent>
+				</form>
 
 				{/* Questions Tab */}
 				<TabsContent
 					value='questions'
 					className='space-y-4'
 				>
-					<QuestionForm questionsFieldArray={questionsFieldArray} />
-					<QuestionList questionsFieldArray={questionsFieldArray} />
+					<QuestionForm />
+					<QuestionList />
 
 					<div className='flex justify-end gap-2'>
 						<Button
@@ -171,10 +166,7 @@ export default function NewQuizForm() {
 
 				{/* Preview Tab */}
 				<TabsContent value='preview'>
-					<QuizPreview
-						values={quizForm.getValues()}
-						formState={quizForm.formState}
-					/>
+					<QuizPreview />
 
 					<Button
 						variant='outline'

@@ -57,25 +57,20 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 						</div>
 					</div>
 
-					<div className='flex items-start justify-between mb-2 gap-2'>
-						<div className='flex gap-2'>
-							{quiz.category && (
-								<Badge variant='outline'>{quiz.category.name}</Badge>
-							)}
-							<Badge
-								className={cn(
-									getDifficultyColor(quiz.difficulty),
-									'capitalize'
-								)}
-								variant='outline'
-							>
-								{quiz.difficulty}
-							</Badge>
-						</div>
+					<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
 						<div className='flex items-center gap-1 text-sm'>
 							<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
 							<span>{quiz.averageRating}</span>
 						</div>
+						<Badge
+							className={cn(getDifficultyColor(quiz.difficulty), 'capitalize')}
+							variant='outline'
+						>
+							{quiz.difficulty}
+						</Badge>
+						{quiz.category && (
+							<Badge variant='outline'>{quiz.category.name}</Badge>
+						)}
 					</div>
 				</div>
 			</CardHeader>

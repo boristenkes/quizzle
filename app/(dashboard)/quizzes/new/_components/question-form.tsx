@@ -48,7 +48,6 @@ import {
 	QuestionFormSchema,
 	TextQuestionFormSchema
 } from '@/features/questions/zod'
-import { QuizFormSchema } from '@/features/quizzes/zod'
 import {
 	difficulties,
 	MAX_QUESTION_OPTIONS,
@@ -69,6 +68,7 @@ import {
 	useForm,
 	UseFormReturn
 } from 'react-hook-form'
+import { useQuizForm } from '../_context/quiz-form'
 import GenerateQuestionsDialog from './generate-questions-dialog'
 
 const baseQuestionDefaults: BaseQuestionFormSchema = {
@@ -94,11 +94,8 @@ const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema = {
 	]
 }
 
-export default function QuestionForm({
-	questionsFieldArray
-}: {
-	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
-}) {
+export default function QuestionForm() {
+	const { questionsFieldArray } = useQuizForm()
 	const form = useForm<QuestionFormSchema>({
 		defaultValues: choiceDefaults,
 		resolver: zodResolver(questionFormSchema) as any, // TS being too weird

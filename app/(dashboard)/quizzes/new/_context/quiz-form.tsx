@@ -3,8 +3,20 @@
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
 import { Difficulty } from '@/lib/constants'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { createContext, useContext, useEffect } from 'react'
+import {
+	useFieldArray,
+	UseFieldArrayReturn,
+	useForm,
+	UseFormReturn
+} from 'react-hook-form'
+
+type QuizFormContextReturn = {
+	form: UseFormReturn<QuizFormSchema>
+	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
+}
+
+export const QuizFormContext = createContext<QuizFormContextReturn | null>(null)
 
 export const STORAGE_KEY = 'quizzle:new-quiz-form'
 
@@ -17,15 +29,25 @@ export const quizFormDefaults = {
 	categoryId: null,
 	difficulty: 'easy' as Difficulty,
 	questions: []
+} satisfies QuizFormSchema
+
+export function useQuizForm() {
+	const context = useContext(QuizFormContext)
+
+	if (!context)
+		throw new Error('useQuizForm must be used within QuizFormProvider')
+
+	return context
 }
 
-type UseQuizFormProps = Parameters<typeof useForm<QuizFormSchema>>[0]
-
-export function useQuizForm(props?: UseQuizFormProps) {
+export function QuizFormProvider({ children }: { children: React.ReactNode }) {
 	const form = useForm<QuizFormSchema>({
 		defaultValues: quizFormDefaults,
-		resolver: zodResolver(quizFormSchema) as any,
-		...props
+		resolver: zodResolver(quizFormSchema) as any
+	})
+	const questionsFieldArray = useFieldArray({
+		control: form.control,
+		name: 'questions'
 	})
 
 	useEffect(() => {
@@ -68,5 +90,14 @@ export function useQuizForm(props?: UseQuizFormProps) {
 		form.reset(...args)
 	}
 
-	return { ...form, reset }
+	return (
+		<QuizFormContext.Provider
+			value={{
+				form: { ...form, reset },
+				questionsFieldArray
+			}}
+		>
+			{children}
+		</QuizFormContext.Provider>
+	)
 }

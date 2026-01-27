@@ -3,30 +3,21 @@
 import { Button } from '@/components/ui/button'
 import { formatFileSize } from '@/utils/format'
 import { cn } from '@/utils/helpers'
-import {
-	FileTextIcon,
-	Loader2Icon,
-	Sparkles,
-	Upload,
-	XIcon
-} from 'lucide-react'
+import { FileTextIcon, SparklesIcon, UploadIcon, XIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useDropzone, type DropzoneOptions } from 'react-dropzone'
 
 export type PDFDropzoneProps = DropzoneOptions & {
 	onFileSelect: (file: File) => void
 	onClear?: () => void
-	isProcessing?: boolean
 }
 
 export function PDFDropzone({
 	onFileSelect,
 	onClear,
-	isProcessing = false,
 	...props
 }: PDFDropzoneProps) {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
-	const [isOpen, setIsOpen] = useState(false)
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
@@ -35,7 +26,6 @@ export function PDFDropzone({
 
 			setSelectedFile(file)
 			onFileSelect(file)
-			setIsOpen(true)
 		},
 		[onFileSelect]
 	)
@@ -68,21 +58,14 @@ export function PDFDropzone({
 						</div>
 					</div>
 					<div className='flex items-center gap-2'>
-						{isProcessing ? (
-							<div className='flex items-center gap-2 text-primary'>
-								<Loader2Icon className='size-4 animate-spin' />
-								<span className='text-sm font-medium'>AI is analyzing...</span>
-							</div>
-						) : (
-							<Button
-								variant='ghost'
-								size='icon'
-								onClick={handleClear}
-								className='text-muted-foreground hover:text-destructive'
-							>
-								<XIcon className='size-4' />
-							</Button>
-						)}
+						<Button
+							variant='ghost'
+							size='icon'
+							onClick={handleClear}
+							className='text-muted-foreground hover:text-destructive'
+						>
+							<XIcon className='size-4' />
+						</Button>
 					</div>
 				</div>
 			</div>
@@ -107,7 +90,7 @@ export function PDFDropzone({
 						isDragActive ? 'bg-primary/20' : 'bg-secondary'
 					)}
 				>
-					<Upload
+					<UploadIcon
 						className={cn(
 							'size-8 transition-colors',
 							isDragActive ? 'text-primary' : 'text-muted-foreground'
@@ -126,7 +109,7 @@ export function PDFDropzone({
 					</p>
 				</div>
 				<div className='flex items-center gap-2 text-xs text-muted-foreground'>
-					<Sparkles className='h-3 w-3' />
+					<SparklesIcon className='size-3' />
 					<span>Powered by AI</span>
 				</div>
 			</div>

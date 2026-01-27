@@ -174,10 +174,3 @@ export default function RichTextEditor({
 		</div>
 	)
 }
-
-// const btnClass = (active: boolean) =>
-// 	// `px-2 py-1 text-sm border rounded ${active ? 'bg-black text-white dark:bg-white dark:text-black' : ''}`
-// 	cn(
-// 		'px-2 py-1 text-sm border rounded',
-// 		active && 'bg-black text-white dark:bg-white dark:text-black'
-// 	)

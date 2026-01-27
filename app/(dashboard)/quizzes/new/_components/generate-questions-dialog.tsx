@@ -112,10 +112,10 @@ export default function GenerateQuestionsDialog({
 		>
 			<ResponsiveDialogTrigger>{children}</ResponsiveDialogTrigger>
 			<ResponsiveDialogContent className='px-8'>
-				<ResponsiveDialogHeader>
+				<ResponsiveDialogHeader className='gap-0'>
 					<ResponsiveDialogTitle>AI Response Settings</ResponsiveDialogTitle>
 					<ResponsiveDialogDescription>
-						Tell AI what kind of output you want.
+						Let AI know what output you want.
 					</ResponsiveDialogDescription>
 				</ResponsiveDialogHeader>
 

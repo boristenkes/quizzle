@@ -9,18 +9,15 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
-import { QuizFormSchema } from '@/features/quizzes/zod'
 import { questionTypeLabel } from '@/lib/constants'
 import { getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import { CheckIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
-import { UseFieldArrayReturn } from 'react-hook-form'
+import { useQuizForm } from '../_context/quiz-form'
 
-export default function QuestionList({
-	questionsFieldArray
-}: {
-	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
-}) {
+export default function QuestionList() {
+	const { questionsFieldArray } = useQuizForm()
+
 	if (questionsFieldArray.fields.length === 0) return null
 
 	return (

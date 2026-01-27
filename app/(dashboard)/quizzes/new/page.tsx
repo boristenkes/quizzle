@@ -2,6 +2,7 @@ import { getSession } from '@/lib/auth'
 import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { QuizFormProvider } from './_context/quiz-form'
 import NewQuizForm from './form'
 
 export const metadata: Metadata = {
@@ -26,7 +27,9 @@ export default async function NewQuizPage() {
 			</header>
 
 			<div className='container mx-auto max-w-4xl space-y-6'>
-				<NewQuizForm />
+				<QuizFormProvider>
+					<NewQuizForm />
+				</QuizFormProvider>
 			</div>
 		</main>
 	)
