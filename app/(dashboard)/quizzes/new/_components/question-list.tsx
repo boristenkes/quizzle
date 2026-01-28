@@ -124,6 +124,7 @@ export default function QuestionList() {
 						<details className='mt-4'>
 							<summary className='mb-2'>Explanation</summary>
 							<div
+								className='rich-text'
 								dangerouslySetInnerHTML={{
 									__html: question.explanationHTML
 								}}

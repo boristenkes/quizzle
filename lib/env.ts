@@ -9,6 +9,8 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string(),
 		UPLOADTHING_TOKEN: z.string(),
 		GEMINI_API_KEY: z.string(),
+		UPSTASH_REDIS_REST_URL: z.url(),
+		UPSTASH_REDIS_REST_TOKEN: z.string(),
 
 		NODE_ENV: z
 			.enum(['development', 'production', 'test'])

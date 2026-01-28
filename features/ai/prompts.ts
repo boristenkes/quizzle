@@ -43,8 +43,11 @@ TEXT QUESTION RULES
 
 EXPLANATION RULES
 - explanationHTML must:
-  - explain why the answer is correct
-  - be concise (2–4 sentences)
+	- explain why the answer is correct
+	- use information derived from the provided PDF content
+	- not mention the PDF or refer to it directly
+	- be concise (2-6 sentences)
+	- include headings, paragraphs, or lists if they improve clarity
   - use ONLY allowed HTML tags (${sanitizeConfig.ALLOWED_TAGS.join(', ')}) 
     and attributes (${sanitizeConfig.ALLOWED_ATTR.join(', ')})
 
