@@ -20,7 +20,6 @@ import {
 	ResponsiveDialogTitle,
 	ResponsiveDialogTrigger
 } from '@/components/utils/responsive-dialog'
-import { generateQuestions } from '@/features/ai/actions'
 import {
 	GenerateQuestionsFormSchema,
 	generateQuestionsFormSchema,
@@ -28,6 +27,7 @@ import {
 } from '@/features/ai/zod'
 import { QuestionFormSchema } from '@/features/questions/zod'
 import { MAX_QUIZ_QUESTIONS, MIN_QUIZ_QUESTIONS } from '@/lib/constants'
+import { scrollToElement } from '@/utils/helpers'
 import { Nullable } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SparklesIcon } from 'lucide-react'
@@ -35,12 +35,13 @@ import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
+import { useQuizForm } from '../_context/quiz-form'
 import { PDFDropzone } from './pdf-dropzone'
 
 type GenerateQuestionsDialogProps = React.ComponentProps<
 	typeof ResponsiveDialog
 > & {
-	onGenerate: (questions: QuestionFormSchema[]) => any
+	onGenerate: (questions: QuestionFormSchema | QuestionFormSchema[]) => any
 }
 
 export default function GenerateQuestionsDialog({
@@ -60,6 +61,7 @@ export default function GenerateQuestionsDialog({
 	const questionCount = form.watch('questionCount')
 	const [pdfFile, setPDFFile] = useState<Nullable<File>>(null)
 	const [isOpen, setIsOpen] = useState(false)
+	const { setIsGenerating, controller } = useQuizForm()
 
 	const onSubmit = async (data: GenerateQuestionsFormSchema) => {
 		const difficultyDistribution = getDistributionObj(
@@ -83,24 +85,51 @@ export default function GenerateQuestionsDialog({
 
 		const formData = new FormData()
 		formData.append('pdf', pdfValidation.data)
+		formData.append(
+			'config',
+			JSON.stringify({
+				questionCount: data.questionCount,
+				difficultyDistribution,
+				typeDistribution
+			})
+		)
 
-		const response = await generateQuestions(formData, {
-			questionCount: data.questionCount,
-			difficultyDistribution,
-			typeDistribution
+		setIsOpen(false)
+		setIsGenerating(true)
+		scrollToElement('new-quiz-form:question-list')
+
+		const response = await fetch('/api/ai/generate-questions', {
+			method: 'POST',
+			body: formData,
+			signal: controller.signal
 		})
 
-		if (!response.success) {
-			return form.setError('root', {
-				message:
-					response.message ??
-					'AI failed to generate questions. Please try again later.'
-			})
+		const reader = response.body!.getReader()
+		const decoder = new TextDecoder()
+
+		let buffer = ''
+
+		while (true) {
+			const { value, done } = await reader.read()
+
+			if (done) break
+
+			buffer += decoder.decode(value, { stream: true })
+
+			let newlineIndex: number
+			while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+				const line = buffer.slice(0, newlineIndex).trim()
+				buffer = buffer.slice(newlineIndex + 1)
+
+				if (!line) continue
+
+				const question = JSON.parse(line) as QuestionFormSchema
+				onGenerate(question)
+			}
 		}
 
 		toast.success('Questions generated successfully')
-		onGenerate(response.questions)
-		setIsOpen(false)
+		setIsGenerating(false)
 	}
 
 	return (

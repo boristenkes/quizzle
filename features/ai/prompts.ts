@@ -44,57 +44,49 @@ TEXT QUESTION RULES
 EXPLANATION RULES
 - explanationHTML must:
   - explain why the answer is correct
-  - reference the PDF content
   - be concise (2–4 sentences)
   - use ONLY allowed HTML tags (${sanitizeConfig.ALLOWED_TAGS.join(', ')}) 
     and attributes (${sanitizeConfig.ALLOWED_ATTR.join(', ')})
+
+QUESTION SCHEMA
+- Each question must match the following schema:
+{
+	type: "object",
+	properties: {
+		prompt: { type: "string" },
+		explanationHTML: { type: "string" },
+		difficulty: {
+			type: "string",
+			enum: ["easy", "medium", "hard"]
+		},
+		type: {
+			type: "string",
+			enum: ["multi_correct", "single_correct", "text"]
+		},
+		acceptableAnswers: {
+			type: "array",
+			items: { type: "string" }
+		},
+		options: {
+			type: "array",
+			items: {
+				type: "object",
+				properties: {
+					value: { type: "string" },
+					isCorrect: { type: "boolean" }
+				},
+				required: ["value", "isCorrect"]
+			}
+		},
+		ignoreCase: { type: "boolean" },
+		trimWhitespace: { type: "boolean" }
+	},
+	required: ["prompt", "explanationHTML", "difficulty", "type"]
+}
 
 SOURCE DOCUMENT (ONLY SOURCE OF TRUTH)
 <<<BEGIN PDF TEXT>>>
 ${pdfText}
 <<<END PDF TEXT>>>
 `
-}
-
-export const generateQuestionsResponseJsonSchema = {
-	type: 'object',
-	properties: {
-		questions: {
-			type: 'array',
-			items: {
-				type: 'object',
-				properties: {
-					prompt: { type: 'string' },
-					explanationHTML: { type: 'string' },
-					difficulty: {
-						type: 'string',
-						enum: ['easy', 'medium', 'hard']
-					},
-					type: {
-						type: 'string',
-						enum: ['text', 'single_correct', 'multi_correct']
-					},
-					acceptableAnswers: {
-						type: 'array',
-						items: { type: 'string' }
-					},
-					options: {
-						type: 'array',
-						items: {
-							type: 'object',
-							properties: {
-								value: { type: 'string' },
-								isCorrect: { type: 'boolean' }
-							},
-							required: ['value', 'isCorrect']
-						}
-					},
-					ignoreCase: { type: 'boolean' },
-					trimWhitespace: { type: 'boolean' }
-				},
-				required: ['prompt', 'explanationHTML', 'difficulty', 'type']
-			}
-		}
-	},
-	required: ['questions']
 }

@@ -2,8 +2,9 @@
 
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
 import { Difficulty } from '@/lib/constants'
+import { SetState } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import {
 	useFieldArray,
 	UseFieldArrayReturn,
@@ -14,6 +15,9 @@ import {
 type QuizFormContextReturn = {
 	form: UseFormReturn<QuizFormSchema>
 	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
+	isGenerating: boolean
+	setIsGenerating: SetState<boolean>
+	controller: AbortController
 }
 
 export const QuizFormContext = createContext<QuizFormContextReturn | null>(null)
@@ -49,6 +53,8 @@ export function QuizFormProvider({ children }: { children: React.ReactNode }) {
 		control: form.control,
 		name: 'questions'
 	})
+	const [isGenerating, setIsGenerating] = useState(false)
+	const [controller] = useState(new AbortController())
 
 	useEffect(() => {
 		try {
@@ -94,7 +100,10 @@ export function QuizFormProvider({ children }: { children: React.ReactNode }) {
 		<QuizFormContext.Provider
 			value={{
 				form: { ...form, reset },
-				questionsFieldArray
+				questionsFieldArray,
+				isGenerating,
+				setIsGenerating,
+				controller
 			}}
 		>
 			{children}

@@ -57,6 +57,15 @@ export function omitColumns<T>(
 	return result as Record<keyof T, false>
 }
 
+export function scrollToElement(elementId: string) {
+	if (typeof window === 'undefined' || !elementId) return
+
+	const a = document.createElement('a')
+	a.href = '#' + elementId
+	a.click()
+	a.remove()
+}
+
 declare global {
 	interface Array<T> {
 		count(callback: (value: T, index: number, array: T[]) => boolean): number
