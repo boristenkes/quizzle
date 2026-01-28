@@ -39,8 +39,11 @@ export default function QuestionList() {
 						<p className='flex items-center gap-4'>
 							Your questions are being generated
 						</p>
-						<Spinner className='size-8 my-2' />
+						<div>
+							<Spinner className='size-8 my-4' />
+						</div>
 						<Button
+							type='button'
 							variant='secondary'
 							onClick={() => controller.abort()}
 						>

@@ -49,6 +49,22 @@ export async function POST(req: NextRequest) {
 		parsedConfig
 	)
 
+	const emitLine = (
+		line: string,
+		controller: ReadableStreamDefaultController
+	) => {
+		try {
+			const parsed = questionFormSchema.parse(JSON.parse(line))
+			controller.enqueue(encoder.encode(JSON.stringify(parsed) + '\n'))
+		} catch {
+			console.warn(
+				'[WARNING]: AI returned invalid question:',
+				line,
+				'(POST /ai/generate-questions)'
+			)
+		}
+	}
+
 	const stream = new ReadableStream({
 		async start(controller) {
 			let buffer = ''
@@ -68,7 +84,7 @@ export async function POST(req: NextRequest) {
 					return
 				}
 
-				const text = chunk.candidates?.[0].content?.parts?.[0].text
+				const text = chunk.candidates?.[0].content?.parts?.[0].text ?? ''
 				buffer += text
 
 				let newlineIndex: number
@@ -78,21 +94,13 @@ export async function POST(req: NextRequest) {
 
 					if (!line) continue
 
-					console.log('--------------------------------------------')
-					console.log('[AI GENERATED LINE]:', line)
-
-					try {
-						const parsed = questionFormSchema.parse(JSON.parse(line))
-
-						controller.enqueue(encoder.encode(JSON.stringify(parsed) + '\n'))
-					} catch {
-						console.warn(
-							'[WARNING]: AI returned invalid question:',
-							line,
-							'(GET /ai/generate-questions)'
-						)
-					}
+					emitLine(line, controller)
 				}
+			}
+
+			const leftover = buffer.trim()
+			if (leftover) {
+				emitLine(leftover, controller)
 			}
 
 			controller.close()

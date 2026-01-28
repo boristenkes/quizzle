@@ -104,8 +104,7 @@ export function PDFDropzone({
 							: 'Drop a PDF or click to upload'}
 					</p>
 					<p className='text-sm text-muted-foreground mt-1 text-pretty'>
-						AI will analyze your content, populate configuration fields and
-						generate questions for you
+						AI will analyze your content and generate questions for you
 					</p>
 				</div>
 				<div className='flex items-center gap-2 text-xs text-muted-foreground'>
