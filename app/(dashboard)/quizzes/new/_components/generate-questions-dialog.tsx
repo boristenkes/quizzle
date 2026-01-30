@@ -58,10 +58,22 @@ export default function GenerateQuestionsDialog({
 		resolver: zodResolver(generateQuestionsFormSchema) as any
 	})
 	const { isSubmitting, errors } = form.formState
-	const questionCount = form.watch('questionCount')
 	const [pdfFile, setPDFFile] = useState<Nullable<File>>(null)
 	const [isOpen, setIsOpen] = useState(false)
-	const { setIsGenerating, controller } = useQuizForm()
+	const { questionsFieldArray, setIsGenerating, controller } = useQuizForm()
+	const existingQuestionCount = questionsFieldArray.fields.length
+	const remainingQuestions = Math.max(
+		0,
+		MAX_QUIZ_QUESTIONS - existingQuestionCount
+	)
+	const minQuestionCount =
+		remainingQuestions < MIN_QUIZ_QUESTIONS
+			? remainingQuestions
+			: MIN_QUIZ_QUESTIONS
+	const questionCount = Math.min(
+		Math.max(form.watch('questionCount'), minQuestionCount),
+		remainingQuestions
+	)
 
 	const onSubmit = async (data: GenerateQuestionsFormSchema) => {
 		const difficultyDistribution = getDistributionObj(
@@ -138,7 +150,9 @@ export default function GenerateQuestionsDialog({
 			onOpenChange={setIsOpen}
 			{...props}
 		>
-			<ResponsiveDialogTrigger>{children}</ResponsiveDialogTrigger>
+			<ResponsiveDialogTrigger disabled={remainingQuestions === 0}>
+				{children}
+			</ResponsiveDialogTrigger>
 			<ResponsiveDialogContent className='px-8'>
 				<ResponsiveDialogHeader className='gap-0'>
 					<ResponsiveDialogTitle>AI Response Settings</ResponsiveDialogTitle>
@@ -160,7 +174,7 @@ export default function GenerateQuestionsDialog({
 										htmlFor={field.name}
 										className='-mb-1.5'
 									>
-										Number of questions
+										Number of Questions
 									</FieldLabel>
 									<FieldDescription>
 										How many questions should be generated?
@@ -172,10 +186,11 @@ export default function GenerateQuestionsDialog({
 										type='number'
 										id={field.name}
 										aria-invalid={fieldState.invalid}
-										min={MIN_QUIZ_QUESTIONS}
-										max={MAX_QUIZ_QUESTIONS}
-										disabled={isSubmitting}
+										min={minQuestionCount}
+										max={remainingQuestions}
+										disabled={isSubmitting || remainingQuestions === 0}
 									/>
+
 									{fieldState.invalid && (
 										<FieldError errors={[fieldState.error]} />
 									)}

@@ -31,11 +31,7 @@ const navigationItems = [
 	{ title: 'My Quizzes', url: '/my-quizzes', icon: FileTextIcon },
 	{ title: 'Discover', url: '/discover', icon: GlobeIcon },
 	{ title: 'Analytics', url: '/analytics', icon: BarChart3Icon },
-	{ title: 'Leaderboard', url: '/leaderboard', icon: TrophyIcon }
-]
-
-const quickActions = [
-	{ title: 'Import PDF', url: '/import', icon: FileTextIcon },
+	{ title: 'Leaderboard', url: '/leaderboard', icon: TrophyIcon },
 	{ title: 'Settings', url: '/settings', icon: SettingsIcon }
 ]
 
@@ -83,30 +79,6 @@ export function DashboardSidebar() {
 												activeStyles='bg-primary text-primary-foreground font-medium shadow-sm'
 											>
 												<item.icon className='size-4' />
-												{!isCollapsed && <span>{item.title}</span>}
-											</NavLink>
-										}
-									/>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				<SidebarGroup className='px-2'>
-					<SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{quickActions.map(item => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton
-										render={
-											<NavLink
-												href={item.url}
-												className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors'
-												activeStyles='bg-primary text-primary-foreground font-medium shadow-sm'
-											>
-												<item.icon className='h-4 w-4' />
 												{!isCollapsed && <span>{item.title}</span>}
 											</NavLink>
 										}
