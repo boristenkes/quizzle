@@ -25,7 +25,7 @@ import { Controller } from 'react-hook-form'
 import { useQuizForm } from '../_context/quiz-form'
 
 export default function QuizConfiguration() {
-	const { form } = useQuizForm()
+	const { quizForm } = useQuizForm()
 
 	return (
 		<FieldSet>
@@ -33,7 +33,7 @@ export default function QuizConfiguration() {
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 					<Controller
 						name='title'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field data-invalid={fieldState.invalid}>
 								<FieldLabel htmlFor={field.name}>Quiz Title *</FieldLabel>
@@ -56,7 +56,7 @@ export default function QuizConfiguration() {
 
 					<Controller
 						name='timeLimitMinutes'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field data-invalid={fieldState.invalid}>
 								<FieldLabel htmlFor={field.name}>
@@ -86,7 +86,7 @@ export default function QuizConfiguration() {
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 					<Controller
 						name='categoryId'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field data-invalid={fieldState.invalid}>
 								<FieldLabel htmlFor={field.name}>Category</FieldLabel>
@@ -106,7 +106,7 @@ export default function QuizConfiguration() {
 
 					<Controller
 						name='difficulty'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field data-invalid={fieldState.invalid}>
 								<FieldLabel htmlFor={field.name}>Difficulty *</FieldLabel>
@@ -143,7 +143,7 @@ export default function QuizConfiguration() {
 
 				<Controller
 					name='description'
-					control={form.control}
+					control={quizForm.control}
 					render={({ field, fieldState }) => (
 						<Field data-invalid={fieldState.invalid}>
 							<FieldLabel htmlFor={field.name}>Description *</FieldLabel>
@@ -163,7 +163,7 @@ export default function QuizConfiguration() {
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 					<Controller
 						name='totalPoints'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field data-invalid={fieldState.invalid}>
 								<FieldLabel htmlFor={field.name}>Total Points</FieldLabel>
@@ -190,7 +190,7 @@ export default function QuizConfiguration() {
 
 					<Controller
 						name='isPublic'
-						control={form.control}
+						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field
 								orientation='horizontal'

@@ -12,17 +12,18 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { questionTypeLabel } from '@/lib/constants'
 import { getDifficultyColor } from '@/utils/format'
-import { cn } from '@/utils/helpers'
-import { CheckIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
+import { cn, scrollToElement } from '@/utils/helpers'
+import { CheckIcon, EditIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
 import { useQuizForm } from '../_context/quiz-form'
 
 export default function QuestionList() {
-	const { questionsFieldArray, isGenerating, controller } = useQuizForm()
+	const { questionForm, questionsFieldArray, isGenerating, controller } =
+		useQuizForm()
 
 	return (
 		<Card
 			id='new-quiz-form:question-list'
-			className='relative'
+			className='relative scroll-mt-16'
 		>
 			<CardHeader>
 				<CardTitle>Questions ({questionsFieldArray.fields.length})</CardTitle>
@@ -81,14 +82,28 @@ export default function QuestionList() {
 											</Badge>
 										</div>
 									</div>
-									<Button
-										variant='ghost'
-										size='sm'
-										onClick={() => questionsFieldArray.remove(index)}
-										className='text-destructive hover:text-destructive'
-									>
-										<Trash2Icon className='h-4 w-4' />
-									</Button>
+									<div className='flex items-center gap-2'>
+										<Button
+											variant='ghost'
+											size='sm'
+											onClick={() => {
+												questionForm.reset(question)
+												questionsFieldArray.remove(index)
+												scrollToElement('new-quiz-form:question-form')
+											}}
+											className='text-indigo-500 hover:text-indigo-500'
+										>
+											<EditIcon className='size-4' />
+										</Button>
+										<Button
+											variant='ghost'
+											size='sm'
+											onClick={() => questionsFieldArray.remove(index)}
+											className='text-destructive hover:text-destructive'
+										>
+											<Trash2Icon className='size-4' />
+										</Button>
+									</div>
 								</div>
 								{question.type === 'text' ? (
 									<div className='flex flex-wrap gap-2'>

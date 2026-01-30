@@ -1,7 +1,15 @@
 'use client'
 
+import { User } from '@/db/schema'
+import {
+	BaseQuestionFormSchema,
+	ChoiceQuestionFormSchema,
+	questionFormSchema,
+	QuestionFormSchema,
+	TextQuestionFormSchema
+} from '@/features/questions/zod'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
-import { Difficulty } from '@/lib/constants'
+import { Difficulty, MAX_QUIZ_QUESTIONS } from '@/lib/constants'
 import { SetState } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -13,7 +21,9 @@ import {
 } from 'react-hook-form'
 
 type QuizFormContextReturn = {
-	form: UseFormReturn<QuizFormSchema>
+	quizForm: UseFormReturn<QuizFormSchema>
+	questionForm: UseFormReturn<QuestionFormSchema>
+	optionsField: UseFieldArrayReturn<QuestionFormSchema, 'options'>
 	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
 	isGenerating: boolean
 	setIsGenerating: SetState<boolean>
@@ -21,8 +31,6 @@ type QuizFormContextReturn = {
 }
 
 export const QuizFormContext = createContext<QuizFormContextReturn | null>(null)
-
-export const STORAGE_KEY = 'quizzle:new-quiz-form'
 
 export const quizFormDefaults = {
 	title: '',
@@ -35,6 +43,30 @@ export const quizFormDefaults = {
 	questions: []
 } satisfies QuizFormSchema
 
+const baseQuestionDefaults: BaseQuestionFormSchema = {
+	prompt: '',
+	explanationHTML: '',
+	difficulty: 'easy'
+}
+
+export const textDefaults: BaseQuestionFormSchema & TextQuestionFormSchema = {
+	...baseQuestionDefaults,
+	type: 'text',
+	acceptableAnswers: [],
+	ignoreCase: true,
+	trimWhitespace: true
+}
+
+export const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema =
+	{
+		...baseQuestionDefaults,
+		type: 'multi_correct',
+		options: [
+			{ value: '', isCorrect: false },
+			{ value: '', isCorrect: false }
+		]
+	}
+
 export function useQuizForm() {
 	const context = useContext(QuizFormContext)
 
@@ -44,25 +76,41 @@ export function useQuizForm() {
 	return context
 }
 
-export function QuizFormProvider({ children }: { children: React.ReactNode }) {
-	const form = useForm<QuizFormSchema>({
+export function QuizFormProvider({
+	userId,
+	children
+}: {
+	userId: User['id']
+	children: React.ReactNode
+}) {
+	const quizForm = useForm<QuizFormSchema>({
 		defaultValues: quizFormDefaults,
 		resolver: zodResolver(quizFormSchema) as any
 	})
 	const questionsFieldArray = useFieldArray({
-		control: form.control,
+		control: quizForm.control,
 		name: 'questions'
+	})
+	const questionForm = useForm<QuestionFormSchema>({
+		defaultValues: choiceDefaults,
+		resolver: zodResolver(questionFormSchema) as any, // TS being too weird
+		disabled: questionsFieldArray.fields.length >= MAX_QUIZ_QUESTIONS
+	})
+	const optionsField = useFieldArray({
+		control: questionForm.control,
+		name: 'options'
 	})
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [controller] = useState(new AbortController())
+	const storageKey = `quiz-form:${userId}`
 
 	useEffect(() => {
 		try {
-			const raw = localStorage.getItem(STORAGE_KEY)
+			const raw = localStorage.getItem(storageKey)
 			if (raw) {
 				const parsed = JSON.parse(raw)
-				form.reset({
-					...form.getValues(),
+				quizForm.reset({
+					...quizForm.getValues(),
 					...parsed
 				})
 			}
@@ -76,10 +124,11 @@ export function QuizFormProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout
 
-		const subscription = form.watch(values => {
+		const subscription = quizForm.watch(values => {
+			// Save changes once 1s has passed since last input
 			clearTimeout(timeoutId)
 			timeoutId = setTimeout(() => {
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(values))
+				localStorage.setItem(storageKey, JSON.stringify(values))
 			}, 1000)
 
 			return () => {
@@ -89,17 +138,19 @@ export function QuizFormProvider({ children }: { children: React.ReactNode }) {
 		})
 
 		return () => subscription.unsubscribe?.()
-	}, [form])
+	}, [quizForm])
 
-	const reset = (...args: Parameters<typeof form.reset>) => {
-		localStorage.removeItem(STORAGE_KEY)
-		form.reset(...args)
+	const reset = (...args: Parameters<typeof quizForm.reset>) => {
+		localStorage.removeItem(storageKey)
+		quizForm.reset(...args)
 	}
 
 	return (
 		<QuizFormContext.Provider
 			value={{
-				form: { ...form, reset },
+				quizForm: { ...quizForm, reset },
+				questionForm,
+				optionsField,
 				questionsFieldArray,
 				isGenerating,
 				setIsGenerating,

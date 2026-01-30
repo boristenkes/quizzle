@@ -41,13 +41,7 @@ import {
 	TagsInputList
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-	BaseQuestionFormSchema,
-	ChoiceQuestionFormSchema,
-	questionFormSchema,
-	QuestionFormSchema,
-	TextQuestionFormSchema
-} from '@/features/questions/zod'
+import { QuestionFormSchema } from '@/features/questions/zod'
 import {
 	difficulties,
 	MAX_QUESTION_OPTIONS,
@@ -58,62 +52,31 @@ import {
 	questionTypes
 } from '@/lib/constants'
 import { TagsInputItemDelete, TagsInputItemText } from '@diceui/tags-input'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon, SparklesIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import {
 	Control,
 	Controller,
-	useFieldArray,
 	UseFieldArrayReturn,
-	useForm,
 	UseFormReturn
 } from 'react-hook-form'
-import { useQuizForm } from '../_context/quiz-form'
+import {
+	choiceDefaults,
+	textDefaults,
+	useQuizForm
+} from '../_context/quiz-form'
 import GenerateQuestionsDialog from './generate-questions-dialog'
 
-const baseQuestionDefaults: BaseQuestionFormSchema = {
-	prompt: '',
-	explanationHTML: '',
-	difficulty: 'easy'
-}
-
-const textDefaults: BaseQuestionFormSchema & TextQuestionFormSchema = {
-	...baseQuestionDefaults,
-	type: 'text',
-	acceptableAnswers: [],
-	ignoreCase: true,
-	trimWhitespace: true
-}
-
-const choiceDefaults: BaseQuestionFormSchema & ChoiceQuestionFormSchema = {
-	...baseQuestionDefaults,
-	type: 'multi_correct',
-	options: [
-		{ value: '', isCorrect: false },
-		{ value: '', isCorrect: false }
-	]
-}
-
 export default function QuestionForm() {
-	const { questionsFieldArray } = useQuizForm()
-	const form = useForm<QuestionFormSchema>({
-		defaultValues: choiceDefaults,
-		resolver: zodResolver(questionFormSchema) as any, // TS being too weird
-		disabled: questionsFieldArray.fields.length >= MAX_QUIZ_QUESTIONS
-	})
-	const optionsField = useFieldArray({
-		control: form.control,
-		name: 'options'
-	})
-	const selectedType = form.watch('type')
+	const { questionForm, optionsField, questionsFieldArray } = useQuizForm()
+	const selectedType = questionForm.watch('type')
 
 	const onSubmit = async (data: QuestionFormSchema) => {
 		questionsFieldArray.append(data)
-		form.reset()
+		questionForm.reset(selectedType === 'text' ? choiceDefaults : textDefaults)
 	}
 
 	return (
-		<Card>
+		<Card id='new-quiz-form:question-form'>
 			<CardHeader>
 				<div className='flex items-center gap-2'>
 					<CardTitle>Add Question</CardTitle>
@@ -154,13 +117,13 @@ export default function QuestionForm() {
 				<FieldSet>
 					<FieldGroup>
 						<form
-							onSubmit={form.handleSubmit(onSubmit)}
+							onSubmit={questionForm.handleSubmit(onSubmit)}
 							className='space-y-8'
 						>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<Controller
 									name='type'
-									control={form.control}
+									control={questionForm.control}
 									render={({ field, fieldState }) => (
 										<Field data-invalid={fieldState.invalid}>
 											<FieldLabel htmlFor={field.name}>
@@ -173,9 +136,9 @@ export default function QuestionForm() {
 													field.onChange(type)
 
 													if (type === 'text') {
-														form.reset(textDefaults)
+														questionForm.reset(textDefaults)
 													} else {
-														form.reset({ ...choiceDefaults, type })
+														questionForm.reset({ ...choiceDefaults, type })
 													}
 												}}
 												id={field.name}
@@ -207,7 +170,7 @@ export default function QuestionForm() {
 
 								<Controller
 									name='difficulty'
-									control={form.control}
+									control={questionForm.control}
 									render={({ field, fieldState }) => (
 										<Field data-invalid={fieldState.invalid}>
 											<FieldLabel htmlFor={field.name}>Difficulty</FieldLabel>
@@ -243,7 +206,7 @@ export default function QuestionForm() {
 
 							<Controller
 								name='prompt'
-								control={form.control}
+								control={questionForm.control}
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldLabel htmlFor={field.name}>
@@ -264,10 +227,10 @@ export default function QuestionForm() {
 							/>
 
 							{selectedType === 'text' ? (
-								<TextQuestionFields control={form.control} />
+								<TextQuestionFields control={questionForm.control} />
 							) : (
 								<ChoiceQuestionFields
-									form={form}
+									form={questionForm}
 									optionsField={optionsField}
 									type={selectedType}
 								/>
@@ -275,7 +238,7 @@ export default function QuestionForm() {
 
 							<Controller
 								name='explanationHTML'
-								control={form.control}
+								control={questionForm.control}
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldLabel htmlFor={field.name}>Explanation</FieldLabel>
@@ -284,8 +247,6 @@ export default function QuestionForm() {
 										</FieldDescription>
 										<RichTextEditor
 											{...field}
-											value={field.value}
-											onChange={field.onChange}
 											disabled={field.disabled}
 											aria-invalid={fieldState.invalid}
 										/>
@@ -299,8 +260,8 @@ export default function QuestionForm() {
 							<div className='flex justify-end'>
 								<Button
 									type='button'
-									disabled={form.formState.disabled}
-									onClick={form.handleSubmit(onSubmit)}
+									disabled={questionForm.formState.disabled}
+									onClick={questionForm.handleSubmit(onSubmit)}
 								>
 									<PlusIcon className='size-4 mr-2' />
 									Add Question

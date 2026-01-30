@@ -15,6 +15,7 @@ import {
 	StrikethroughIcon,
 	UnderlineIcon
 } from 'lucide-react'
+import { useEffect } from 'react'
 
 const headingLevels = [3, 4] as const
 
@@ -22,13 +23,14 @@ export type RichTextEditorProps = Omit<
 	React.ComponentProps<typeof EditorContent>,
 	'editor'
 > & {
+	value?: string
 	onChange: (html: string) => void
 }
 
 export default function RichTextEditor({
 	onChange,
 	disabled,
-	defaultValue = '',
+	value,
 	...props
 }: RichTextEditorProps) {
 	const editor = useEditor({
@@ -39,12 +41,21 @@ export default function RichTextEditor({
 			Underline,
 			Link.configure({ openOnClick: false })
 		],
-		content: defaultValue as string,
+		content: value ?? '',
 		onUpdate({ editor }) {
 			onChange(editor.getHTML()) // Send HTML to parent
 		},
 		immediatelyRender: false
 	})
+
+	useEffect(() => {
+		if (!editor) return
+
+		const html = value ?? ''
+		if (editor.getHTML() !== html) {
+			editor.commands.setContent(html, { emitUpdate: false })
+		}
+	}, [value, editor])
 
 	if (!editor) return null
 

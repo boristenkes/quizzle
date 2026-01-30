@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 }
 
 export default async function NewQuizPage() {
-	const isAuthenticated = await getSession().then(Boolean)
+	const session = await getSession()
 
-	if (!isAuthenticated) redirect('/sign-in')
+	if (!session) redirect('/sign-in')
 
 	return (
 		<main className='px-4 py-16 space-y-8'>
@@ -27,7 +27,7 @@ export default async function NewQuizPage() {
 			</header>
 
 			<div className='container mx-auto max-w-4xl space-y-6'>
-				<QuizFormProvider>
+				<QuizFormProvider userId={session.user.id}>
 					<NewQuizForm />
 				</QuizFormProvider>
 			</div>

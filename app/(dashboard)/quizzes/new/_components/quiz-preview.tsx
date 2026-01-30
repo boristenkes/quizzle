@@ -17,9 +17,9 @@ import { SaveIcon } from 'lucide-react'
 import { useQuizForm } from '../_context/quiz-form'
 
 export default function QuizPreview() {
-	const { form } = useQuizForm()
-	const formValues = form.getValues()
-	const { isSubmitting, errors } = form.formState
+	const { quizForm } = useQuizForm()
+	const formValues = quizForm.getValues()
+	const { isSubmitting, errors } = quizForm.formState
 
 	const categories = useCategories()
 	const chosenCategory = categories?.find(

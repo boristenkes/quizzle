@@ -35,7 +35,7 @@ const quizSettingsFormSchema = quizFormSchema.omit({ questions: true })
 type QuizSettingsFormSchema = z.infer<typeof quizSettingsFormSchema>
 
 export default function NewQuizForm() {
-	const { form, questionsFieldArray } = useQuizForm()
+	const { quizForm, questionsFieldArray } = useQuizForm()
 	const searchParams = useSearchParams()
 	const [activeTab, setActiveTab] = useState<Tab>(
 		(searchParams.get('tab') ?? 'settings') as Tab
@@ -43,9 +43,9 @@ export default function NewQuizForm() {
 
 	async function switchTab(
 		tab: Tab,
-		fieldsToValidate: Parameters<typeof form.trigger>[0]
+		fieldsToValidate: Parameters<typeof quizForm.trigger>[0]
 	) {
-		const isValid = await form.trigger(fieldsToValidate, {
+		const isValid = await quizForm.trigger(fieldsToValidate, {
 			shouldFocus: true
 		})
 
@@ -56,7 +56,7 @@ export default function NewQuizForm() {
 		const response = await createQuiz(data)
 
 		if (!response.success) {
-			form.setError('root', {
+			quizForm.setError('root', {
 				message:
 					response.message ?? 'Something went wrong. Please try again later.'
 			})
@@ -64,7 +64,7 @@ export default function NewQuizForm() {
 		}
 
 		setActiveTab('settings')
-		form.reset(quizFormDefaults)
+		quizForm.reset(quizFormDefaults)
 		toast.success('Quiz created successfully')
 	}
 
@@ -101,7 +101,7 @@ export default function NewQuizForm() {
 
 				{/* Settings Tab */}
 				<form
-					onSubmit={form.handleSubmit(onSubmit)}
+					onSubmit={quizForm.handleSubmit(onSubmit)}
 					id='new-quiz-form'
 				>
 					<TabsContent value='settings'>

@@ -18,7 +18,7 @@ export default function RootLayout({
 	return (
 		<html
 			lang='en'
-			className={inter.className}
+			className='scroll-smooth'
 			suppressHydrationWarning
 		>
 			<body className={`${inter.className} antialiased`}>
