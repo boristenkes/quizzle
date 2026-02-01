@@ -286,7 +286,7 @@ function ChoiceQuestionFields({
 }) {
 	return (
 		<FieldSet>
-			<FieldLegend variant='label'>Available Choices *</FieldLegend>
+			<FieldLegend variant='label'>Options *</FieldLegend>
 			<FieldDescription>
 				Click the checkboxes to mark correct answers
 			</FieldDescription>
