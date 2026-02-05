@@ -15,6 +15,7 @@ import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { Nullable, ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, isNull } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
 import {
@@ -293,6 +294,84 @@ export async function getQuizById(
 		return { success: true, quiz }
 	} catch (error) {
 		console.error('[GET_QUIZ_BY_ID]:', error)
+		return { success: false }
+	}
+}
+
+export async function softDeleteQuiz(
+	quizId: Quiz['id'],
+	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
+): Promise<ServerActionResponse> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const currentUser = session.user
+		const parsedQuizId = z.ulid().parse(quizId)
+
+		const targetQuiz = await db.query.quizzesTable.findFirst({
+			where: eq(quizzesTable.id, parsedQuizId),
+			columns: pickColumns('creatorId')
+		})
+
+		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
+
+		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+			throw new Error('Unauthorized')
+
+		await db
+			.update(quizzesTable)
+			.set({ deletedAt: new Date() })
+			.where(eq(quizzesTable.id, parsedQuizId))
+
+		if (path) revalidatePath(path)
+
+		return { success: true }
+	} catch (error) {
+		console.error('[DELETE_QUIZ]:', error)
+
+		if (throwOnError)
+			throw new Error('Failed to move quiz to trash. Please try again later')
+
+		return { success: false }
+	}
+}
+
+export async function deleteQuiz(
+	quizId: Quiz['id'],
+	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
+): Promise<ServerActionResponse> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const currentUser = session.user
+		const parsedQuizId = z.ulid().parse(quizId)
+
+		const targetQuiz = await db.query.quizzesTable.findFirst({
+			where: eq(quizzesTable.id, parsedQuizId),
+			columns: pickColumns('creatorId')
+		})
+
+		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
+
+		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+			throw new Error('Unauthorized')
+
+		await db.delete(quizzesTable).where(eq(quizzesTable.id, parsedQuizId))
+
+		if (path) revalidatePath(path)
+
+		return { success: true }
+	} catch (error) {
+		console.error('[DELETE_QUIZ]:', error)
+
+		if (throwOnError) {
+			throw new Error('Failed to delete quiz.')
+		}
+
 		return { success: false }
 	}
 }

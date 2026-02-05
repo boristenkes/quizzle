@@ -42,7 +42,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 						</CardDescription>
 						<div className='text-xs text-muted-foreground mt-4'>
 							<Link
-								href={`/users/${quiz.creator.id}`}
+								href={`/users/${quiz.creator.username}`}
 								className='hover:text-indigo-500 font-medium transition-colors inline-flex items-center gap-2'
 							>
 								<Avatar size='sm'>

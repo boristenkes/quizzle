@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import BackButton from '@/components/utils/back-button'
 import RatingStars from '@/components/utils/rating-stars'
 import { getQuizById } from '@/features/quizzes/actions'
+import MoveToTrashButton from '@/features/quizzes/components/move-to-trash-button'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { getSession } from '@/lib/auth'
 import { dateFormatter, getDifficultyColor } from '@/utils/format'
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import QuizDangerZone from './quiz-danger-zone'
 import QuizReviews from './quiz-reviews'
 import QuizStatistics from './quiz-statistics'
 
@@ -176,13 +178,20 @@ export default async function QuizDetailsPage({
 						/>
 
 						<div className='flex gap-2'>
-							<Button
-								variant='outline'
-								className='flex-1'
-							>
-								<BookmarkIcon className='mr-2 h-4 w-4' />
-								Save
-							</Button>
+							{quiz.creator.id === session.user.id ? (
+								<MoveToTrashButton
+									quizId={quiz.id}
+									className='flex-1'
+								/>
+							) : (
+								<Button
+									variant='outline'
+									className='flex-1'
+								>
+									<BookmarkIcon className='mr-2 size-4' />
+									Save
+								</Button>
+							)}
 							<Button
 								variant='outline'
 								className='flex-1'
@@ -200,6 +209,10 @@ export default async function QuizDetailsPage({
 
 			{/* Reviews */}
 			<QuizReviews totalReviews={quiz.totalReviews} />
+
+			{quiz.creator.id === session.user.id && (
+				<QuizDangerZone quizId={quiz.id} />
+			)}
 		</div>
 	)
 }

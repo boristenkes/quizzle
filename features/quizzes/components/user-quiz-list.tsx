@@ -85,6 +85,19 @@ export default function UserQuizList({
 						</div>
 
 						<div className='flex gap-2 pt-2'>
+							{quiz.creatorId === currentUserId && (
+								<Button
+									variant='outline'
+									size='sm'
+									nativeButton={false}
+									render={
+										<Link href={`/quizzes/${quiz.slug}/${quiz.id}`}>
+											View Details
+										</Link>
+									}
+								/>
+							)}
+
 							<Button
 								size='sm'
 								className='flex-1'
@@ -96,18 +109,6 @@ export default function UserQuizList({
 									</Link>
 								}
 							/>
-							{quiz.creatorId === currentUserId && (
-								<Button
-									variant='outline'
-									size='sm'
-									nativeButton={false}
-									render={
-										<Link href={`/quizzes/edit/${quiz.slug}/${quiz.id}`}>
-											Edit
-										</Link>
-									}
-								/>
-							)}
 						</div>
 					</CardContent>
 				</Card>

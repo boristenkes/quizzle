@@ -40,7 +40,7 @@ export default async function DashboardPage() {
 							nativeButton={false}
 							render={
 								<Link href='/quizzes/new'>
-									<Plus className='mr-2 h-5 w-5' />
+									<Plus className='size-5' />
 									Create New Quiz
 								</Link>
 							}
