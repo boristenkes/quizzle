@@ -42,7 +42,7 @@ export default async function RecentQuizzes({
 					variant='outline'
 					nativeButton={false}
 					render={
-						<Link href='/discover'>
+						<Link href='/quizzes/my'>
 							View All
 							<BarChart3 className='ml-2 h-4 w-4' />
 						</Link>

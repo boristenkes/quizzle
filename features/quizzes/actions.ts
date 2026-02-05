@@ -14,7 +14,7 @@ import { getSession } from '@/lib/auth'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { Nullable, ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
@@ -298,6 +298,46 @@ export async function getQuizById(
 	}
 }
 
+export async function restoreQuiz(
+	quizId: Quiz['id'],
+	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
+): Promise<ServerActionResponse> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const currentUser = session.user
+		const parsedQuizId = z.ulid().parse(quizId)
+
+		const targetQuiz = await db.query.quizzesTable.findFirst({
+			where: eq(quizzesTable.id, parsedQuizId),
+			columns: pickColumns('creatorId')
+		})
+
+		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
+
+		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+			throw new Error('Unauthorized')
+
+		await db
+			.update(quizzesTable)
+			.set({ deletedAt: null })
+			.where(eq(quizzesTable.id, parsedQuizId))
+
+		if (path) revalidatePath(path)
+
+		return { success: true }
+	} catch (error) {
+		console.error('[DELETE_QUIZ]:', error)
+
+		if (throwOnError)
+			throw new Error('Failed to move quiz to trash. Please try again later')
+
+		return { success: false }
+	}
+}
+
 export async function softDeleteQuiz(
 	quizId: Quiz['id'],
 	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
@@ -333,6 +373,43 @@ export async function softDeleteQuiz(
 
 		if (throwOnError)
 			throw new Error('Failed to move quiz to trash. Please try again later')
+
+		return { success: false }
+	}
+}
+
+export async function pruneDeletedQuizzes({
+	path,
+	throwOnError = false
+}: {
+	path?: string
+	throwOnError?: boolean
+} = {}): Promise<ServerActionResponse> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const currentUser = session.user
+
+		await db
+			.delete(quizzesTable)
+			.where(
+				and(
+					eq(quizzesTable.creatorId, currentUser.id),
+					isNotNull(quizzesTable.deletedAt)
+				)
+			)
+
+		if (path) revalidatePath(path)
+
+		return { success: true }
+	} catch (error) {
+		console.error('[DELETE_QUIZ]:', error)
+
+		if (throwOnError) {
+			throw new Error('Failed to delete quiz.')
+		}
 
 		return { success: false }
 	}
