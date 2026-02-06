@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import BackButton from '@/components/utils/back-button'
 import RatingStars from '@/components/utils/rating-stars'
 import { getQuizById } from '@/features/quizzes/actions'
+import BookmarkButton from '@/features/quizzes/components/bookmark-button'
 import MoveToTrashButton from '@/features/quizzes/components/move-to-trash-button'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { getSession } from '@/lib/auth'
@@ -13,7 +14,6 @@ import { dateFormatter, getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {
 	ArrowLeftIcon,
-	BookmarkIcon,
 	ClockIcon,
 	FileTextIcon,
 	PlayCircleIcon,
@@ -39,6 +39,7 @@ export default async function QuizDetailsPage({
 	if (!session) redirect('/sign-in')
 
 	const { slug, id } = await params
+	const currentUser = session.user
 	const response = await getQuizById(id)
 
 	if (!response.success) {
@@ -56,12 +57,11 @@ export default async function QuizDetailsPage({
 
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-8 max-w-6xl'>
-			{/* Back Button */}
 			<BackButton
 				variant='ghost'
 				className='mb-4'
 			>
-				<ArrowLeftIcon className='mr-2 h-4 w-4' />
+				<ArrowLeftIcon className='mr-2 size-4' />
 				Back
 			</BackButton>
 
@@ -137,7 +137,7 @@ export default async function QuizDetailsPage({
 
 				{/* Start Quiz Card */}
 				<Card className='h-fit shadow-elevated'>
-					<CardContent className='p-6 space-y-6'>
+					<CardContent className='px-6 space-y-6'>
 						<div className='flex items-center gap-2'>
 							<RatingStars rating={quiz.averageRating} />
 							<span className='font-semibold'>{quiz.averageRating}</span>
@@ -165,40 +165,40 @@ export default async function QuizDetailsPage({
 							</div>
 						</div>
 
-						<Button
-							className='w-full'
-							size='lg'
-							nativeButton={false}
-							render={
-								<Link href={`/quiz/${id}/play`}>
-									<PlayCircleIcon className='mr-2 h-5 w-5' />
-									Start Quiz
-								</Link>
-							}
-						/>
+						<div className='space-y-2'>
+							<Button
+								className='w-full'
+								size='lg'
+								nativeButton={false}
+								render={
+									<Link href={`/quiz/${id}/play`}>
+										<PlayCircleIcon className='mr-2 size-5' />
+										Start Quiz
+									</Link>
+								}
+							/>
 
-						<div className='flex gap-2'>
-							{quiz.creator.id === session.user.id ? (
-								<MoveToTrashButton
-									quizId={quiz.id}
-									className='flex-1'
-								/>
-							) : (
+							<div className='flex gap-2'>
+								{quiz.creator.id === currentUser.id ? (
+									<MoveToTrashButton
+										quizId={quiz.id}
+										className='flex-1'
+									/>
+								) : (
+									<BookmarkButton
+										quizId={quiz.id}
+										initialIsBookmarked={quiz.isBookmarked}
+										className='flex-1'
+									/>
+								)}
 								<Button
 									variant='outline'
 									className='flex-1'
 								>
-									<BookmarkIcon className='mr-2 size-4' />
-									Save
+									<Share2Icon className='mr-2 h-4 w-4' />
+									Share
 								</Button>
-							)}
-							<Button
-								variant='outline'
-								className='flex-1'
-							>
-								<Share2Icon className='mr-2 h-4 w-4' />
-								Share
-							</Button>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
@@ -210,7 +210,7 @@ export default async function QuizDetailsPage({
 			{/* Reviews */}
 			<QuizReviews totalReviews={quiz.totalReviews} />
 
-			{quiz.creator.id === session.user.id && (
+			{quiz.creator.id === currentUser.id && (
 				<QuizDangerZone quizId={quiz.id} />
 			)}
 		</div>

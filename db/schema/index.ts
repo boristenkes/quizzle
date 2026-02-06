@@ -1,6 +1,7 @@
 export * from './attempt-questions'
 export * from './attempts'
 export * from './auth'
+export * from './bookmarks'
 export * from './follows'
 export * from './question-options'
 export * from './questions'

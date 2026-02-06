@@ -1,15 +1,11 @@
 import {
 	attemptsTable,
-	questionsTable,
+	bookmarksTable,
 	quizzesTable,
-	reviewsTable
+	reviewsTable,
+	User
 } from '@/db/schema'
 import { sql } from 'drizzle-orm'
-
-export const questionCountQuery = sql<number>`(
-	select count(*) from ${questionsTable}
-	where ${questionsTable}."quiz_id" = ${quizzesTable.id}
-)::integer`.as('question_count')
 
 export const averageRatingQuery = sql<number>`(
 	select coalesce(avg(${reviewsTable}."rating"), 0)
@@ -33,3 +29,11 @@ export const averageScoreQuery = sql<number>`(
 	where ${attemptsTable}."quiz_id" = ${quizzesTable.id} and 
 				${attemptsTable}."is_completed" = true
 )::float`.as('average_score')
+
+export const isBookmarkedQuery = (userId: User['id']) =>
+	sql<boolean>`
+		exists(
+		select 1 from ${bookmarksTable}
+		where ${bookmarksTable}."user_id" = ${userId}
+		and ${bookmarksTable}."quiz_id" = "quizzesTable"."id"
+)`.as('is_bookmarked')

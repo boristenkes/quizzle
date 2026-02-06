@@ -2,6 +2,7 @@
 
 import { db } from '@/db'
 import {
+	bookmarksTable,
 	questionOptionsTable,
 	questionsTable,
 	Quiz,
@@ -21,8 +22,8 @@ import z from 'zod'
 import {
 	averageRatingQuery,
 	averageScoreQuery,
-	totalAttemptsQuery,
-	totalReviewsQuery
+	isBookmarkedQuery,
+	totalAttemptsQuery
 } from './queries'
 import { quizFormSchema, QuizFormSchema } from './zod'
 
@@ -236,10 +237,7 @@ export type GetQuizByIdQuiz = Pick<
 > & {
 	creator: Pick<User, 'id' | 'name' | 'username' | 'image'>
 	category: Pick<QuizCategory, 'name'> | null
-	averageRating: number
-	totalReviews: number
-	averageScore: number
-	totalAttempts: number
+	isBookmarked: boolean
 }
 
 export async function getQuizById(
@@ -251,6 +249,7 @@ export async function getQuizById(
 		if (!session) throw new Error('Unauthorized')
 
 		const parsedQuizId = z.ulid().parse(quizId)
+		const currentUser = session.user
 
 		const quiz = await db.query.quizzesTable.findFirst({
 			where: and(
@@ -277,10 +276,7 @@ export async function getQuizById(
 				}
 			},
 			extras: {
-				averageRating: averageRatingQuery,
-				totalReviews: totalReviewsQuery,
-				averageScore: averageScoreQuery,
-				totalAttempts: totalAttemptsQuery
+				isBookmarked: isBookmarkedQuery(currentUser.id)
 			}
 		})
 
@@ -294,6 +290,43 @@ export async function getQuizById(
 		return { success: true, quiz }
 	} catch (error) {
 		console.error('[GET_QUIZ_BY_ID]:', error)
+		return { success: false }
+	}
+}
+
+export async function toggleQuizBookmark(
+	quizId: Quiz['id']
+): Promise<ServerActionResponse<{ isBookmarked: boolean }>> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const currentUser = session.user
+		const parsedQuizId = z.ulid().parse(quizId)
+
+		const deleteResponse = await db
+			.delete(bookmarksTable)
+			.where(
+				and(
+					eq(bookmarksTable.userId, currentUser.id),
+					eq(bookmarksTable.quizId, parsedQuizId)
+				)
+			)
+
+		let isBookmarked = false
+
+		if (deleteResponse.rowCount === 0) {
+			await db.insert(bookmarksTable).values({
+				userId: currentUser.id,
+				quizId: parsedQuizId
+			})
+			isBookmarked = true
+		}
+
+		return { success: true, isBookmarked }
+	} catch (error) {
+		console.error('[TOGGLE_QUIZ_BOOKMARK]:', error)
 		return { success: false }
 	}
 }
