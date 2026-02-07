@@ -91,7 +91,7 @@ export default async function QuizDetailsPage({
 						</p>
 
 						<div className='flex items-center gap-4 mb-6'>
-							<Link href={`/users/${quiz.creator.id}`}>
+							<Link href={`/users/${quiz.creator.username}`}>
 								<Avatar>
 									<AvatarImage
 										src={quiz.creator.image!}
@@ -104,7 +104,7 @@ export default async function QuizDetailsPage({
 								<p className='font-medium'>
 									Created by{' '}
 									<Link
-										href={`/users/${quiz.creator.id}`}
+										href={`/users/${quiz.creator.username}`}
 										className='hover:underline underline-offset-2'
 									>
 										{quiz.creator.name}

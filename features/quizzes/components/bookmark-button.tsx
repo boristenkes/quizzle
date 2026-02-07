@@ -2,8 +2,6 @@
 
 import { Button, ButtonProps } from '@/components/ui/button'
 import { Quiz } from '@/db/schema'
-import { useDebounce } from '@/hooks/use-debounce'
-import { useUpdateEffect } from '@/hooks/use-update-effect'
 import { cn } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { BookmarkIcon } from 'lucide-react'
@@ -24,23 +22,25 @@ export default function BookmarkButton({
 	const mutation = useMutation({
 		mutationKey: ['quiz:bookmark', quizId],
 		mutationFn: () => toggleQuizBookmark(quizId),
+		onMutate: () => {
+			setIsBookmarked(prev => !prev) // optimistic update
+		},
 		onSuccess: data => {
 			const response = data as { success: true; isBookmarked: boolean }
 
 			setIsBookmarked(response.isBookmarked)
 		},
-		onError: () => setIsBookmarked(current => !current)
+		onError: () => {
+			setIsBookmarked(current => !current) // rollback
+		}
 	})
 	const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked)
-	const debouncedIsBookmarked = useDebounce(isBookmarked)
-
-	useUpdateEffect(mutation.mutate, [debouncedIsBookmarked])
 
 	return (
 		<Button
 			variant='outline'
 			onClick={e => {
-				setIsBookmarked(current => !current)
+				mutation.mutate()
 				onClick?.(e)
 			}}
 			{...props}

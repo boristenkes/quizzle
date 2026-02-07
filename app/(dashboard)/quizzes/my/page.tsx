@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList from '@/features/quizzes/components/user-quiz-list'
 import { getSession } from '@/lib/auth'
-import { Trash2Icon } from 'lucide-react'
+import { BookmarkIcon, Trash2Icon } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -19,19 +19,28 @@ export default async function MyQuizzesPage() {
 	return (
 		<div className='container mx-auto py-16 px-4 space-y-6'>
 			<div className='flex items-start justify-between'>
-				<header className='space-y-2'>
+				<header>
 					<h1 className='text-4xl font-bold'>My Quizzes</h1>
-					<p className='text-muted-foreground'>View quizzes you created</p>
 				</header>
 
-				<Button
-					variant='outline'
-					nativeButton={false}
-					render={<Link href='/quizzes/trash' />}
-				>
-					<Trash2Icon />
-					Trash
-				</Button>
+				<div className='flex items-center gap-2'>
+					<Button
+						variant='outline'
+						nativeButton={false}
+						render={<Link href='/quizzes/saved' />}
+					>
+						<BookmarkIcon />
+						Saved
+					</Button>
+					<Button
+						variant='outline'
+						nativeButton={false}
+						render={<Link href='/quizzes/trash' />}
+					>
+						<Trash2Icon />
+						Trash
+					</Button>
+				</div>
 			</div>
 
 			{response.success ? (
