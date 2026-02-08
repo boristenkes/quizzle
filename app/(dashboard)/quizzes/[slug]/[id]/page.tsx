@@ -139,10 +139,12 @@ export default async function QuizDetailsPage({
 				<Card className='h-fit shadow-elevated'>
 					<CardContent className='px-6 space-y-6'>
 						<div className='flex items-center gap-2'>
-							<RatingStars rating={quiz.averageRating} />
-							<span className='font-semibold'>{quiz.averageRating}</span>
+							<RatingStars rating={quiz.statistics!.averageRating} />
+							<span className='font-semibold'>
+								{quiz.statistics!.averageRating}
+							</span>
 							<span className='text-muted-foreground'>
-								({quiz.totalReviews} ratings)
+								({quiz.statistics!.reviewsCount} ratings)
 							</span>
 						</div>
 
@@ -157,11 +159,11 @@ export default async function QuizDetailsPage({
 							</div>
 							<div className='flex items-center gap-2'>
 								<UsersIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.totalAttempts} attempts</span>
+								<span>{quiz.statistics!.reviewsCount} attempts</span>
 							</div>
 							<div className='flex items-center gap-2'>
 								<TrendingUpIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.averageScore}% avg</span>
+								<span>{quiz.statistics!.averageScore}% avg</span>
 							</div>
 						</div>
 
@@ -171,7 +173,7 @@ export default async function QuizDetailsPage({
 								size='lg'
 								nativeButton={false}
 								render={
-									<Link href={`/quiz/${id}/play`}>
+									<Link href={`/quiz/${slug}/${id}/play`}>
 										<PlayCircleIcon className='mr-2 size-5' />
 										Start Quiz
 									</Link>
@@ -191,6 +193,7 @@ export default async function QuizDetailsPage({
 										className='flex-1'
 									/>
 								)}
+
 								<Button
 									variant='outline'
 									className='flex-1'
@@ -205,10 +208,10 @@ export default async function QuizDetailsPage({
 			</div>
 
 			{/* Statistics */}
-			<QuizStatistics />
+			<QuizStatistics statistics={quiz.statistics!} />
 
 			{/* Reviews */}
-			<QuizReviews totalReviews={quiz.totalReviews} />
+			<QuizReviews totalReviews={quiz.statistics!.reviewsCount} />
 
 			{quiz.creator.id === currentUser.id && (
 				<QuizDangerZone quizId={quiz.id} />

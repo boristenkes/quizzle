@@ -18,6 +18,17 @@ export const dateFormatter = new Intl.DateTimeFormat('en-US', {
 	year: 'numeric'
 })
 
+export function millisToMMSS(millis: number): string {
+	const totalSeconds = Math.floor(millis / 1000)
+	const minutes = Math.floor(totalSeconds / 60)
+	const seconds = totalSeconds % 60
+
+	const formattedMin = minutes.toString().padStart(2, '0')
+	const formattedSec = seconds.toString().padStart(2, '0')
+
+	return `${formattedMin}:${formattedSec}`
+}
+
 export const getDifficultyColor = (difficulty: Difficulty) => {
 	switch (difficulty.toLowerCase()) {
 		case 'easy':

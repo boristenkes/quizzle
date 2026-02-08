@@ -4,6 +4,7 @@ import { ulid } from 'ulid'
 import { difficultyEnum, quizzle, timestamps } from './_root'
 import { questionsTable } from './questions'
 import { quizCategoriesTable } from './quiz-categories'
+import { quizStatisticsTable } from './quiz-statistics'
 import { usersTable } from './users'
 
 export const quizzesTable = quizzle.table(
@@ -46,6 +47,7 @@ export const quizzesRelations = relations(quizzesTable, ({ one, many }) => ({
 		fields: [quizzesTable.categoryId],
 		references: [quizCategoriesTable.id]
 	}),
+	statistics: one(quizStatisticsTable),
 	questions: many(questionsTable)
 }))
 

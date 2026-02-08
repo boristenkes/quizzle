@@ -7,6 +7,8 @@ import {
 	questionsTable,
 	Quiz,
 	QuizCategory,
+	QuizStatistics,
+	quizStatisticsTable,
 	quizzesTable,
 	textQuestionSettingsTable,
 	User
@@ -56,6 +58,8 @@ export async function createQuiz(
 					creatorId: currentUser.id
 				})
 				.returning({ id: quizzesTable.id })
+
+			await tx.insert(quizStatisticsTable).values({ quizId: newQuiz.id })
 
 			const baseQuestionsData = questions.map((question, index) => ({
 				id: ulid(),
@@ -237,6 +241,7 @@ export type GetQuizByIdQuiz = Pick<
 > & {
 	creator: Pick<User, 'id' | 'name' | 'username' | 'image'>
 	category: Pick<QuizCategory, 'name'> | null
+	statistics: QuizStatistics | null
 	isBookmarked: boolean
 }
 
@@ -273,7 +278,8 @@ export async function getQuizById(
 				},
 				category: {
 					columns: pickColumns('name')
-				}
+				},
+				statistics: true
 			},
 			extras: {
 				isBookmarked: isBookmarkedQuery(currentUser.id)
