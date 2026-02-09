@@ -1,18 +1,26 @@
+import { cn } from '@/utils/helpers'
 import { StarIcon } from 'lucide-react'
 
-export type RatingStarsProps = {
+export type RatingStarsProps = React.ComponentProps<typeof StarIcon> & {
 	rating: number
 }
 
-export default function RatingStars({ rating }: RatingStarsProps) {
+export default function RatingStars({
+	rating,
+	className,
+	...props
+}: RatingStarsProps) {
 	return [1, 2, 3, 4, 5].map(star => (
 		<StarIcon
 			key={star}
-			className={`size-5 ${
+			className={cn(
+				'size-5',
 				star <= Math.round(rating)
 					? 'text-yellow-500 fill-yellow-500'
-					: 'text-muted'
-			}`}
+					: 'text-muted',
+				className
+			)}
+			{...props}
 		/>
 	))
 }

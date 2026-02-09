@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import BackButton from '@/components/utils/back-button'
 import RatingStars from '@/components/utils/rating-stars'
+import { db } from '@/db'
 import { getQuizById } from '@/features/quizzes/actions'
 import BookmarkButton from '@/features/quizzes/components/bookmark-button'
 import MoveToTrashButton from '@/features/quizzes/components/move-to-trash-button'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { getSession } from '@/lib/auth'
 import { dateFormatter, getDifficultyColor } from '@/utils/format'
-import { cn } from '@/utils/helpers'
+import { cn, pickColumns } from '@/utils/helpers'
 import {
 	ArrowLeftIcon,
 	ClockIcon,
@@ -21,14 +22,33 @@ import {
 	TrendingUpIcon,
 	UsersIcon
 } from 'lucide-react'
+import { Metadata } from 'next'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import QuizDangerZone from './quiz-danger-zone'
 import QuizReviews from './quiz-reviews'
 import QuizStatistics from './quiz-statistics'
 
 export type QuizDetailsPageProps = {
 	params: Promise<{ slug: string; id: string }>
+}
+
+export async function generateMetadata({
+	params
+}: QuizDetailsPageProps): Promise<Metadata> {
+	const { id } = await params
+
+	const quiz = await db.query.quizzesTable.findFirst({
+		where: (table, { eq }) => eq(table.id, id),
+		columns: pickColumns('title', 'description')
+	})
+
+	if (!quiz) notFound()
+
+	return {
+		title: quiz.title,
+		description: quiz.description
+	}
 }
 
 export default async function QuizDetailsPage({
@@ -211,7 +231,10 @@ export default async function QuizDetailsPage({
 			<QuizStatistics statistics={quiz.statistics!} />
 
 			{/* Reviews */}
-			<QuizReviews totalReviews={quiz.statistics!.reviewsCount} />
+			<QuizReviews
+				quizId={quiz.id}
+				totalReviews={quiz.statistics!.reviewsCount}
+			/>
 
 			{quiz.creator.id === currentUser.id && (
 				<QuizDangerZone quizId={quiz.id} />

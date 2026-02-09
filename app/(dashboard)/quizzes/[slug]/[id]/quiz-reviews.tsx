@@ -1,5 +1,5 @@
-'use client'
-
+import ErrorMessage from '@/components/error-message'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -8,14 +8,22 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { MessageSquareIcon, StarIcon } from 'lucide-react'
+import RatingStars from '@/components/utils/rating-stars'
+import { Quiz } from '@/db/schema'
+import { getQuizReviews } from '@/features/reviews/actions'
+import QuizReviewForm from '@/features/reviews/components/review-form'
+import { dateFormatter } from '@/utils/format'
+import { MessageSquareIcon, ThumbsUpIcon } from 'lucide-react'
 
 export type QuizReviewsProps = {
+	quizId: Quiz['id']
 	totalReviews: number
 }
 
-export default function QuizReviews({ totalReviews }: QuizReviewsProps) {
+export default function QuizReviews({
+	quizId,
+	totalReviews
+}: QuizReviewsProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -29,91 +37,72 @@ export default function QuizReviews({ totalReviews }: QuizReviewsProps) {
 			</CardHeader>
 			<CardContent className='space-y-6'>
 				{/* Add Review */}
-				<ReviewForm />
+				<QuizReviewForm quizId={quizId} />
 
 				{/* Review List */}
-				<ReviewList />
+				<ReviewList quizId={quizId} />
 			</CardContent>
 		</Card>
 	)
 }
 
-function ReviewForm() {
-	return (
-		<div className='space-y-4 pb-6 border-b'>
-			<Textarea
-				placeholder='Share your experience with this quiz...'
-				rows={3}
+async function ReviewList({ quizId }: { quizId: Quiz['id'] }) {
+	const response = await getQuizReviews(quizId)
+
+	if (!response.success)
+		return (
+			<ErrorMessage
+				message={
+					response.message ?? 'Something went wrong. Please try again later.'
+				}
 			/>
-			<div className='flex justify-between items-center'>
-				<div className='flex items-center gap-1'>
-					<span className='text-sm text-muted-foreground mr-2'>
-						Your rating:
-					</span>
-					{[1, 2, 3, 4, 5].map(star => (
-						<StarIcon
-							key={star}
-							className='h-5 w-5 text-muted hover:text-yellow-500 cursor-pointer transition-colors'
-						/>
-					))}
+		)
+
+	if (response.reviews.length === 0)
+		return <p className='text-center py-16'>No reviews</p>
+
+	return (
+		<div className='space-y-6'>
+			{response.reviews.map(review => (
+				<div
+					key={review.id}
+					className='space-y-3'
+				>
+					<div className='flex items-start justify-between'>
+						<div className='flex items-center gap-3'>
+							<Avatar className='size-10'>
+								<AvatarImage
+									src={review.user.image!}
+									alt={review.user.name}
+								/>
+								<AvatarFallback />
+							</Avatar>
+							<div>
+								<div className='flex items-center gap-2'>
+									<p className='font-medium'>{review.user.name}</p>
+									<div className='flex'>
+										<RatingStars
+											rating={review.rating}
+											className='size-4'
+										/>
+									</div>
+								</div>
+								<span className='text-xs text-muted-foreground'>
+									{dateFormatter.format(review.createdAt)}
+								</span>
+							</div>
+						</div>
+						<Button
+							variant='ghost'
+							size='sm'
+							className='text-muted-foreground'
+						>
+							<ThumbsUpIcon className='size-4 mr-1' />0
+						</Button>
+					</div>
+					<p className='text-muted-foreground pl-13'>{review.comment}</p>
 				</div>
-				<Button>Submit Review</Button>
-			</div>
+			))}
 		</div>
 	)
-}
-
-function ReviewList() {
-	const reviews = []
-
-	if (!reviews.length) return <></>
-
-	// return (
-	// 	<div className='space-y-6'>
-	// 		{reviews.map(review => (
-	// 			<div
-	// 				key={review.id}
-	// 				className='space-y-3'
-	// 			>
-	// 				<div className='flex items-start justify-between'>
-	// 					<div className='flex items-center gap-3'>
-	// 						<Avatar className='h-10 w-10'>
-	// 							<AvatarImage src={review.user.avatar} />
-	// 							<AvatarFallback />
-	// 						</Avatar>
-	// 						<div>
-	// 							<p className='font-medium'>{review.user.name}</p>
-	// 							<div className='flex items-center gap-2'>
-	// 								<div className='flex'>
-	// 									{[1, 2, 3, 4, 5].map(star => (
-	// 										<StarIcon
-	// 											key={star}
-	// 											className={`h-3 w-3 ${
-	// 												star <= review.rating
-	// 													? 'text-yellow-500 fill-yellow-500'
-	// 													: 'text-muted'
-	// 											}`}
-	// 										/>
-	// 									))}
-	// 								</div>
-	// 								<span className='text-xs text-muted-foreground'>
-	// 									{review.date}
-	// 								</span>
-	// 							</div>
-	// 						</div>
-	// 					</div>
-	// 					<Button
-	// 						variant='ghost'
-	// 						size='sm'
-	// 						className='text-muted-foreground'
-	// 					>
-	// 						<ThumbsUpIcon className='h-4 w-4 mr-1' />
-	// 						{review.likes}
-	// 					</Button>
-	// 				</div>
-	// 				<p className='text-muted-foreground pl-13'>{review.comment}</p>
-	// 			</div>
-	// 		))}
-	// 	</div>
-	// )
 }
