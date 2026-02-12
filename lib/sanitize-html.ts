@@ -1,30 +1,39 @@
-import createDOMPurify, { Config } from 'dompurify'
-import { JSDOM } from 'jsdom'
-
-const window = new JSDOM('').window
-const DOMPurify = createDOMPurify(window)
+import sanitize, { type IOptions } from 'sanitize-html'
 
 export const sanitizeConfig = {
-	ALLOWED_TAGS: [
+	allowedTags: [
 		'b',
 		'i',
 		'em',
 		'strong',
-		'u',
 		'a',
 		'p',
-		'blockquote',
+		'br',
 		'ul',
 		'ol',
 		'li',
-		'h3',
-		'h4'
+		'code',
+		'pre',
+		'blockquote',
+		'img',
+		'span'
 	],
-	ALLOWED_ATTR: ['href', 'target', 'rel']
-} satisfies Config
+	allowedAttributes: {
+		a: ['href', 'name', 'target'],
+		img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading'],
+		span: ['class', 'style']
+	},
+	transformTags: {
+		a: sanitize.simpleTransform('a', { target: '_blank', rel: 'noopener' })
+	},
+	allowedSchemes: ['http', 'https', 'mailto'],
+	allowedSchemesByTag: {
+		img: ['http', 'https']
+	}
+} satisfies IOptions
 
 export const sanitizeHTML = (html: string): string => {
-	const cleanHTML = DOMPurify.sanitize(html, sanitizeConfig)
+	const cleanHTML = sanitize(html, sanitizeConfig)
 
 	return cleanHTML
 }

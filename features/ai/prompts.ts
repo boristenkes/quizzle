@@ -48,8 +48,8 @@ EXPLANATION RULES
 	- not mention the PDF or refer to it directly
 	- be concise (2-6 sentences)
 	- include headings, paragraphs, or lists if they improve clarity
-  - use ONLY allowed HTML tags (${sanitizeConfig.ALLOWED_TAGS.join(', ')}) 
-    and attributes (${sanitizeConfig.ALLOWED_ATTR.join(', ')})
+  - use ONLY allowed HTML tags (${sanitizeConfig.allowedTags.join(', ')}) 
+    and attributes (${Object.values(sanitizeConfig.allowedAttributes).flat().join(', ')})
 
 QUESTION SCHEMA
 - Each question must match the following schema:

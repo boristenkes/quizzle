@@ -63,7 +63,7 @@ export default function AccountCard({
 				</div>
 			</div>
 
-			{numberOfAccounts > 1 ? (
+			{numberOfAccounts > 1 && (
 				<Button
 					variant='outline'
 					size='sm'
@@ -74,10 +74,6 @@ export default function AccountCard({
 					{mutation.isPending ? 'Disconnecting' : 'Disconnect'}
 					{mutation.isPending && <Spinner />}
 				</Button>
-			) : (
-				<p className='text-foreground/80'>
-					<em>Last account</em>
-				</p>
 			)}
 		</div>
 	)

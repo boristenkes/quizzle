@@ -1,9 +1,16 @@
 import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle
+} from '@/components/ui/empty'
 import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList from '@/features/quizzes/components/user-quiz-list'
 import { getSession } from '@/lib/auth'
-import { BookmarkIcon, Trash2Icon } from 'lucide-react'
+import { BookmarkIcon, FolderOpenIcon, Trash2Icon } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -44,10 +51,14 @@ export default async function MyQuizzesPage() {
 			</div>
 
 			{response.success ? (
-				<UserQuizList
-					quizzes={response.quizzes}
-					currentUserId={currentUser.id}
-				/>
+				response.quizzes.length > 0 ? (
+					<UserQuizList
+						quizzes={response.quizzes}
+						currentUserId={currentUser.id}
+					/>
+				) : (
+					<MyQuizzesEmpty />
+				)
 			) : (
 				<ErrorMessage
 					message={
@@ -56,5 +67,21 @@ export default async function MyQuizzesPage() {
 				/>
 			)}
 		</div>
+	)
+}
+
+export function MyQuizzesEmpty() {
+	return (
+		<Empty>
+			<EmptyHeader>
+				<EmptyMedia>
+					<FolderOpenIcon />
+				</EmptyMedia>
+				<EmptyTitle>No results</EmptyTitle>
+				<EmptyDescription className='text-balance'>
+					This is where you will find quizzes you created.
+				</EmptyDescription>
+			</EmptyHeader>
+		</Empty>
 	)
 }
