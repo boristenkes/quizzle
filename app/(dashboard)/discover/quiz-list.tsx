@@ -6,18 +6,27 @@ import {
 	EmptyMedia,
 	EmptyTitle
 } from '@/components/ui/empty'
-import { getQuizzes } from '@/features/quizzes/actions'
+import {
+	filterQuizzes,
+	FilterQuizzesFilters,
+	getQuizzes
+} from '@/features/quizzes/actions'
 import QuizCard, {
 	QuizCardSkeleton
 } from '@/features/quizzes/components/quiz-card'
 import { cn } from '@/utils/helpers'
 import { FolderOpenIcon } from 'lucide-react'
 
+export type QuizListProps = React.HTMLAttributes<HTMLElement> & {
+	filters?: FilterQuizzesFilters
+}
+
 export default async function QuizList({
 	className,
+	filters,
 	...props
-}: React.HTMLAttributes<HTMLElement>) {
-	const response = await getQuizzes()
+}: QuizListProps) {
+	const response = await (filters ? filterQuizzes(filters) : getQuizzes())
 
 	if (!response.success)
 		return (

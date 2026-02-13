@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { FilterQuizzesFilters } from '@/features/quizzes/actions'
 import { getSession } from '@/lib/auth'
 import { FilterIcon, Globe } from 'lucide-react'
 import { Metadata } from 'next'
@@ -11,10 +12,16 @@ export const metadata: Metadata = {
 	title: 'Discover'
 }
 
-export default async function DisoverPage() {
+export type DiscoverPageProps = {
+	searchParams: Promise<FilterQuizzesFilters>
+}
+
+export default async function DisoverPage(props: DiscoverPageProps) {
 	const isAuthenticated = await getSession().then(Boolean)
 
 	if (!isAuthenticated) redirect('/sign-in')
+
+	const searchParams = await props.searchParams
 
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-6'>
@@ -50,7 +57,7 @@ export default async function DisoverPage() {
 
 			{/* Quiz Grid */}
 			<Suspense fallback={<QuizListSkeleton />}>
-				<QuizList />
+				<QuizList filters={searchParams} />
 			</Suspense>
 
 			{/* Pagination */}

@@ -6,6 +6,7 @@ import {
 	questionOptionsTable,
 	questionsTable,
 	Quiz,
+	quizCategoriesTable,
 	QuizCategory,
 	QuizStatistics,
 	quizStatisticsTable,
@@ -14,10 +15,11 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
+import { difficulties, Difficulty } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { Nullable, ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm'
+import { and, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
@@ -296,6 +298,81 @@ export async function getQuizById(
 		return { success: true, quiz }
 	} catch (error) {
 		console.error('[GET_QUIZ_BY_ID]:', error)
+		return { success: false }
+	}
+}
+
+export type FilterQuizzesFilters = Partial<{
+	query: string
+	category: string
+	difficulty: string
+}>
+
+export async function filterQuizzes(
+	filters: FilterQuizzesFilters
+): Promise<ServerActionResponse<{ quizzes: GetQuizzesQuiz[] }>> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const databaseFilters = []
+
+		if (filters.query) {
+			databaseFilters.push(
+				or(
+					ilike(quizzesTable.title, `%${filters.query}%`),
+					ilike(quizzesTable.description, `%${filters.query}%`)
+				)
+			)
+		}
+
+		const difficulty = filters.difficulty as Difficulty
+		if (filters.difficulty && difficulties.includes(difficulty)) {
+			databaseFilters.push(eq(quizzesTable.difficulty, difficulty))
+		}
+
+		if (filters.category) {
+			const targetCategory = await db.query.quizCategoriesTable.findFirst({
+				where: eq(quizCategoriesTable.slug, filters.category),
+				columns: { id: true }
+			})
+
+			if (targetCategory) {
+				databaseFilters.push(eq(quizzesTable.categoryId, targetCategory.id))
+			}
+		}
+
+		const quizzes = await db.query.quizzesTable.findMany({
+			where: and(isNull(quizzesTable.deletedAt), ...databaseFilters),
+			columns: pickColumns(
+				'id',
+				'title',
+				'slug',
+				'description',
+				'timeLimitSeconds',
+				'questionCount',
+				'difficulty'
+			),
+			with: {
+				creator: {
+					columns: pickColumns('id', 'username', 'name', 'image')
+				},
+				category: {
+					columns: pickColumns('name')
+				}
+			},
+			extras: {
+				averageRating: averageRatingQuery,
+				totalAttempts: totalAttemptsQuery,
+				averageScore: averageScoreQuery
+			},
+			orderBy: desc(quizzesTable.createdAt)
+		})
+
+		return { success: true, quizzes }
+	} catch (error) {
+		console.error('[FILTER_QUIZZES]:', error)
 		return { success: false }
 	}
 }

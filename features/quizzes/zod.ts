@@ -33,3 +33,13 @@ export const quizFormSchema = z.object({
 })
 
 export type QuizFormSchema = z.infer<typeof quizFormSchema>
+
+export const filtersFormSchema = z
+	.object({
+		searchQuery: z.string().trim().nullable(),
+		categoryId: z.ulid().nullable(),
+		difficulty: z.enum(difficulties).nullable()
+	})
+	.partial()
+
+export type FiltersFormSchema = z.infer<typeof filtersFormSchema>

@@ -28,6 +28,7 @@ export type CategoryComboboxProps = {
 	value: Nullable<Category['id']>
 	setValue: SetState<Nullable<Category['id']>>
 	useSlug?: boolean
+	disabled?: boolean
 	props?: Partial<{
 		popoverContent: React.ComponentProps<typeof PopoverContent>
 	}>
@@ -37,6 +38,7 @@ export default function CategoryCombobox({
 	value,
 	setValue,
 	useSlug = false,
+	disabled = false,
 	props = {}
 }: CategoryComboboxProps) {
 	const [open, setOpen] = useState(false)
@@ -72,6 +74,7 @@ export default function CategoryCombobox({
 						<ChevronsUpDownIcon className='opacity-50' />
 					</Button>
 				}
+				disabled={disabled}
 			/>
 			<PopoverContent
 				className={cn('w-50 p-0', props.popoverContent?.className)}

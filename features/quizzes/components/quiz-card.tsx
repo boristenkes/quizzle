@@ -27,8 +27,8 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 	return (
 		<Card className='flex flex-col gap-3'>
 			<CardHeader className='grow'>
-				<div className='flex items-start justify-between gap-2'>
-					<div>
+				<div>
+					<div className='flex items-center justify-between gap-4'>
 						<Link
 							href={`/quizzes/${quiz.slug}/${quiz.id}`}
 							className='hover:text-primary transition-colors'
@@ -37,40 +37,44 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 								{quiz.title}
 							</CardTitle>
 						</Link>
-						<CardDescription className='line-clamp-2 mt-2'>
-							{quiz.description}
-						</CardDescription>
-						<div className='text-xs text-muted-foreground mt-4'>
-							<Link
-								href={`/users/${quiz.creator.username}`}
-								className='hover:text-indigo-500 font-medium transition-colors inline-flex items-center gap-2'
+
+						<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
+							<div className='flex items-center gap-1 text-sm'>
+								<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
+								<span>{quiz.averageRating}</span>
+							</div>
+							<Badge
+								className={cn(
+									getDifficultyColor(quiz.difficulty),
+									'capitalize'
+								)}
+								variant='outline'
 							>
-								<Avatar size='sm'>
-									<AvatarImage
-										src={quiz.creator.image!}
-										alt={quiz.creator.name}
-									/>
-									<AvatarFallback />
-								</Avatar>
-								{quiz.creator.name}
-							</Link>
+								{quiz.difficulty}
+							</Badge>
+							{quiz.category && (
+								<Badge variant='outline'>{quiz.category.name}</Badge>
+							)}
 						</div>
 					</div>
 
-					<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
-						<div className='flex items-center gap-1 text-sm'>
-							<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
-							<span>{quiz.averageRating}</span>
-						</div>
-						<Badge
-							className={cn(getDifficultyColor(quiz.difficulty), 'capitalize')}
-							variant='outline'
+					<CardDescription className='line-clamp-2 mt-2'>
+						{quiz.description}
+					</CardDescription>
+					<div className='text-xs text-muted-foreground mt-4'>
+						<Link
+							href={`/users/${quiz.creator.username}`}
+							className='hover:text-indigo-500 font-medium transition-colors inline-flex items-center gap-2'
 						>
-							{quiz.difficulty}
-						</Badge>
-						{quiz.category && (
-							<Badge variant='outline'>{quiz.category.name}</Badge>
-						)}
+							<Avatar size='sm'>
+								<AvatarImage
+									src={quiz.creator.image!}
+									alt={quiz.creator.name}
+								/>
+								<AvatarFallback />
+							</Avatar>
+							{quiz.creator.name}
+						</Link>
 					</div>
 				</div>
 			</CardHeader>
