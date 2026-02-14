@@ -9,10 +9,11 @@ import { db } from '@/db'
 import { getQuizById } from '@/features/quizzes/actions'
 import BookmarkButton from '@/features/quizzes/components/bookmark-button'
 import MoveToTrashButton from '@/features/quizzes/components/move-to-trash-button'
+import ShareQuizDialog from '@/features/quizzes/components/share-quiz-dialog'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { getSession } from '@/lib/auth'
 import { dateFormatter, getDifficultyColor } from '@/utils/format'
-import { cn, pickColumns } from '@/utils/helpers'
+import { absoluteUrl, cn, pickColumns } from '@/utils/helpers'
 import {
 	ArrowLeftIcon,
 	ClockIcon,
@@ -36,7 +37,8 @@ export type QuizDetailsPageProps = {
 export async function generateMetadata({
 	params
 }: QuizDetailsPageProps): Promise<Metadata> {
-	const { id } = await params
+	const { slug, id } = await params
+	const pathname = `/quizzes/${slug}/${id}`
 
 	const quiz = await db.query.quizzesTable.findFirst({
 		where: (table, { eq }) => eq(table.id, id),
@@ -47,7 +49,17 @@ export async function generateMetadata({
 
 	return {
 		title: quiz.title,
-		description: quiz.description
+		description: quiz.description,
+		openGraph: {
+			title: quiz.title,
+			description: quiz.description,
+			url: absoluteUrl(pathname)
+		},
+		twitter: {
+			title: quiz.title,
+			description: quiz.description
+		},
+		metadataBase: new URL(absoluteUrl(pathname))
 	}
 }
 
@@ -214,13 +226,18 @@ export default async function QuizDetailsPage({
 									/>
 								)}
 
-								<Button
-									variant='outline'
-									className='flex-1'
+								<ShareQuizDialog
+									url={absoluteUrl(`/quizzes/${quiz.slug}/${quiz.id}`)}
+									quizTitle={quiz.title}
 								>
-									<Share2Icon className='mr-2 h-4 w-4' />
-									Share
-								</Button>
+									<Button
+										variant='outline'
+										className='flex-1'
+									>
+										<Share2Icon className='size-4 mr-2' />
+										Share
+									</Button>
+								</ShareQuizDialog>
 							</div>
 						</div>
 					</CardContent>

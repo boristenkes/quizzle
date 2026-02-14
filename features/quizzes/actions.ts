@@ -233,6 +233,7 @@ export async function getUserQuizzes(
 export type GetQuizByIdQuiz = Pick<
 	Quiz,
 	| 'id'
+	| 'slug'
 	| 'title'
 	| 'description'
 	| 'difficulty'
@@ -266,6 +267,7 @@ export async function getQuizById(
 			),
 			columns: pickColumns(
 				'id',
+				'slug',
 				'title',
 				'description',
 				'difficulty',

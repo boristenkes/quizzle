@@ -1,3 +1,4 @@
+import { env } from '@/lib/env'
 import { clsx, type ClassValue } from 'clsx'
 import slugifyOriginal from 'slugify'
 import { twMerge } from 'tailwind-merge'
@@ -17,6 +18,9 @@ export const slugify = (str: string) => {
 		strict: true
 	})
 }
+
+export const absoluteUrl = (path: string) =>
+	new URL(path, env.NEXT_PUBLIC_BASE_URL).href
 
 export function isEmpty(value: unknown): value is [] | Record<string, never> {
 	if (!value || typeof value !== 'object') return true
