@@ -26,98 +26,136 @@ Rules:
 `
 
 export async function POST(req: NextRequest) {
-	const session = await auth.api.getSession({
-		headers: req.headers
-	})
+	try {
+		const session = await auth.api.getSession({
+			headers: req.headers
+		})
 
-	if (!session) throw new Error('Unauthorized')
+		if (!session) return new Response('Unauthorized', { status: 401 })
 
-	const ratelimitResult = await ratelimit.limit(session.user.id)
+		const ratelimitResult = await ratelimit.limit(session.user.id)
 
-	if (!ratelimitResult.success) {
-		return new Response('Too Many Requests', { status: 429 })
-	}
-
-	console.log(
-		`[${new Date().toISOString()}]: ${session.user.name} (${session.user.id}) requested question generation.`
-	)
-
-	const encoder = new TextEncoder()
-	const formData = await req.formData()
-
-	const pdf = pdfFileSchema.parse(formData.get('pdf'))
-	const config = JSON.parse(formData.get('config') as string)
-	const parsedConfig = generateQuestionsConfigSchema.parse(config)
-
-	const pdfText = await extractTextFromPDF(pdf)
-
-	const prompt = getGenerateQuestionsPrompt(
-		pdfText.slice(0, 5000),
-		parsedConfig
-	)
-
-	const emitLine = (
-		line: string,
-		controller: ReadableStreamDefaultController
-	) => {
-		try {
-			const parsed = questionFormSchema.parse(JSON.parse(line))
-			controller.enqueue(encoder.encode(JSON.stringify(parsed) + '\n'))
-		} catch {
-			console.warn(
-				'[WARNING]: AI returned invalid question:',
-				line,
-				'(POST /ai/generate-questions)'
-			)
+		if (!ratelimitResult.success) {
+			return new Response('Too Many Requests', { status: 429 })
 		}
-	}
 
-	const stream = new ReadableStream({
-		async start(controller) {
-			let buffer = ''
+		console.log(
+			`[${new Date().toISOString()}]: ${session.user.name} (${session.user.id}) requested question generation.`
+		)
 
-			const response = await gemini.models.generateContentStream({
-				model: GEMINI_MODEL_NAME,
-				contents: prompt,
-				config: {
-					systemInstruction,
-					abortSignal: req.signal
-				}
-			})
+		const encoder = new TextEncoder()
+		const formData = await req.formData()
 
-			for await (const chunk of response) {
-				if (req.signal.aborted) {
+		const pdf = pdfFileSchema.parse(formData.get('pdf'))
+		const config = JSON.parse(formData.get('config') as string)
+		const parsedConfig = generateQuestionsConfigSchema.parse(config)
+
+		const pdfText = await extractTextFromPDF(pdf)
+
+		const prompt = getGenerateQuestionsPrompt(
+			pdfText.slice(0, 5000),
+			parsedConfig
+		)
+
+		const emitLine = (
+			line: string,
+			controller: ReadableStreamDefaultController
+		) => {
+			try {
+				const parsed = questionFormSchema.parse(JSON.parse(line))
+				controller.enqueue(encoder.encode(JSON.stringify(parsed) + '\n'))
+			} catch {
+				console.warn(
+					'[WARNING]: AI returned invalid question:',
+					line,
+					'(POST /ai/generate-questions)'
+				)
+			}
+		}
+
+		const stream = new ReadableStream({
+			async start(controller) {
+				try {
+					let buffer = ''
+
+					const response = await gemini.models.generateContentStream({
+						model: GEMINI_MODEL_NAME + 'awd',
+						contents: prompt,
+						config: {
+							systemInstruction,
+							abortSignal: req.signal
+						}
+					})
+
+					for await (const chunk of response) {
+						if (req.signal.aborted) {
+							controller.close()
+							return
+						}
+
+						const text = chunk.candidates?.[0].content?.parts?.[0].text ?? ''
+						buffer += text
+
+						let newlineIndex: number
+						while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+							const line = buffer.slice(0, newlineIndex).trim()
+							buffer = buffer.slice(newlineIndex + 1)
+
+							if (!line) continue
+
+							emitLine(line, controller)
+						}
+					}
+
+					const leftover = buffer.trim()
+					if (leftover) emitLine(leftover, controller)
+
 					controller.close()
-					return
-				}
-
-				const text = chunk.candidates?.[0].content?.parts?.[0].text ?? ''
-				buffer += text
-
-				let newlineIndex: number
-				while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-					const line = buffer.slice(0, newlineIndex).trim()
-					buffer = buffer.slice(newlineIndex + 1)
-
-					if (!line) continue
-
-					emitLine(line, controller)
+				} catch (error: any) {
+					console.error('[QUESTION_GENERATION_STREAM_ERROR]:', error)
+					controller.error(
+						'AI failed to generate questions. Please try again later.'
+					)
 				}
 			}
+		})
 
-			const leftover = buffer.trim()
-			if (leftover) {
-				emitLine(leftover, controller)
+		return new Response(stream, {
+			headers: {
+				'Content-Type': 'application/x-ndjson',
+				'Cache-Control': 'no-cache'
 			}
+		})
+	} catch (error: any) {
+		console.error(
+			'[QUESTION GENERATION ERROR: /api/ai/generate-questions]:',
+			error
+		)
 
-			controller.close()
-		}
-	})
+		switch (error?.status) {
+			case 'RESOURCE_EXHAUSTED':
+				return new Response(
+					'The AI service is currently handling too many requests. Please wait a moment and try generating questions again.',
+					{ status: 429 }
+				)
 
-	return new Response(stream, {
-		headers: {
-			'Content-Type': 'application/x-ndjson',
-			'Cache-Control': 'no-cache'
+			case 'INVALID_ARGUMENT':
+				return new Response(
+					"We couldn't process the request. Please make sure the uploaded PDF and settings are valid and try again.",
+					{ status: 400 }
+				)
+
+			case 'UNAVAILABLE':
+				return new Response(
+					'The AI service is temporarily unavailable. Please try again later.',
+					{ status: 503 }
+				)
+
+			default:
+				return new Response(
+					'Something went wrong while generating questions. Please try again later.',
+					{ status: 500 }
+				)
 		}
-	})
+	}
 }

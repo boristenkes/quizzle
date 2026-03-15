@@ -103,7 +103,7 @@ export default function UserQuizList({
 								className='flex-1'
 								nativeButton={false}
 								render={
-									<Link href={`/quizzes/${quiz.id}/play`}>
+									<Link href={`/quizzes/${quiz.slug}/${quiz.id}/play`}>
 										<PlayCircle className='mr-2 h-4 w-4' />
 										Take Quiz
 									</Link>

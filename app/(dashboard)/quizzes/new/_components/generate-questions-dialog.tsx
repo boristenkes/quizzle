@@ -76,72 +76,87 @@ export default function GenerateQuestionsDialog({
 	)
 
 	const onSubmit = async (data: GenerateQuestionsFormSchema) => {
-		const difficultyDistribution = getDistributionObj(
-			data.difficultyDistribution,
-			questionCount,
-			['easy', 'medium', 'hard']
-		)
-		const typeDistribution = getDistributionObj(
-			data.typeDistribution,
-			questionCount,
-			['text', 'single_correct', 'multi_correct']
-		)
+		try {
+			const difficultyDistribution = getDistributionObj(
+				data.difficultyDistribution,
+				questionCount,
+				['easy', 'medium', 'hard']
+			)
+			const typeDistribution = getDistributionObj(
+				data.typeDistribution,
+				questionCount,
+				['text', 'single_correct', 'multi_correct']
+			)
 
-		const pdfValidation = pdfFileSchema.safeParse(pdfFile)
+			const pdfValidation = pdfFileSchema.safeParse(pdfFile)
 
-		if (!pdfValidation.success) {
-			return form.setError('root', {
-				message: z.prettifyError(pdfValidation.error)
-			})
-		}
-
-		const formData = new FormData()
-		formData.append('pdf', pdfValidation.data)
-		formData.append(
-			'config',
-			JSON.stringify({
-				questionCount: data.questionCount,
-				difficultyDistribution,
-				typeDistribution
-			})
-		)
-
-		setIsOpen(false)
-		setIsGenerating(true)
-		scrollToElement('new-quiz-form:question-list')
-
-		const response = await fetch('/api/ai/generate-questions', {
-			method: 'POST',
-			body: formData,
-			signal: controller.signal
-		})
-
-		const reader = response.body!.getReader()
-		const decoder = new TextDecoder()
-
-		let buffer = ''
-
-		while (true) {
-			const { value, done } = await reader.read()
-
-			if (done) break
-
-			buffer += decoder.decode(value, { stream: true })
-
-			let newlineIndex: number
-			while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-				const line = buffer.slice(0, newlineIndex).trim()
-				buffer = buffer.slice(newlineIndex + 1)
-
-				if (!line) continue
-
-				const question = JSON.parse(line) as QuestionFormSchema
-				onGenerate(question)
+			if (!pdfValidation.success) {
+				return form.setError('root', {
+					message: z.prettifyError(pdfValidation.error)
+				})
 			}
-		}
 
-		toast.success('Questions generated successfully')
-		setIsGenerating(false)
+			const formData = new FormData()
+			formData.append('pdf', pdfValidation.data)
+			formData.append(
+				'config',
+				JSON.stringify({
+					questionCount: data.questionCount,
+					difficultyDistribution,
+					typeDistribution
+				})
+			)
+
+			setIsOpen(false)
+			setIsGenerating(true)
+			scrollToElement('new-quiz-form:question-list')
+
+			const response = await fetch('/api/ai/generate-questions', {
+				method: 'POST',
+				body: formData,
+				signal: controller.signal
+			})
+
+			if (!response.ok) {
+				const message = await response.text()
+				throw new Error(message)
+			}
+
+			const reader = response.body!.getReader()
+			const decoder = new TextDecoder()
+
+			let buffer = ''
+
+			while (true) {
+				const { value, done } = await reader.read()
+
+				if (done) break
+
+				buffer += decoder.decode(value, { stream: true })
+
+				let newlineIndex: number
+				while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+					const line = buffer.slice(0, newlineIndex).trim()
+					buffer = buffer.slice(newlineIndex + 1)
+
+					if (!line) continue
+
+					const question = JSON.parse(line) as QuestionFormSchema
+					onGenerate(question)
+				}
+			}
+
+			toast.success('Questions generated successfully')
+		} catch (error: any) {
+			if (error.name === 'AbortError') {
+				toast('Generation canceled')
+			} else {
+				console.error('[FAILED TO GENERATE QUESTIONS]:', error)
+				toast.error(error.message || 'Something went wrong')
+			}
+		} finally {
+			setIsGenerating(false)
+		}
 	}
 
 	return (
