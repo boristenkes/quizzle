@@ -5,6 +5,7 @@ import { ulid } from 'ulid'
 import { difficultyEnum, quizzle, timestamps } from './_root'
 import { questionOptionsTable } from './question-options'
 import { quizzesTable } from './quizzes'
+import { textQuestionSettingsTable } from './text-question-settings'
 
 export const questionTypeEnum = quizzle.enum('question_type', questionTypes)
 
@@ -33,6 +34,7 @@ export const questionsRelations = relations(
 			fields: [questionsTable.quizId],
 			references: [quizzesTable.id]
 		}),
+		textQuestionSettings: one(textQuestionSettingsTable),
 		options: many(questionOptionsTable)
 	})
 )

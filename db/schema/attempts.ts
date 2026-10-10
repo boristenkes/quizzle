@@ -1,5 +1,13 @@
+import { AttemptQuizData } from '@/features/quiz-game/zod'
 import { relations } from 'drizzle-orm'
-import { boolean, index, integer, text, timestamp } from 'drizzle-orm/pg-core'
+import {
+	boolean,
+	index,
+	integer,
+	json,
+	text,
+	timestamp
+} from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle, timestamps } from './_root'
 import { attemptQuestionsTable } from './attempt-questions'
@@ -15,6 +23,7 @@ export const attemptsTable = quizzle.table(
 		startedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 		submittedAt: timestamp({ withTimezone: true }),
 		isCompleted: boolean().notNull().default(false),
+		quizData: json().$type<AttemptQuizData>().notNull(),
 
 		quizId: text()
 			.notNull()

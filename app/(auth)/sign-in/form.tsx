@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { SignInSchema, signInSchema } from '@/features/auth/zod'
 import { authClient } from '@/lib/auth.client'
+import { errorMessage } from '@/utils/helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeIcon, EyeOffIcon, LockIcon, UserIcon } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
@@ -51,7 +52,7 @@ export default function SignInForm() {
 		if (response.error) {
 			console.error('[SIGN_IN_ERROR]:', response.error)
 			return form.setError('root', {
-				message: response.error?.message ?? 'Something went wrong'
+				message: errorMessage(response.message)
 			})
 		}
 

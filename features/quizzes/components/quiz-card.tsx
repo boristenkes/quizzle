@@ -117,7 +117,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 						className='flex-1'
 						nativeButton={false}
 						render={
-							<Link href={`/quiz/${quiz.id}/play`}>
+							<Link href={`/play/${quiz.slug}/${quiz.id}`}>
 								<PlayCircleIcon className='mr-2 size-4' />
 								Start Quiz
 							</Link>

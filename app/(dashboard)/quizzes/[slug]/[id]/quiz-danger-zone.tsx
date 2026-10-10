@@ -56,7 +56,7 @@ export default function QuizDangerZone({ quizId }: QuizDangerZoneProps) {
 					<div>
 						<p className='font-medium'>Delete Quiz</p>
 						<p className='text-sm text-muted-foreground'>
-							Permanently delete your account and all data
+							Permanently delete this quiz and all related data
 						</p>
 					</div>
 

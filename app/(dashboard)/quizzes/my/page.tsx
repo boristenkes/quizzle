@@ -10,6 +10,7 @@ import {
 import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList from '@/features/quizzes/components/user-quiz-list'
 import { getSession } from '@/lib/auth'
+import { errorMessage } from '@/utils/helpers'
 import { BookmarkIcon, FolderOpenIcon, Trash2Icon } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -60,11 +61,7 @@ export default async function MyQuizzesPage() {
 					<MyQuizzesEmpty />
 				)
 			) : (
-				<ErrorMessage
-					message={
-						response.message ?? 'Something went wrong. Please try again later.'
-					}
-				/>
+				<ErrorMessage message={errorMessage(response.message)} />
 			)}
 		</div>
 	)

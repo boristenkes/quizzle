@@ -1,37 +1,14 @@
+import {
+	AttemptQuestionPrivate,
+	AttemptQuestionPublic,
+	AttemptQuestionSubmittedAnswer
+} from '@/features/quiz-game/zod'
 import { relations } from 'drizzle-orm'
 import { index, integer, json, text } from 'drizzle-orm/pg-core'
 import { ulid } from 'ulid'
 import { quizzle } from './_root'
 import { attemptsTable } from './attempts'
 import { questionsTable } from './questions'
-
-type AttemptQuestionsQuestionPublic =
-	| {
-			type: 'text'
-			prompt: string
-	  }
-	| {
-			type: 'multi_correct' | 'single_correct'
-			prompt: string
-			options: {
-				id: string
-				value: string
-			}[]
-	  }
-
-type AttemptQuestionsQuestionPrivate =
-	| {
-			type: 'text'
-			explanationHTML: string
-			acceptableAnswers: string[]
-			ignoreCase: boolean
-			trimWhitespace: boolean
-	  }
-	| {
-			type: 'multi_correct' | 'single_correct'
-			explanationHTML: string
-			correctOptionIds: string[]
-	  }
 
 export const attemptQuestionsTable = quizzle.table(
 	'quiz_attempt_questions',
@@ -44,8 +21,9 @@ export const attemptQuestionsTable = quizzle.table(
 			onDelete: 'set null'
 		}),
 
-		questionPublic: json().$type<AttemptQuestionsQuestionPublic>().notNull(),
-		questionPrivate: json().$type<AttemptQuestionsQuestionPrivate>().notNull(),
+		questionPublic: json().$type<AttemptQuestionPublic>().notNull(),
+		questionPrivate: json().$type<AttemptQuestionPrivate>().notNull(),
+		submittedAnswer: json().$type<AttemptQuestionSubmittedAnswer>(),
 
 		order: integer().notNull()
 	},

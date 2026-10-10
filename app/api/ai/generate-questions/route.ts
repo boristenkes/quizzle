@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 					let buffer = ''
 
 					const response = await gemini.models.generateContentStream({
-						model: GEMINI_MODEL_NAME + 'awd',
+						model: GEMINI_MODEL_NAME,
 						contents: prompt,
 						config: {
 							systemInstruction,

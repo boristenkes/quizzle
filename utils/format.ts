@@ -29,6 +29,32 @@ export function millisToMMSS(millis: number): string {
 	return `${formattedMin}:${formattedSec}`
 }
 
+export function formatElapsedTime(
+	startTime: number | Date,
+	endTime: number | Date
+): string {
+	const start = startTime instanceof Date ? startTime.getTime() : startTime
+	const end = endTime instanceof Date ? endTime.getTime() : endTime
+
+	const diff = Math.max(0, end - start) // avoid negative
+
+	const totalSeconds = Math.floor(diff / 1000)
+
+	const hours = Math.floor(totalSeconds / 3600)
+	const minutes = Math.floor((totalSeconds % 3600) / 60)
+	const seconds = totalSeconds % 60
+
+	const mm = String(minutes).padStart(2, '0')
+	const ss = String(seconds).padStart(2, '0')
+
+	if (hours > 0) {
+		const hh = String(hours).padStart(2, '0')
+		return `${hh}:${mm}:${ss}`
+	}
+
+	return `${mm}:${ss}`
+}
+
 export const getDifficultyColor = (difficulty: Difficulty) => {
 	switch (difficulty.toLowerCase()) {
 		case 'easy':

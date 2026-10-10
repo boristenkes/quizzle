@@ -5,6 +5,7 @@ import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList, {
 	UserQuizListSkeleton
 } from '@/features/quizzes/components/user-quiz-list'
+import { errorMessage } from '@/utils/helpers'
 import { BarChart3Icon } from 'lucide-react'
 import Link from 'next/link'
 
@@ -20,11 +21,7 @@ export default async function UserDetailsPageQuizList({
 	const response = await getUserQuizzes(userId)
 
 	if (!response.success)
-		return (
-			<ErrorMessage
-				message={response.message ?? 'Failed to get user quizzes.'}
-			/>
-		)
+		return <ErrorMessage message={errorMessage(response.message)} />
 
 	return (
 		<section>

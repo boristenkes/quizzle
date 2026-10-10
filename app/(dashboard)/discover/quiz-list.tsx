@@ -14,7 +14,7 @@ import {
 import QuizCard, {
 	QuizCardSkeleton
 } from '@/features/quizzes/components/quiz-card'
-import { cn } from '@/utils/helpers'
+import { cn, errorMessage } from '@/utils/helpers'
 import { FolderOpenIcon } from 'lucide-react'
 
 export type QuizListProps = React.HTMLAttributes<HTMLElement> & {
@@ -29,13 +29,7 @@ export default async function QuizList({
 	const response = await (filters ? filterQuizzes(filters) : getQuizzes())
 
 	if (!response.success)
-		return (
-			<ErrorMessage
-				message={
-					response.message ?? 'Something went wrong. Please try again later'
-				}
-			/>
-		)
+		return <ErrorMessage message={errorMessage(response.message)} />
 
 	if (response.quizzes.length === 0) return <QuizListEmptyState />
 

@@ -13,7 +13,7 @@ import ShareQuizDialog from '@/features/quizzes/components/share-quiz-dialog'
 import TimeLimit from '@/features/quizzes/components/time-limit'
 import { getSession } from '@/lib/auth'
 import { dateFormatter, getDifficultyColor } from '@/utils/format'
-import { absoluteUrl, cn, pickColumns } from '@/utils/helpers'
+import { absoluteUrl, cn, errorMessage, pickColumns } from '@/utils/helpers'
 import {
 	ArrowLeftIcon,
 	ClockIcon,
@@ -77,9 +77,7 @@ export default async function QuizDetailsPage({
 	if (!response.success) {
 		return (
 			<ErrorMessage
-				message={
-					response.message ?? 'Something went wrong. Please try again later.'
-				}
+				message={errorMessage(response.message)}
 				className='container m-6'
 			/>
 		)
@@ -205,7 +203,7 @@ export default async function QuizDetailsPage({
 								size='lg'
 								nativeButton={false}
 								render={
-									<Link href={`/quiz/${slug}/${id}/play`}>
+									<Link href={`/play/${slug}/${id}`}>
 										<PlayCircleIcon className='mr-2 size-5' />
 										Start Quiz
 									</Link>

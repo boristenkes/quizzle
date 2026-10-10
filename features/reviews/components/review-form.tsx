@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { Quiz } from '@/db/schema'
 import { RatingInput } from '@/features/reviews/components/rating-input'
+import { errorMessage } from '@/utils/helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePathname } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
@@ -38,8 +39,7 @@ export default function QuizReviewForm({ quizId }: QuizReviewsFormProps) {
 
 		if (!response.success) {
 			return form.setError('root', {
-				message:
-					response.message ?? 'Something went wrong. Please try again later'
+				message: errorMessage(response.message)
 			})
 		}
 

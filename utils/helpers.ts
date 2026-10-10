@@ -2,6 +2,7 @@ import { env } from '@/lib/env'
 import { clsx, type ClassValue } from 'clsx'
 import slugifyOriginal from 'slugify'
 import { twMerge } from 'tailwind-merge'
+import { Nullable } from './types'
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
@@ -28,6 +29,10 @@ export function isEmpty(value: unknown): value is [] | Record<string, never> {
 	const { length } = isArray(value) ? value : Object.keys(value)
 
 	return length === 0
+}
+
+export function errorMessage(message: Nullable<string>) {
+	return message ?? 'Something went wrong. Please try again later.'
 }
 
 export function getDirtyValues<T>(
@@ -68,6 +73,14 @@ export function scrollToElement(elementId: string) {
 	a.href = '#' + elementId
 	a.click()
 	a.remove()
+}
+
+export function average(...numbers: number[]) {
+	if (numbers.length === 0) return 0
+
+	const sum = numbers.reduce((prev, curr) => prev + curr, 0)
+
+	return sum / numbers.length
 }
 
 declare global {

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 						<h1 className='text-4xl md:text-5xl font-bold mb-4 animate-fade-in'>
 							Welcome to Quizzle
 						</h1>
-						<p className='text-xl md:text-2xl mb-8 text-white/90 animate-fade-in'>
+						<p className='text-xl mb-8 text-white/90 animate-fade-in'>
 							Create intelligent quizzes, engage learners, and track progress
 							with AI-powered insights.
 						</p>

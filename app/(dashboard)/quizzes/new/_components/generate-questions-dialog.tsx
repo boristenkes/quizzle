@@ -27,7 +27,7 @@ import {
 } from '@/features/ai/zod'
 import { QuestionFormSchema } from '@/features/questions/zod'
 import { MAX_QUIZ_QUESTIONS, MIN_QUIZ_QUESTIONS } from '@/lib/constants'
-import { scrollToElement } from '@/utils/helpers'
+import { errorMessage, scrollToElement } from '@/utils/helpers'
 import { Nullable } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SparklesIcon } from 'lucide-react'
@@ -152,7 +152,7 @@ export default function GenerateQuestionsDialog({
 				toast('Generation canceled')
 			} else {
 				console.error('[FAILED TO GENERATE QUESTIONS]:', error)
-				toast.error(error.message || 'Something went wrong')
+				toast.error(errorMessage(error.message))
 			}
 		} finally {
 			setIsGenerating(false)

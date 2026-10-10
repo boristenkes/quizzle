@@ -11,6 +11,7 @@ import {
 import { User } from '@/db/schema'
 import { getUserQuizzes } from '@/features/quizzes/actions'
 import UserQuizList from '@/features/quizzes/components/user-quiz-list'
+import { errorMessage } from '@/utils/helpers'
 import { BarChart3, FolderOpenIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,13 +27,7 @@ export default async function RecentQuizzes({
 	const response = await getUserQuizzes(userId, { pageSize: 3 })
 
 	if (!response.success)
-		return (
-			<ErrorMessage
-				message={
-					response.message ?? 'Something went wrong. Please try again later.'
-				}
-			/>
-		)
+		return <ErrorMessage message={errorMessage(response.message)} />
 
 	return (
 		<div className='space-y-6'>

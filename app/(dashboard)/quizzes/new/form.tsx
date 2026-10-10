@@ -12,6 +12,7 @@ import {
 import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createQuiz } from '@/features/quizzes/actions'
 import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
+import { errorMessage } from '@/utils/helpers'
 import {
 	ArrowLeftIcon,
 	EyeIcon,
@@ -57,8 +58,7 @@ export default function NewQuizForm() {
 
 		if (!response.success) {
 			quizForm.setError('root', {
-				message:
-					response.message ?? 'Something went wrong. Please try again later.'
+				message: errorMessage(response.message)
 			})
 			return
 		}

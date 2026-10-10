@@ -13,6 +13,7 @@ import { Quiz } from '@/db/schema'
 import { getQuizReviews } from '@/features/reviews/actions'
 import QuizReviewForm from '@/features/reviews/components/review-form'
 import { dateFormatter } from '@/utils/format'
+import { errorMessage } from '@/utils/helpers'
 import { MessageSquareIcon, ThumbsUpIcon } from 'lucide-react'
 
 export type QuizReviewsProps = {
@@ -50,13 +51,7 @@ async function ReviewList({ quizId }: { quizId: Quiz['id'] }) {
 	const response = await getQuizReviews(quizId)
 
 	if (!response.success)
-		return (
-			<ErrorMessage
-				message={
-					response.message ?? 'Something went wrong. Please try again later.'
-				}
-			/>
-		)
+		return <ErrorMessage message={errorMessage(response.message)} />
 
 	if (response.reviews.length === 0)
 		return <p className='text-center py-16'>No reviews</p>
