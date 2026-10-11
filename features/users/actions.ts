@@ -62,13 +62,13 @@ export async function getFollowState(targetUserId: User['id']) {
 
 	if (!session) throw new Error('Unauthorized')
 
-	const currentUser = session.user
+	const sessionUser = session.user
 	targetUserId = z.ulid().parse(targetUserId)
 
 	const isFollowing = await db.query.followsTable
 		.findFirst({
 			where: and(
-				eq(followsTable.followerId, currentUser.id),
+				eq(followsTable.followerId, sessionUser.id),
 				eq(followsTable.followingId, targetUserId)
 			)
 		})
@@ -83,13 +83,13 @@ export async function toggleFollow(targetUserId: User['id']) {
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		targetUserId = z.ulid().parse(targetUserId)
 
 		const isFollowing = await db.query.followsTable
 			.findFirst({
 				where: and(
-					eq(followsTable.followerId, currentUser.id),
+					eq(followsTable.followerId, sessionUser.id),
 					eq(followsTable.followingId, targetUserId)
 				)
 			})
@@ -101,13 +101,13 @@ export async function toggleFollow(targetUserId: User['id']) {
 				.delete(followsTable)
 				.where(
 					and(
-						eq(followsTable.followerId, currentUser.id),
+						eq(followsTable.followerId, sessionUser.id),
 						eq(followsTable.followingId, targetUserId)
 					)
 				)
 		} else {
 			await db.insert(followsTable).values({
-				followerId: currentUser.id,
+				followerId: sessionUser.id,
 				followingId: targetUserId
 			})
 		}

@@ -16,7 +16,7 @@ export default async function SettingsPage() {
 
 	if (!session) redirect('/sign-in')
 
-	const currentUser = session.user
+	const sessionUser = session.user
 
 	return (
 		<div className='container mx-auto py-6 px-4 max-w-4xl space-y-8'>
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
 					value='profile'
 					className='space-y-6'
 				>
-					<Section.ProfileInfo user={currentUser} />
+					<Section.ProfileInfo user={sessionUser} />
 					<Section.ConnectedAccounts />
 				</TabsContent>
 
@@ -93,7 +93,7 @@ export default async function SettingsPage() {
 				>
 					<Section.ProfileVisibility />
 					<Section.Security />
-					<Section.DangerZone userName={currentUser.name} />
+					<Section.DangerZone userName={sessionUser.name} />
 				</TabsContent>
 
 				{/* Appearance tab */}

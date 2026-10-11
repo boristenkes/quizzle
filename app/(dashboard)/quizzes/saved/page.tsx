@@ -23,10 +23,10 @@ export default async function QuizzesSavedPage() {
 
 	if (!session) redirect('/sign-in')
 
-	const currentUser = session.user
+	const sessionUser = session.user
 
 	const bookmarks = await db.query.bookmarksTable.findMany({
-		where: (table, { eq }) => eq(table.userId, currentUser.id),
+		where: (table, { eq }) => eq(table.userId, sessionUser.id),
 		columns: {},
 		with: {
 			quiz: {

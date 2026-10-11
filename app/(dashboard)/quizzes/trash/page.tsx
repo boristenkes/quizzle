@@ -29,10 +29,10 @@ export default async function QuizzesTrashPage() {
 
 	if (!session) redirect('/sign-in')
 
-	const currentUser = session.user
+	const sessionUser = session.user
 	const quizzes = await db.query.quizzesTable.findMany({
 		where: (table, { eq, and, isNotNull }) =>
-			and(eq(table.creatorId, currentUser.id), isNotNull(table.deletedAt)),
+			and(eq(table.creatorId, sessionUser.id), isNotNull(table.deletedAt)),
 		columns: pickColumns('id', 'slug', 'title', 'deletedAt'),
 		orderBy: (table, { desc }) => desc(table.deletedAt)
 	})

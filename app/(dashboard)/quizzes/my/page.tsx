@@ -20,9 +20,9 @@ export default async function MyQuizzesPage() {
 
 	if (!session) redirect('/sign-in')
 
-	const currentUser = session.user
+	const sessionUser = session.user
 
-	const response = await getUserQuizzes(currentUser.id)
+	const response = await getUserQuizzes(sessionUser.id)
 
 	return (
 		<div className='container mx-auto py-16 px-4 space-y-6'>
@@ -55,7 +55,7 @@ export default async function MyQuizzesPage() {
 				response.quizzes.length > 0 ? (
 					<UserQuizList
 						quizzes={response.quizzes}
-						currentUserId={currentUser.id}
+						sessionUserId={sessionUser.id}
 					/>
 				) : (
 					<MyQuizzesEmpty />

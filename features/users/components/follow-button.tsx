@@ -20,12 +20,12 @@ import { BanIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 export type FollowButtonProps = ButtonProps & {
-	currentUserId: User['id']
+	sessionUserId: User['id']
 	targetUserId: User['id']
 }
 
 export default function FollowButton({
-	currentUserId,
+	sessionUserId,
 	targetUserId,
 	className,
 	...props

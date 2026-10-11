@@ -119,7 +119,7 @@ export default async function UserDetailsPage({
 									/>
 								) : (
 									<FollowButton
-										currentUserId={session.user.id}
+										sessionUserId={session.user.id}
 										targetUserId={user.id}
 									/>
 								)}
@@ -139,7 +139,7 @@ export default async function UserDetailsPage({
 			<Suspense fallback={<UserDetailsPageQuizListSkeleton />}>
 				<UserDetailsPageQuizList
 					userId={user.id}
-					currentUserId={session.user.id}
+					sessionUserId={session.user.id}
 				/>
 			</Suspense>
 		</div>

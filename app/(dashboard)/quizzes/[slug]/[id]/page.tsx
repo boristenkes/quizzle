@@ -71,7 +71,7 @@ export default async function QuizDetailsPage({
 	if (!session) redirect('/sign-in')
 
 	const { slug, id } = await params
-	const currentUser = session.user
+	const sessionUser = session.user
 	const response = await getQuizById(id)
 
 	if (!response.success) {
@@ -211,7 +211,7 @@ export default async function QuizDetailsPage({
 							/>
 
 							<div className='flex gap-2'>
-								{quiz.creator.id === currentUser.id ? (
+								{quiz.creator.id === sessionUser.id ? (
 									<MoveToTrashButton
 										quizId={quiz.id}
 										className='flex-1'
@@ -251,7 +251,7 @@ export default async function QuizDetailsPage({
 				totalReviews={quiz.statistics!.reviewsCount}
 			/>
 
-			{quiz.creator.id === currentUser.id && (
+			{quiz.creator.id === sessionUser.id && (
 				<QuizDangerZone quizId={quiz.id} />
 			)}
 		</div>

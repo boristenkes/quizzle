@@ -39,7 +39,7 @@ export async function createQuiz(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 
 		const { questions, ...quizData } = quizFormSchema.parse(data)
 
@@ -57,7 +57,7 @@ export async function createQuiz(
 					...quizData,
 					slug: slugify(quizData.title),
 					questionCount: questions.length,
-					creatorId: currentUser.id
+					creatorId: sessionUser.id
 				})
 				.returning({ id: quizzesTable.id })
 
@@ -196,9 +196,9 @@ export async function getUserQuizzes(
 
 		const parsedUserId = z.ulid().parse(userId)
 
-		const currentUserId = session.user.id
+		const sessionUserId = session.user.id
 		const foreignQuizzesFilters =
-			currentUserId !== parsedUserId
+			sessionUserId !== parsedUserId
 				? [eq(quizzesTable.isPublic, true), eq(quizzesTable.isPublished, true)]
 				: []
 
@@ -257,7 +257,7 @@ export async function getQuizById(
 		if (!session) throw new Error('Unauthorized')
 
 		const parsedQuizId = z.ulid().parse(quizId)
-		const currentUser = session.user
+		const sessionUser = session.user
 
 		const quiz = await db.query.quizzesTable.findFirst({
 			where: and(
@@ -286,7 +286,7 @@ export async function getQuizById(
 				statistics: true
 			},
 			extras: {
-				isBookmarked: isBookmarkedQuery(currentUser.id)
+				isBookmarked: isBookmarkedQuery(sessionUser.id)
 			}
 		})
 
@@ -387,14 +387,14 @@ export async function toggleQuizBookmark(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedQuizId = z.ulid().parse(quizId)
 
 		const deleteResponse = await db
 			.delete(bookmarksTable)
 			.where(
 				and(
-					eq(bookmarksTable.userId, currentUser.id),
+					eq(bookmarksTable.userId, sessionUser.id),
 					eq(bookmarksTable.quizId, parsedQuizId)
 				)
 			)
@@ -403,7 +403,7 @@ export async function toggleQuizBookmark(
 
 		if (deleteResponse.rowCount === 0) {
 			await db.insert(bookmarksTable).values({
-				userId: currentUser.id,
+				userId: sessionUser.id,
 				quizId: parsedQuizId
 			})
 			isBookmarked = true
@@ -425,7 +425,7 @@ export async function restoreQuiz(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedQuizId = z.ulid().parse(quizId)
 
 		const targetQuiz = await db.query.quizzesTable.findFirst({
@@ -435,7 +435,7 @@ export async function restoreQuiz(
 
 		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
 
-		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+		if (sessionUser.role !== 'admin' && targetQuiz.creatorId !== sessionUser.id)
 			throw new Error('Unauthorized')
 
 		await db
@@ -465,7 +465,7 @@ export async function softDeleteQuiz(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedQuizId = z.ulid().parse(quizId)
 
 		const targetQuiz = await db.query.quizzesTable.findFirst({
@@ -475,7 +475,7 @@ export async function softDeleteQuiz(
 
 		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
 
-		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+		if (sessionUser.role !== 'admin' && targetQuiz.creatorId !== sessionUser.id)
 			throw new Error('Unauthorized')
 
 		await db
@@ -508,13 +508,13 @@ export async function pruneDeletedQuizzes({
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 
 		await db
 			.delete(quizzesTable)
 			.where(
 				and(
-					eq(quizzesTable.creatorId, currentUser.id),
+					eq(quizzesTable.creatorId, sessionUser.id),
 					isNotNull(quizzesTable.deletedAt)
 				)
 			)
@@ -542,7 +542,7 @@ export async function deleteQuiz(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedQuizId = z.ulid().parse(quizId)
 
 		const targetQuiz = await db.query.quizzesTable.findFirst({
@@ -552,7 +552,7 @@ export async function deleteQuiz(
 
 		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
 
-		if (currentUser.role !== 'admin' && targetQuiz.creatorId !== currentUser.id)
+		if (sessionUser.role !== 'admin' && targetQuiz.creatorId !== sessionUser.id)
 			throw new Error('Unauthorized')
 
 		await db.delete(quizzesTable).where(eq(quizzesTable.id, parsedQuizId))

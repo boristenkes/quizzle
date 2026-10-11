@@ -24,12 +24,12 @@ import TimeLimit from './time-limit'
 
 export type UserQuizListProps = {
 	quizzes: GetUserQuizzesQuiz[]
-	currentUserId: User['id']
+	sessionUserId: User['id']
 }
 
 export default function UserQuizList({
 	quizzes,
-	currentUserId
+	sessionUserId
 }: UserQuizListProps) {
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
@@ -85,7 +85,7 @@ export default function UserQuizList({
 						</div>
 
 						<div className='flex gap-2 pt-2'>
-							{quiz.creatorId === currentUserId && (
+							{quiz.creatorId === sessionUserId && (
 								<Button
 									variant='outline'
 									size='sm'

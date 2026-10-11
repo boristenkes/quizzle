@@ -11,12 +11,12 @@ import Link from 'next/link'
 
 export type UserDetailsPageQuizListProps = {
 	userId: User['id']
-	currentUserId: User['id']
+	sessionUserId: User['id']
 }
 
 export default async function UserDetailsPageQuizList({
 	userId,
-	currentUserId
+	sessionUserId
 }: UserDetailsPageQuizListProps) {
 	const response = await getUserQuizzes(userId)
 
@@ -41,7 +41,7 @@ export default async function UserDetailsPageQuizList({
 
 			<UserQuizList
 				quizzes={response.quizzes}
-				currentUserId={currentUserId}
+				sessionUserId={sessionUserId}
 			/>
 		</section>
 	)

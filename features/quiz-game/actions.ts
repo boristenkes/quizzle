@@ -32,12 +32,12 @@ export async function createQuizSession(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedQuizId = z.ulid().parse(quizId)
 
 		const activeSession = await db.query.attemptsTable.findFirst({
 			where: and(
-				eq(attemptsTable.userId, currentUser.id),
+				eq(attemptsTable.userId, sessionUser.id),
 				eq(attemptsTable.quizId, parsedQuizId),
 				eq(attemptsTable.isCompleted, false)
 			),
@@ -71,7 +71,7 @@ export async function createQuizSession(
 			}
 		}
 
-		if (!quiz.isPublic && quiz.creatorId !== currentUser.id) {
+		if (!quiz.isPublic && quiz.creatorId !== sessionUser.id) {
 			return {
 				success: false,
 				message: 'Quiz not found or it has been deleted.'
@@ -84,7 +84,7 @@ export async function createQuizSession(
 				.values({
 					maxScore: quiz.questionCount * 10, // each question scores 10 points
 					quizId: quiz.id,
-					userId: currentUser.id,
+					userId: sessionUser.id,
 					quizData: attemptQuizData.parse(quiz)
 				})
 				.returning({ id: attemptsTable.id })
@@ -144,13 +144,13 @@ export async function getInitialQuestion(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedAttemptId = z.ulid().parse(attemptId)
 
 		const targetAttempt = await db.query.attemptsTable.findFirst({
 			where: and(
 				eq(attemptsTable.id, parsedAttemptId),
-				eq(attemptsTable.userId, currentUser.id)
+				eq(attemptsTable.userId, sessionUser.id)
 			),
 			columns: {
 				submittedAt: true
@@ -193,20 +193,20 @@ export async function getNextQuestion(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 		const parsedAttemptId = z.ulid().parse(attemptId)
 
-		const isCurrentUserAttemptOwner = await db.query.attemptsTable
+		const isSessionUserAttemptOwner = await db.query.attemptsTable
 			.findFirst({
 				where: and(
 					eq(attemptsTable.id, parsedAttemptId),
-					eq(attemptsTable.userId, currentUser.id)
+					eq(attemptsTable.userId, sessionUser.id)
 				),
 				columns: { id: true }
 			})
 			.then(Boolean)
 
-		if (!isCurrentUserAttemptOwner) throw new Error('Unauthorized')
+		if (!isSessionUserAttemptOwner) throw new Error('Unauthorized')
 
 		const attemptQuestion = await db.query.attemptQuestionsTable.findFirst({
 			where: and(
@@ -242,7 +242,7 @@ export async function submitAnswer(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const currentUser = session.user
+		const sessionUser = session.user
 
 		const parsedAttemptQuestionId = z.ulid().parse(attemptQuestionId)
 		const parsedAnswer = attemptQuestionSubmittedAnswer.parse(answerData)
@@ -264,7 +264,7 @@ export async function submitAnswer(
 
 		if (!targetAttemptQuestion) throw new Error('Not found')
 
-		if (targetAttemptQuestion.attempt.userId !== currentUser.id)
+		if (targetAttemptQuestion.attempt.userId !== sessionUser.id)
 			throw new Error('Unauthorized')
 
 		if (targetAttemptQuestion.attempt.submittedAt)

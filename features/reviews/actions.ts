@@ -31,14 +31,14 @@ export async function createReview(
 
 		const parsedData = newReviewSchema.parse(data)
 		const parsedQuizId = z.ulid().parse(quizId)
-		const currentUser = session.user
+		const sessionUser = session.user
 
 		const isSelfReview = await db.query.quizzesTable
 			.findFirst({
 				where: eq(quizzesTable.id, parsedQuizId),
 				columns: pickColumns('creatorId')
 			})
-			.then(quiz => quiz?.creatorId === currentUser.id)
+			.then(quiz => quiz?.creatorId === sessionUser.id)
 
 		if (isSelfReview) {
 			return {
@@ -50,7 +50,7 @@ export async function createReview(
 		const hasAlreadyLeftReview = await db.query.reviewsTable
 			.findFirst({
 				where: and(
-					eq(reviewsTable.userId, currentUser.id),
+					eq(reviewsTable.userId, sessionUser.id),
 					eq(reviewsTable.quizId, parsedQuizId)
 				),
 				columns: pickColumns('id')
@@ -68,7 +68,7 @@ export async function createReview(
 			const hasTakenQuiz = await db.query.attemptsTable
 				.findFirst({
 					where: and(
-						eq(attemptsTable.userId, currentUser.id),
+						eq(attemptsTable.userId, sessionUser.id),
 						eq(attemptsTable.quizId, parsedQuizId)
 					),
 					columns: pickColumns('id')
@@ -87,7 +87,7 @@ export async function createReview(
 			await tx.insert(reviewsTable).values({
 				...parsedData,
 				quizId: parsedQuizId,
-				userId: currentUser.id
+				userId: sessionUser.id
 			})
 
 			await tx

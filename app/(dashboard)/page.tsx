@@ -51,7 +51,7 @@ export default async function DashboardPage() {
 
 			<RecentQuizzes
 				userId={session.user.id}
-				currentUserId={session.user.id}
+				sessionUserId={session.user.id}
 			/>
 		</main>
 	)

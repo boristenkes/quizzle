@@ -24,15 +24,15 @@ export default async function UserButton() {
 			/>
 		)
 
-	const currentUser = session.user
+	const sessionUser = session.user
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger>
 				<Avatar size='lg'>
 					<AvatarImage
-						src={currentUser.image!}
-						alt={currentUser.name}
+						src={sessionUser.image!}
+						alt={sessionUser.name}
 					/>
 					<AvatarFallback />
 				</Avatar>
@@ -46,7 +46,7 @@ export default async function UserButton() {
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						render={
-							<Link href={`/users/${currentUser.username ?? currentUser.id}`}>
+							<Link href={`/users/${sessionUser.username ?? sessionUser.id}`}>
 								Profile
 							</Link>
 						}
