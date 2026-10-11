@@ -7,6 +7,7 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { getSession } from '@/lib/auth'
+import { Nullable } from '@/utils/types'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -16,10 +17,15 @@ export const metadata: Metadata = {
 	title: 'Sign In'
 }
 
-export default async function SignInPage() {
-	const isAuthenticated = await getSession().then(Boolean)
+export type SignInPageProps = {
+	searchParams: Promise<{ callbackUrl: Nullable<string> }>
+}
 
-	if (isAuthenticated) redirect('/')
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+	const isAuthenticated = await getSession().then(Boolean)
+	const callbackUrl = (await searchParams).callbackUrl
+
+	if (isAuthenticated) redirect(callbackUrl || '/')
 
 	return (
 		<Card className='shadow-elevated'>
@@ -30,7 +36,7 @@ export default async function SignInPage() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<SignInForm />
+				<SignInForm callbackUrl={callbackUrl} />
 
 				<p className='text-sm text-center text-muted-foreground mt-6'>
 					Don&apos;t an account?{' '}

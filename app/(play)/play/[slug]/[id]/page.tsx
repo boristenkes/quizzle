@@ -1,8 +1,12 @@
 import ErrorMessage from '@/components/error-message'
-import { createQuizSession } from '@/features/quiz-game/actions'
+import {
+	createQuizSession,
+	getInitialQuestion
+} from '@/features/quiz-game/actions'
 import { getSession } from '@/lib/auth'
 import { errorMessage } from '@/utils/helpers'
 import { redirect } from 'next/navigation'
+import QuizPlayer from './_components/quiz-player'
 
 export type PlayQuizPageProps = {
 	params: Promise<{ slug: string; id: string }>
@@ -13,7 +17,7 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 
 	const session = await getSession()
 
-	if (!session) redirect('/sign-in')
+	if (!session) redirect(`/sign-in?callbackUrl=/play/${slug}/${id}`)
 
 	const quizSessionResponse = await createQuizSession(id)
 
@@ -25,5 +29,28 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 		)
 	}
 
-	return <main className='p-16'>{quizSessionResponse.attemptId}</main>
+	const initialQuestionResponse = await getInitialQuestion(
+		quizSessionResponse.attemptId
+	)
+
+	if (!initialQuestionResponse.success) {
+		return (
+			<div className='p-4'>
+				<ErrorMessage message={errorMessage(initialQuestionResponse.message)} />
+			</div>
+		)
+	}
+
+	// No initial question => Quiz completed => Redirect to results page
+	if (!initialQuestionResponse.question)
+		redirect(`/quizzes/results/${quizSessionResponse.attemptId}`)
+
+	return (
+		<main className='p-16'>
+			<QuizPlayer
+				attemptId={quizSessionResponse.attemptId}
+				initialQuestionResponse={initialQuestionResponse}
+			/>
+		</main>
+	)
 }

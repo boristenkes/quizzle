@@ -20,6 +20,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { SignInSchema, signInSchema } from '@/features/auth/zod'
 import { authClient } from '@/lib/auth.client'
 import { errorMessage } from '@/utils/helpers'
+import { Nullable } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeIcon, EyeOffIcon, LockIcon, UserIcon } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
@@ -27,7 +28,11 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-export default function SignInForm() {
+export type SignInFormProps = {
+	callbackUrl: Nullable<string>
+}
+
+export default function SignInForm({ callbackUrl }: SignInFormProps) {
 	const form = useForm<SignInSchema>({
 		resolver: zodResolver(signInSchema),
 		defaultValues: {
@@ -60,7 +65,7 @@ export default function SignInForm() {
 			description: `Welcome back, ${response.data.user.name}`
 		})
 		form.reset()
-		router.replace('/')
+		router.replace(callbackUrl || '/')
 	}
 
 	return (
@@ -172,7 +177,7 @@ export default function SignInForm() {
 				onClick={() =>
 					authClient.signIn.social({
 						provider: 'google',
-						callbackURL: '/'
+						callbackURL: callbackUrl || '/'
 					})
 				}
 			>

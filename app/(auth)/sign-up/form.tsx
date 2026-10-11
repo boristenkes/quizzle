@@ -20,6 +20,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { SignUpSchema, signUpSchema } from '@/features/auth/zod'
 import { authClient } from '@/lib/auth.client'
 import { errorMessage } from '@/utils/helpers'
+import { Nullable } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, UserIcon } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
@@ -27,7 +28,11 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-export default function SignUpForm() {
+export type SignUpFormProps = {
+	callbackUrl: Nullable<string>
+}
+
+export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
 	const form = useForm<SignUpSchema>({
 		resolver: zodResolver(signUpSchema),
 		defaultValues: {
@@ -56,7 +61,7 @@ export default function SignUpForm() {
 			description: `Welcome to Quizzle, ${response.data.user.name}!`
 		})
 		form.reset()
-		router.replace('/')
+		router.replace(callbackUrl || '/')
 	}
 
 	return (
@@ -249,7 +254,7 @@ export default function SignUpForm() {
 				onClick={() =>
 					authClient.signIn.social({
 						provider: 'google',
-						callbackURL: '/'
+						callbackURL: callbackUrl || '/'
 					})
 				}
 			>

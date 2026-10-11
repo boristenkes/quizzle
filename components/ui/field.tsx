@@ -69,11 +69,10 @@ const fieldVariants = cva(
 	}
 )
 
-function Field({
-	className,
-	orientation = 'vertical',
-	...props
-}: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants>) {
+export type FieldProps = React.ComponentProps<'div'> &
+	VariantProps<typeof fieldVariants>
+
+function Field({ className, orientation = 'vertical', ...props }: FieldProps) {
 	return (
 		<div
 			role='group'
