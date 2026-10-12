@@ -70,7 +70,7 @@ export async function createQuiz(
 				type: question.type,
 				explanationHTML: sanitizeHTML(question.explanationHTML),
 				difficulty: question.difficulty,
-				order: index + 1
+				position: index + 1
 			}))
 
 			await tx.insert(questionsTable).values(baseQuestionsData)

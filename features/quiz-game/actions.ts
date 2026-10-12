@@ -106,7 +106,7 @@ export async function createQuizSession(
 			const attemptQuestionsData = questions.map(question => ({
 				attemptId: attempt.id,
 				questionId: question.id,
-				order: question.order,
+				position: question.position,
 				questionPublic: attemptQuestionPublic.parse(question),
 				questionPrivate: attemptQuestionPrivate.parse(question)
 			}))
@@ -133,7 +133,7 @@ export async function createQuizSession(
 export type AttemptQuestionData = {
 	question: AttemptQuestionPublic | null
 	attemptQuestionId?: AttemptQuestion['id']
-	order?: number
+	position?: number
 }
 
 export async function getInitialQuestion(
@@ -167,8 +167,8 @@ export async function getInitialQuestion(
 				eq(attemptQuestionsTable.attemptId, parsedAttemptId),
 				isNull(attemptQuestionsTable.submittedAnswer)
 			),
-			orderBy: (table, { asc }) => [asc(table.order)],
-			columns: { id: true, order: true, questionPublic: true }
+			orderBy: (table, { asc }) => [asc(table.position)],
+			columns: { id: true, position: true, questionPublic: true }
 		})
 
 		if (!initialQuestion) return { success: true, question: null }
@@ -177,7 +177,7 @@ export async function getInitialQuestion(
 			success: true,
 			question: initialQuestion.questionPublic,
 			attemptQuestionId: initialQuestion.id,
-			order: initialQuestion.order
+			position: initialQuestion.position
 		}
 	} catch (error) {
 		console.error('[GET_INITIAL_QUESTION]:', error)
@@ -213,8 +213,8 @@ export async function getNextQuestion(
 				eq(attemptQuestionsTable.attemptId, parsedAttemptId),
 				isNull(attemptQuestionsTable.submittedAnswer)
 			),
-			orderBy: (table, { asc }) => [asc(table.order)],
-			columns: { id: true, order: true, questionPublic: true }
+			orderBy: (table, { asc }) => [asc(table.position)],
+			columns: { id: true, position: true, questionPublic: true }
 		})
 
 		if (!attemptQuestion) {
@@ -225,7 +225,7 @@ export async function getNextQuestion(
 			success: true,
 			question: attemptQuestion.questionPublic,
 			attemptQuestionId: attemptQuestion.id,
-			order: attemptQuestion.order
+			position: attemptQuestion.position
 		}
 	} catch (error) {
 		console.error('[GET_NEXT_QUESTION]:', error)
@@ -282,8 +282,8 @@ export async function submitAnswer(
 				eq(attemptQuestionsTable.attemptId, targetAttemptQuestion.attempt.id),
 				isNull(attemptQuestionsTable.submittedAnswer)
 			),
-			orderBy: [asc(attemptQuestionsTable.order)],
-			columns: { id: true, order: true, questionPublic: true }
+			orderBy: [asc(attemptQuestionsTable.position)],
+			columns: { id: true, position: true, questionPublic: true }
 		})
 
 		if (!nextQuestion) return { success: true, question: null }
@@ -292,7 +292,7 @@ export async function submitAnswer(
 			success: true,
 			question: nextQuestion.questionPublic,
 			attemptQuestionId: nextQuestion.id,
-			order: nextQuestion.order
+			position: nextQuestion.position
 		}
 	} catch (error) {
 		console.error('[SUBMIT_ANSWER]:', error)

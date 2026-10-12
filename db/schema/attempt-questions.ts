@@ -25,7 +25,7 @@ export const attemptQuestionsTable = quizzle.table(
 		questionPrivate: json().$type<AttemptQuestionPrivate>().notNull(),
 		submittedAnswer: json().$type<AttemptQuestionSubmittedAnswer>(),
 
-		order: integer().notNull()
+		position: integer().notNull()
 	},
 	t => [
 		index('quiz_attempt_questions__attempt_id').on(t.attemptId),

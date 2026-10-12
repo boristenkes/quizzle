@@ -19,7 +19,7 @@ export const questionsTable = quizzle.table(
 		quizId: text()
 			.notNull()
 			.references(() => quizzesTable.id, { onDelete: 'cascade' }),
-		order: integer().notNull(),
+		position: integer().notNull(),
 		difficulty: difficultyEnum().notNull().default('easy'),
 
 		...timestamps
