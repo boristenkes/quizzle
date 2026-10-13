@@ -6,31 +6,26 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
+import { useQuiz } from '@/context/quiz'
 import { Attempt } from '@/db/schema'
-import { AttemptQuestionData, submitAnswer } from '@/features/quiz-game/actions'
 import {
-	AttemptQuestionPublic,
-	AttemptQuestionSubmittedAnswer
-} from '@/features/quiz-game/zod'
+	getQuestionByPosition,
+	submitAnswer
+} from '@/features/quiz-game/actions'
+import { AttemptQuestionSubmittedAnswer } from '@/features/quiz-game/zod'
 import { errorMessage } from '@/utils/helpers'
+import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export type QuizPlayerProps = {
 	attemptId: Attempt['id']
-	initialQuestionResponse: AttemptQuestionData
 }
 
-export default function QuizPlayer({
-	attemptId,
-	initialQuestionResponse
-}: QuizPlayerProps) {
-	const [currentQuestion, setCurrentQuestion] = useState<AttemptQuestionPublic>(
-		initialQuestionResponse.question!
-	)
-	const [currentQuestionId, setCurrentQuestionId] = useState(
-		initialQuestionResponse.attemptQuestionId!
-	)
+// TODO: Cache loaded questions instead of fetching them constantly
+
+export default function QuizPlayer({ attemptId }: QuizPlayerProps) {
+	const quiz = useQuiz()
 	const [error, setError] = useState<string | null>(null)
 	const [answer, setAnswer] = useState<AttemptQuestionSubmittedAnswer | null>(
 		null
@@ -43,7 +38,7 @@ export default function QuizPlayer({
 
 		if (!answer) return setError('Choose an answer to continue')
 
-		const submitResponse = await submitAnswer(currentQuestionId, answer)
+		const submitResponse = await submitAnswer(quiz.currentQuestion.id, answer)
 
 		if (!submitResponse.success) {
 			setError(errorMessage(submitResponse.message))
@@ -56,8 +51,15 @@ export default function QuizPlayer({
 		}
 
 		setAnswer(null)
-		setCurrentQuestion(submitResponse.question)
-		setCurrentQuestionId(submitResponse.attemptQuestionId!)
+		quiz.setCurrentQuestion(submitResponse.question)
+	}
+
+	const navigateToQuestion = async (position: number) => {
+		const response = await getQuestionByPosition(attemptId, position)
+
+		if (!response.success) return
+
+		quiz.setCurrentQuestion(response.question)
 	}
 
 	return (
@@ -66,11 +68,11 @@ export default function QuizPlayer({
 			onSubmit={onSubmit}
 		>
 			<header className='mb-8 grid gap-2'>
-				<h1 className='text-2xl text-pretty'>{currentQuestion.prompt}</h1>
+				<h1 className='text-2xl text-pretty'>{quiz.currentQuestion.prompt}</h1>
 				<p className='text-muted-foreground text-left text-md'>
-					{currentQuestion.type === 'single_correct'
+					{quiz.currentQuestion.type === 'single_correct'
 						? 'You can select only one option'
-						: currentQuestion.type === 'multi_correct'
+						: quiz.currentQuestion.type === 'multi_correct'
 							? 'You can select multiple options'
 							: 'Enter your answer in textarea field below'}
 				</p>
@@ -83,9 +85,9 @@ export default function QuizPlayer({
 			)}
 
 			<section className='gap-4'>
-				{currentQuestion.type === 'multi_correct' && (
+				{quiz.currentQuestion.type === 'multi_correct' && (
 					<div className='grid gap-4'>
-						{currentQuestion.options.map(option => (
+						{quiz.currentQuestion.options.map(option => (
 							<Label
 								key={option.id}
 								htmlFor={option.id}
@@ -117,7 +119,7 @@ export default function QuizPlayer({
 					</div>
 				)}
 
-				{currentQuestion.type === 'single_correct' && (
+				{quiz.currentQuestion.type === 'single_correct' && (
 					<RadioGroup
 						className='gap-4'
 						value={answer?.type === 'single_correct' ? answer.answerId : ''}
@@ -128,7 +130,7 @@ export default function QuizPlayer({
 							})
 						}}
 					>
-						{currentQuestion.options.map(option => (
+						{quiz.currentQuestion.options.map(option => (
 							<Label
 								key={option.id}
 								htmlFor={option.id}
@@ -144,12 +146,12 @@ export default function QuizPlayer({
 					</RadioGroup>
 				)}
 
-				{currentQuestion.type === 'text' && (
+				{quiz.currentQuestion.type === 'text' && (
 					<div className='grid gap-2'>
 						<Label htmlFor={attemptId}>Your answer:</Label>
 						<Textarea
 							id={attemptId}
-							rows={4}
+							rows={10}
 							value={answer?.type === 'text' ? answer.answer : ''}
 							onChange={e =>
 								setAnswer({
@@ -165,13 +167,32 @@ export default function QuizPlayer({
 				)}
 			</section>
 
-			<Button
-				type='submit'
-				size='lg'
-				className='block mt-4 ml-auto px-4'
-			>
-				Next
-			</Button>
+			{quiz.currentQuestion && (
+				<div className='flex items-center justify-between gap-4 mt-4'>
+					{quiz.currentQuestion.position > 1 && (
+						<Button
+							type='button'
+							variant='outline'
+							size='lg'
+							className='px-4'
+							onClick={() =>
+								navigateToQuestion(quiz.currentQuestion.position - 1)
+							}
+						>
+							<ArrowLeft />
+							Previous
+						</Button>
+					)}
+
+					<Button
+						type='submit'
+						size='lg'
+						className='px-4'
+					>
+						Next
+					</Button>
+				</div>
+			)}
 		</form>
 	)
 }

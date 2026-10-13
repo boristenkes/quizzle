@@ -1,4 +1,5 @@
 import ErrorMessage from '@/components/error-message'
+import { QuizProvider } from '@/context/quiz'
 import {
 	createQuizSession,
 	getInitialQuestion
@@ -7,6 +8,7 @@ import { getSession } from '@/lib/auth'
 import { errorMessage } from '@/utils/helpers'
 import { redirect } from 'next/navigation'
 import QuizPlayer from './_components/quiz-player'
+import QuizProgress from './_components/quiz-progress'
 
 export type PlayQuizPageProps = {
 	params: Promise<{ slug: string; id: string }>
@@ -47,10 +49,14 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 
 	return (
 		<main className='p-16'>
-			<QuizPlayer
+			<QuizProvider
 				attemptId={quizSessionResponse.attemptId}
-				initialQuestionResponse={initialQuestionResponse}
-			/>
+				initialQuestion={initialQuestionResponse.question}
+			>
+				<QuizProgress attemptId={quizSessionResponse.attemptId} />
+
+				<QuizPlayer attemptId={quizSessionResponse.attemptId} />
+			</QuizProvider>
 		</main>
 	)
 }

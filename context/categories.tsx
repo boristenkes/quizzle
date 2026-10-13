@@ -6,11 +6,11 @@ import { Nullable } from '@/utils/types'
 import { useQuery } from '@tanstack/react-query'
 import { createContext, useContext } from 'react'
 
-export type CategoryContextCategory = Pick<QuizCategory, 'id' | 'name' | 'slug'>
+export type CategoriesContext = Pick<QuizCategory, 'id' | 'name' | 'slug'>
 
-export type CategoryContextReturn = Nullable<CategoryContextCategory[]>
+export type CategoriesContextValue = Nullable<CategoriesContext[]>
 
-export const CategoriesContext = createContext<CategoryContextReturn>(null)
+export const CategoriesContext = createContext<CategoriesContextValue>(null)
 
 export function useCategories() {
 	const context = useContext(CategoriesContext)

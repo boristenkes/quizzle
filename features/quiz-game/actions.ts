@@ -8,11 +8,13 @@ import {
 	attemptsTable,
 	questionsTable,
 	Quiz,
-	quizzesTable
+	quizzesTable,
+	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { ServerActionResponse } from '@/utils/types'
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { integerSchema } from '@/utils/zod'
+import { and, asc, eq, isNull, sql } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import z from 'zod'
 import {
@@ -130,15 +132,14 @@ export async function createQuizSession(
 	}
 }
 
-export type AttemptQuestionData = {
-	question: AttemptQuestionPublic | null
-	attemptQuestionId?: AttemptQuestion['id']
-	position?: number
+export type AttemptQuestionData = AttemptQuestionPublic & {
+	id: AttemptQuestion['id']
+	position: number
 }
 
 export async function getInitialQuestion(
 	attemptId: Attempt['id']
-): Promise<ServerActionResponse<AttemptQuestionData>> {
+): Promise<ServerActionResponse<{ question: AttemptQuestionData | null }>> {
 	try {
 		const session = await getSession()
 
@@ -162,6 +163,7 @@ export async function getInitialQuestion(
 		if (targetAttempt.submittedAt)
 			return redirect(`/quizzes/results/${parsedAttemptId}`)
 
+		// Get first unanswered question
 		const initialQuestion = await db.query.attemptQuestionsTable.findFirst({
 			where: and(
 				eq(attemptQuestionsTable.attemptId, parsedAttemptId),
@@ -175,9 +177,11 @@ export async function getInitialQuestion(
 
 		return {
 			success: true,
-			question: initialQuestion.questionPublic,
-			attemptQuestionId: initialQuestion.id,
-			position: initialQuestion.position
+			question: {
+				id: initialQuestion.id,
+				position: initialQuestion.position,
+				...initialQuestion.questionPublic
+			}
 		}
 	} catch (error) {
 		console.error('[GET_INITIAL_QUESTION]:', error)
@@ -185,58 +189,114 @@ export async function getInitialQuestion(
 	}
 }
 
-export async function getNextQuestion(
-	attemptId: Attempt['id']
-): Promise<ServerActionResponse<AttemptQuestionData>> {
+export async function getQuestionByPosition(
+	attemptId: Attempt['id'],
+	position: AttemptQuestion['position']
+): Promise<ServerActionResponse<{ question: AttemptQuestionData }>> {
 	try {
 		const session = await getSession()
 
 		if (!session) throw new Error('Unauthorized')
 
-		const sessionUser = session.user
 		const parsedAttemptId = z.ulid().parse(attemptId)
+		const parsedPosition = integerSchema.positive().parse(position)
 
-		const isSessionUserAttemptOwner = await db.query.attemptsTable
-			.findFirst({
-				where: and(
-					eq(attemptsTable.id, parsedAttemptId),
-					eq(attemptsTable.userId, sessionUser.id)
-				),
-				columns: { id: true }
-			})
-			.then(Boolean)
+		const targetAttempt = await db.query.attemptsTable.findFirst({
+			where: and(
+				eq(attemptsTable.id, parsedAttemptId),
+				eq(attemptsTable.userId, session.user.id)
+			),
+			columns: { id: true }
+		})
 
-		if (!isSessionUserAttemptOwner) throw new Error('Unauthorized')
+		if (!targetAttempt) throw new Error('Attempt not found or unauthorized')
 
-		const attemptQuestion = await db.query.attemptQuestionsTable.findFirst({
+		const targetQuestion = await db.query.attemptQuestionsTable.findFirst({
 			where: and(
 				eq(attemptQuestionsTable.attemptId, parsedAttemptId),
-				isNull(attemptQuestionsTable.submittedAnswer)
+				eq(attemptQuestionsTable.position, parsedPosition)
 			),
-			orderBy: (table, { asc }) => [asc(table.position)],
 			columns: { id: true, position: true, questionPublic: true }
 		})
 
-		if (!attemptQuestion) {
-			return { success: true, question: null }
-		}
+		if (!targetQuestion)
+			throw new Error(`Question at position ${parsedPosition} not found`)
 
 		return {
 			success: true,
-			question: attemptQuestion.questionPublic,
-			attemptQuestionId: attemptQuestion.id,
-			position: attemptQuestion.position
+			question: {
+				id: targetQuestion.id,
+				position: targetQuestion.position,
+				...targetQuestion.questionPublic
+			}
 		}
 	} catch (error) {
-		console.error('[GET_NEXT_QUESTION]:', error)
+		console.error('[GET_QUESTION_BY_POSITION]:', error)
 		return { success: false }
 	}
+}
+
+export type AttemptData = {
+	userId: User['id']
+	startedAt: Date
+	timeLimitSeconds: number
+	questionCount: number
+	questions: {
+		position: number
+		isAnswered: boolean
+	}[]
+}
+
+export async function getAttemptData(
+	attemptId: Attempt['id']
+): Promise<AttemptData> {
+	const session = await getSession()
+
+	if (!session) throw new Error('Unauthorized')
+
+	const parsedAttemptId = z.ulid().parse(attemptId)
+
+	const attemptData = await db.query.attemptsTable.findFirst({
+		where: and(
+			eq(attemptsTable.id, parsedAttemptId),
+			eq(attemptsTable.userId, session.user.id)
+		),
+		columns: {
+			userId: true,
+			startedAt: true
+		},
+		extras: {
+			timeLimitSeconds: sql<number>`
+					(${attemptsTable.quizData}->>'timeLimitSeconds')::int
+			`.as('time_limit_seconds'),
+
+			questionCount: sql<number>`
+					(${attemptsTable.quizData}->>'questionCount')::int
+			`.as('question_count')
+		},
+		with: {
+			questions: {
+				columns: { position: true },
+				extras: {
+					isAnswered:
+						sql<boolean>`${attemptQuestionsTable.submittedAnswer} IS NOT NULL`.as(
+							'is_answered'
+						)
+				},
+				orderBy: (table, { asc }) => asc(table.position)
+			}
+		}
+	})
+
+	if (!attemptData) throw new Error('Attempt not found or unauthorized')
+
+	return attemptData as AttemptData
 }
 
 export async function submitAnswer(
 	attemptQuestionId: Attempt['id'],
 	answerData: AttemptQuestionSubmittedAnswer
-): Promise<ServerActionResponse<AttemptQuestionData>> {
+): Promise<ServerActionResponse<{ question: AttemptQuestionData | null }>> {
 	try {
 		const session = await getSession()
 
@@ -283,16 +343,22 @@ export async function submitAnswer(
 				isNull(attemptQuestionsTable.submittedAnswer)
 			),
 			orderBy: [asc(attemptQuestionsTable.position)],
-			columns: { id: true, position: true, questionPublic: true }
+			columns: {
+				id: true,
+				position: true,
+				questionPublic: true
+			}
 		})
 
 		if (!nextQuestion) return { success: true, question: null }
 
 		return {
 			success: true,
-			question: nextQuestion.questionPublic,
-			attemptQuestionId: nextQuestion.id,
-			position: nextQuestion.position
+			question: {
+				id: nextQuestion.id,
+				position: nextQuestion.position,
+				...nextQuestion.questionPublic
+			}
 		}
 	} catch (error) {
 		console.error('[SUBMIT_ANSWER]:', error)
