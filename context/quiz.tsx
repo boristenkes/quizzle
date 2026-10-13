@@ -13,6 +13,8 @@ import { createContext, useContext, useState } from 'react'
 export type QuizContextValue = UseQueryResult<AttemptData> & {
 	currentQuestion: AttemptQuestionData
 	setCurrentQuestion: SetState<AttemptQuestionData>
+	questionsCache: AttemptQuestionData[]
+	setQuestionsCache: SetState<AttemptQuestionData[]>
 }
 
 export const QuizContext = createContext<QuizContextValue | null>(null)
@@ -42,10 +44,19 @@ export function QuizProvider({
 	})
 	const [currentQuestion, setCurrentQuestion] =
 		useState<AttemptQuestionData>(initialQuestion)
+	const [questionsCache, setQuestionsCache] = useState<AttemptQuestionData[]>([
+		initialQuestion
+	])
 
 	return (
 		<QuizContext.Provider
-			value={{ currentQuestion, setCurrentQuestion, ...query }}
+			value={{
+				currentQuestion,
+				setCurrentQuestion,
+				questionsCache,
+				setQuestionsCache,
+				...query
+			}}
 		>
 			{children}
 		</QuizContext.Provider>

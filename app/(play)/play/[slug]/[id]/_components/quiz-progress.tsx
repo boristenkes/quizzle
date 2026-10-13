@@ -21,10 +21,19 @@ export default function QuizProgress({
 		return <ErrorMessage message={errorMessage(quiz.error.message)} />
 
 	const navigateToQuestion = async (position: number) => {
+		const cachedQuestion = quiz.questionsCache.find(
+			question => question.position === position
+		)
+
+		if (cachedQuestion) {
+			return quiz.setCurrentQuestion(cachedQuestion)
+		}
+
 		const response = await getQuestionByPosition(attemptId, position)
 
 		if (!response.success) return
 
+		quiz.setQuestionsCache(curr => [...curr, response.question])
 		quiz.setCurrentQuestion(response.question)
 	}
 
