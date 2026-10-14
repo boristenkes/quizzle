@@ -389,7 +389,9 @@ export async function submitAnswer(
 						columns: {
 							id: true,
 							userId: true,
-							submittedAt: true
+							submittedAt: true,
+							startedAt: true,
+							quizData: true
 						}
 					}
 				}
@@ -402,6 +404,20 @@ export async function submitAnswer(
 
 		if (targetAttemptQuestion.attempt.submittedAt)
 			return { success: false, message: 'You have already completed this quiz' }
+
+		// Reject answers after time runs out
+		const { startedAt, quizData } = targetAttemptQuestion.attempt
+
+		if (quizData.timeLimitSeconds) {
+			const deadline = startedAt.getTime() + quizData.timeLimitSeconds * 1000
+
+			if (Date.now() >= deadline) {
+				return {
+					success: false,
+					message: 'Time is up. You can no longer submit answers.'
+				}
+			}
+		}
 
 		// Submit user's answer
 		await db

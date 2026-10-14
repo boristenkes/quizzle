@@ -12,7 +12,6 @@ import {
 	CheckCircle2Icon,
 	CheckIcon,
 	ClockIcon,
-	FileTextIcon,
 	RotateCcwIcon,
 	TargetIcon,
 	TrophyIcon,
@@ -60,6 +59,8 @@ export default async function QuizResultsPage({
 	const correctCount = results.questions.reduce((prev, curr) => {
 		return prev + (curr.isCorrect ? 1 : 0)
 	}, 0)
+	const correctPercentage =
+		(correctCount / results.quizData.questionCount) * 100
 
 	return (
 		<main className='p-8 space-y-8'>
@@ -70,11 +71,11 @@ export default async function QuizResultsPage({
 					<div>
 						<h1 className='text-4xl md:text-5xl font-bold mb-2'>
 							<span className={getScoreColor(results.score)}>
-								{results.score}%
+								{correctPercentage.toFixed(2)}%
 							</span>
 						</h1>
 						<p className='text-xl text-muted-foreground'>
-							{getScoreLabel(results.score)}
+							{getScoreLabel(correctPercentage)}
 						</p>
 					</div>
 
@@ -94,7 +95,7 @@ export default async function QuizResultsPage({
 					</div>
 
 					<Progress
-						value={results.score}
+						value={correctPercentage}
 						className='h-3 max-w-md mx-auto'
 					/>
 
@@ -111,10 +112,15 @@ export default async function QuizResultsPage({
 								</Link>
 							}
 						/>
-						<Button>
-							<RotateCcwIcon className='mr-2 h-4 w-4' />
-							Retry Quiz
-						</Button>
+						<Button
+							nativeButton={false}
+							render={
+								<Link href={`/play/${results.quizData.slug}/${results.quizId}`}>
+									<RotateCcwIcon className='mr-2 h-4 w-4' />
+									Retry Quiz
+								</Link>
+							}
+						/>
 					</div>
 				</CardContent>
 			</Card>
@@ -126,7 +132,6 @@ export default async function QuizResultsPage({
 				</CardHeader>
 				<CardContent className='space-y-6'>
 					{results.questions.map((q, i) => {
-						const isTextQuestion = q.questionPublic.type === 'text'
 						const wasSkipped = q.submittedAnswer === null
 
 						return (
@@ -134,17 +139,13 @@ export default async function QuizResultsPage({
 								key={q.id}
 								className={cn(
 									'p-5 rounded-lg border space-y-3',
-									isTextQuestion
-										? 'border-border bg-muted/30'
-										: q.isCorrect
-											? 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/20'
-											: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/20'
+									q.isCorrect
+										? 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/20'
+										: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/20'
 								)}
 							>
 								<div className='flex items-start gap-3'>
-									{isTextQuestion ? (
-										<FileTextIcon className='h-5 w-5 text-muted-foreground mt-0.5 shrink-0' />
-									) : q.isCorrect ? (
+									{q.isCorrect ? (
 										<CheckCircle2Icon className='h-5 w-5 text-green-600 mt-0.5 shrink-0' />
 									) : (
 										<XCircleIcon className='h-5 w-5 text-red-600 mt-0.5 shrink-0' />
@@ -170,7 +171,7 @@ export default async function QuizResultsPage({
 														</span>
 													</p>
 
-													<p className='flex items-start gap-2'>
+													<div className='flex items-start gap-2'>
 														<strong>Acceptable answers:</strong>
 
 														<ul className='flex items-center gap-2 flex-wrap'>
@@ -187,11 +188,10 @@ export default async function QuizResultsPage({
 																	)
 																)}
 														</ul>
-													</p>
+													</div>
 												</>
 											) : (
-												(q.questionPrivate.type === 'single_correct' ||
-													q.questionPrivate.type === 'multi_correct') && (
+												q.questionPrivate.type !== 'text' && (
 													<QuestionOptions
 														questionPrivate={q.questionPrivate}
 														submittedAnswer={q.submittedAnswer}
