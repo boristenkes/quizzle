@@ -12,11 +12,13 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
+import { pickColumns } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
 import { integerSchema } from '@/utils/zod'
 import { and, asc, eq, isNull, sql } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import z from 'zod'
+import { gradeAnswer } from './utils'
 import {
 	attemptQuestionPrivate,
 	AttemptQuestionPublic,
@@ -293,6 +295,77 @@ export async function getAttemptData(
 	return attemptData as AttemptData
 }
 
+export type QuizResults = Pick<
+	Attempt,
+	| 'id'
+	| 'maxScore'
+	| 'quizData'
+	| 'startedAt'
+	| 'submittedAt'
+	| 'score'
+	| 'quizId'
+> & {
+	questions: (Pick<
+		AttemptQuestion,
+		'id' | 'position' | 'questionPrivate' | 'questionPublic' | 'submittedAnswer'
+	> & { isCorrect: boolean })[]
+}
+
+export async function getQuizResults(
+	attemptId: Attempt['id']
+): Promise<ServerActionResponse<{ results: QuizResults }>> {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const parsedAttemptId = z.ulid().parse(attemptId)
+
+		const attempt = await db.query.attemptsTable.findFirst({
+			where: eq(attemptsTable.id, parsedAttemptId),
+			columns: pickColumns(
+				'id',
+				'maxScore',
+				'quizData',
+				'startedAt',
+				'submittedAt',
+				'score',
+				'quizId'
+			),
+			with: {
+				questions: {
+					columns: pickColumns(
+						'id',
+						'position',
+						'questionPrivate',
+						'questionPublic',
+						'submittedAnswer'
+					),
+					orderBy: (table, { asc }) => asc(table.position)
+				}
+			}
+		})
+
+		if (!attempt) return { success: false, message: 'Quiz attempt not found' }
+
+		const results = {
+			...attempt,
+			questions: attempt.questions.map(question => ({
+				...question,
+				isCorrect: gradeAnswer(
+					question.submittedAnswer,
+					question.questionPrivate
+				)
+			}))
+		}
+
+		return { success: true, results }
+	} catch (error) {
+		console.error('[GET_QUIZ_RESULTS]:', error)
+		return { success: false }
+	}
+}
+
 export async function submitAnswer(
 	attemptQuestionId: Attempt['id'],
 	answerData: AttemptQuestionSubmittedAnswer
@@ -362,6 +435,60 @@ export async function submitAnswer(
 		}
 	} catch (error) {
 		console.error('[SUBMIT_ANSWER]:', error)
+		return { success: false }
+	}
+}
+
+export async function submitQuiz(attemptId: Attempt['id']) {
+	try {
+		const session = await getSession()
+
+		if (!session) throw new Error('Unauthorized')
+
+		const parsedAttemptId = z.ulid().parse(attemptId)
+
+		const targetAttempt = await db.query.attemptsTable.findFirst({
+			where: and(
+				eq(attemptsTable.id, parsedAttemptId),
+				eq(attemptsTable.userId, session.user.id)
+			),
+			columns: { userId: true, submittedAt: true, maxScore: true },
+			with: {
+				questions: {
+					columns: {
+						id: true,
+						questionPrivate: true,
+						submittedAnswer: true
+					}
+				}
+			}
+		})
+
+		if (!targetAttempt) throw new Error('Attempt not found or unauthorized')
+
+		if (targetAttempt.submittedAt) throw new Error('Attempt already submitted')
+
+		const questionCount = targetAttempt.questions.length
+
+		const score = targetAttempt.questions.reduce((prev, curr) => {
+			const isCorrect = gradeAnswer(curr.submittedAnswer, curr.questionPrivate)
+			const addition = isCorrect ? targetAttempt.maxScore / questionCount : 0
+
+			return prev + addition
+		}, 0)
+
+		await db
+			.update(attemptsTable)
+			.set({
+				score,
+				isCompleted: true,
+				submittedAt: new Date()
+			})
+			.where(eq(attemptsTable.id, parsedAttemptId))
+
+		return { success: true }
+	} catch (error) {
+		console.error('[SUBMIT_QUIZ]:', error)
 		return { success: false }
 	}
 }

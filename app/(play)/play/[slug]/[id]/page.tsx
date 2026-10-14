@@ -1,4 +1,5 @@
 import ErrorMessage from '@/components/error-message'
+import { Button } from '@/components/ui/button'
 import { QuizProvider } from '@/context/quiz'
 import {
 	createQuizSession,
@@ -6,9 +7,11 @@ import {
 } from '@/features/quiz-game/actions'
 import { getSession } from '@/lib/auth'
 import { errorMessage } from '@/utils/helpers'
+import { ArrowLeft } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import QuizPlayer from './_components/quiz-player'
 import QuizProgress from './_components/quiz-progress'
+import QuizTimer from './_components/quiz-timer'
 
 export type PlayQuizPageProps = {
 	params: Promise<{ slug: string; id: string }>
@@ -53,7 +56,15 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 				attemptId={quizSessionResponse.attemptId}
 				initialQuestion={initialQuestionResponse.question}
 			>
-				<QuizProgress attemptId={quizSessionResponse.attemptId} />
+				<div className='flex items-start justify-between gap-4 max-w-4xl mx-auto'>
+					<Button variant='ghost'>
+						<ArrowLeft /> Exit Quiz
+					</Button>
+
+					<QuizProgress attemptId={quizSessionResponse.attemptId} />
+
+					<QuizTimer attemptId={quizSessionResponse.attemptId} />
+				</div>
 
 				<QuizPlayer attemptId={quizSessionResponse.attemptId} />
 			</QuizProvider>

@@ -6,7 +6,7 @@ import { useQuiz } from '@/context/quiz'
 import { Attempt } from '@/db/schema'
 import { getQuestionByPosition } from '@/features/quiz-game/actions'
 import { cn, errorMessage } from '@/utils/helpers'
-import { Loader2 } from 'lucide-react'
+import { Loader2Icon } from 'lucide-react'
 
 export default function QuizProgress({
 	attemptId
@@ -15,7 +15,7 @@ export default function QuizProgress({
 }) {
 	const quiz = useQuiz()
 
-	if (quiz.isLoading) return <Loader2 className='animate-spin' />
+	if (quiz.isLoading) return <Loader2Icon className='animate-spin' />
 
 	if (quiz.isError)
 		return <ErrorMessage message={errorMessage(quiz.error.message)} />

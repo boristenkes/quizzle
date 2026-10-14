@@ -10,10 +10,11 @@ import { useQuiz } from '@/context/quiz'
 import { Attempt } from '@/db/schema'
 import {
 	getQuestionByPosition,
-	submitAnswer
+	submitAnswer,
+	submitQuiz
 } from '@/features/quiz-game/actions'
 import { AttemptQuestionSubmittedAnswer } from '@/features/quiz-game/zod'
-import { errorMessage } from '@/utils/helpers'
+import { cn, errorMessage } from '@/utils/helpers'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -47,11 +48,16 @@ export default function QuizPlayer({ attemptId }: QuizPlayerProps) {
 		}
 
 		if (!submitResponse.question) {
+			const { success } = await submitQuiz(attemptId)
+
+			if (!success) return setError('Failed to submit quiz')
+
 			return router.replace(`/quizzes/results/${attemptId}`)
 		}
 
 		setAnswer(null)
 		quiz.setCurrentQuestion(submitResponse.question)
+		await quiz.refetch()
 	}
 
 	const navigateToQuestion = async (position: number) => {
@@ -178,20 +184,21 @@ export default function QuizPlayer({ attemptId }: QuizPlayerProps) {
 
 			{quiz.currentQuestion && (
 				<div className='flex items-center justify-between gap-4 mt-4'>
-					{quiz.currentQuestion.position > 1 && (
-						<Button
-							type='button'
-							variant='outline'
-							size='lg'
-							className='px-4'
-							onClick={() =>
-								navigateToQuestion(quiz.currentQuestion.position - 1)
-							}
-						>
-							<ArrowLeft />
-							Previous
-						</Button>
-					)}
+					<Button
+						type='button'
+						variant='outline'
+						size='lg'
+						className={cn(
+							'px-4',
+							quiz.currentQuestion.position === 1 && 'invisible'
+						)}
+						onClick={() =>
+							navigateToQuestion(quiz.currentQuestion.position - 1)
+						}
+					>
+						<ArrowLeft />
+						Previous
+					</Button>
 
 					<Button
 						type='submit'
