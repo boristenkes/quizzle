@@ -93,9 +93,15 @@ export async function createReview(
 			await tx
 				.update(quizStatisticsTable)
 				.set({
-					averageRating: sql`(
-          	(${quizStatisticsTable.averageRating} * ${quizStatisticsTable.reviewsCount} + ${parsedData.rating}) / (${quizStatisticsTable.reviewsCount} + 1)
-					)`,
+					averageRating: sql`
+						ROUND(
+							(
+								${quizStatisticsTable.averageRating} *
+								${quizStatisticsTable.reviewsCount} +
+								${parsedData.rating}
+							) / (${quizStatisticsTable.reviewsCount} + 1)
+						)
+					`,
 					reviewsCount: sql`${quizStatisticsTable.reviewsCount} + 1`
 				})
 				.where(eq(quizStatisticsTable.quizId, parsedQuizId))

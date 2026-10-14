@@ -34,9 +34,9 @@ const getScoreColor = (score: number) => {
 
 const getScoreLabel = (score: number) => {
 	if (score >= 90) return 'Excellent!'
-	if (score >= 80) return 'Great job!'
-	if (score >= 70) return 'Good work!'
-	if (score >= 60) return 'Not bad!'
+	if (score >= 70) return 'Great job!'
+	if (score >= 50) return 'Good work!'
+	if (score >= 40) return 'Not bad!'
 	return 'Keep practicing!'
 }
 
@@ -162,7 +162,7 @@ export default async function QuizResultsPage({
 
 														<span className='font-medium'>
 															{q.submittedAnswer ? (
-																<q>{q.submittedAnswer.type}</q>
+																<q>{q.submittedAnswer.answer}</q>
 															) : (
 																<span className='italic text-muted-foreground'>
 																	Not answered

@@ -189,7 +189,7 @@ export default async function QuizDetailsPage({
 							</div>
 							<div className='flex items-center gap-2'>
 								<UsersIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.statistics!.reviewsCount} attempts</span>
+								<span>{quiz.statistics!.attemptsCount} attempts</span>
 							</div>
 							<div className='flex items-center gap-2'>
 								<TrendingUpIcon className='h-4 w-4 text-muted-foreground' />

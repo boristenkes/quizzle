@@ -170,7 +170,9 @@ export default function GenerateQuestionsDialog({
 			</ResponsiveDialogTrigger>
 			<ResponsiveDialogContent className='px-8'>
 				<ResponsiveDialogHeader className='gap-0'>
-					<ResponsiveDialogTitle>Generate Questions AI</ResponsiveDialogTitle>
+					<ResponsiveDialogTitle>
+						Generate Questions with AI
+					</ResponsiveDialogTitle>
 					<ResponsiveDialogDescription>
 						Let AI know what output you want.
 					</ResponsiveDialogDescription>

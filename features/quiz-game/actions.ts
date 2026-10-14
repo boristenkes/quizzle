@@ -8,6 +8,7 @@ import {
 	attemptsTable,
 	questionsTable,
 	Quiz,
+	quizStatisticsTable,
 	quizzesTable,
 	User
 } from '@/db/schema'
@@ -468,7 +469,12 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 				eq(attemptsTable.id, parsedAttemptId),
 				eq(attemptsTable.userId, session.user.id)
 			),
-			columns: { userId: true, submittedAt: true, maxScore: true },
+			columns: {
+				submittedAt: true,
+				startedAt: true,
+				maxScore: true,
+				quizId: true
+			},
 			with: {
 				questions: {
 					columns: {
@@ -480,27 +486,91 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 			}
 		})
 
-		if (!targetAttempt) throw new Error('Attempt not found or unauthorized')
+		if (!targetAttempt) {
+			throw new Error('Attempt not found or unauthorized')
+		}
 
-		if (targetAttempt.submittedAt) throw new Error('Attempt already submitted')
+		if (targetAttempt.submittedAt) {
+			throw new Error('Attempt already submitted')
+		}
 
 		const questionCount = targetAttempt.questions.length
 
 		const score = targetAttempt.questions.reduce((prev, curr) => {
 			const isCorrect = gradeAnswer(curr.submittedAnswer, curr.questionPrivate)
-			const addition = isCorrect ? targetAttempt.maxScore / questionCount : 0
 
-			return prev + addition
+			return prev + (isCorrect ? targetAttempt.maxScore / questionCount : 0)
 		}, 0)
 
-		await db
-			.update(attemptsTable)
-			.set({
-				score,
-				isCompleted: true,
-				submittedAt: new Date()
-			})
-			.where(eq(attemptsTable.id, parsedAttemptId))
+		const submittedAt = new Date()
+		const durationMs = Math.max(
+			0,
+			submittedAt.getTime() - targetAttempt.startedAt.getTime()
+		)
+
+		await db.transaction(async tx => {
+			// Complete the attempt only if it hasn't already been submitted.
+			const [updatedAttempt] = await tx
+				.update(attemptsTable)
+				.set({
+					score,
+					isCompleted: true,
+					submittedAt
+				})
+				.where(
+					and(
+						eq(attemptsTable.id, parsedAttemptId),
+						eq(attemptsTable.userId, session.user.id),
+						isNull(attemptsTable.submittedAt)
+					)
+				)
+				.returning({ id: attemptsTable.id })
+
+			if (!updatedAttempt) {
+				throw new Error('Attempt already submitted')
+			}
+
+			// Update quiz statistics.
+			await tx
+				.update(quizStatisticsTable)
+				.set({
+					attemptsCount: sql`${quizStatisticsTable.attemptsCount} + 1`,
+
+					averageScore: sql`
+						ROUND(
+							(
+								${quizStatisticsTable.averageScore} *
+								${quizStatisticsTable.attemptsCount} +
+								${score}
+							) / (${quizStatisticsTable.attemptsCount} + 1)
+						)
+					`,
+
+					averageTimeMs: sql`
+						ROUND(
+							(
+								${quizStatisticsTable.averageTimeMs} *
+								${quizStatisticsTable.attemptsCount} +
+								${durationMs}
+							) / (${quizStatisticsTable.attemptsCount} + 1)
+						)
+					`,
+
+					fastestTimeMs: sql`
+						CASE
+							WHEN ${quizStatisticsTable.attemptsCount} = 0
+								THEN ${durationMs}
+							ELSE LEAST(
+								${quizStatisticsTable.fastestTimeMs},
+								${durationMs}
+							)
+						END
+					`,
+
+					updatedAt: submittedAt
+				})
+				.where(eq(quizStatisticsTable.quizId, targetAttempt.quizId))
+		})
 
 		return { success: true }
 	} catch (error) {
