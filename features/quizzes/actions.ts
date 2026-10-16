@@ -15,7 +15,7 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
-import { difficulties, Difficulty } from '@/lib/constants'
+import { difficulties, Difficulty, MAX_QUERY_LENGTH } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { Nullable, ServerActionResponse } from '@/utils/types'
@@ -318,22 +318,33 @@ export async function filterQuizzes(
 
 		if (!session) throw new Error('Unauthorized')
 
-		const databaseFilters = []
+		if (filters.query && filters.query.length > MAX_QUERY_LENGTH)
+			throw new Error('Bad Request')
 
-		if (filters.query) {
+		const databaseFilters = []
+		const words = [
+			...new Set(filters.query?.trim().split(/\s+/).filter(Boolean) ?? [])
+		]
+
+		// Filter by search query
+		if (words.length > 0) {
 			databaseFilters.push(
 				or(
-					ilike(quizzesTable.title, `%${filters.query}%`),
-					ilike(quizzesTable.description, `%${filters.query}%`)
+					...words.flatMap(word => [
+						ilike(quizzesTable.title, `%${word}%`),
+						ilike(quizzesTable.description, `%${word}%`)
+					])
 				)
 			)
 		}
 
+		// Filter by difficulty
 		const difficulty = filters.difficulty as Difficulty
 		if (filters.difficulty && difficulties.includes(difficulty)) {
 			databaseFilters.push(eq(quizzesTable.difficulty, difficulty))
 		}
 
+		// Filter by category
 		if (filters.category) {
 			const targetCategory = await db.query.quizCategoriesTable.findFirst({
 				where: eq(quizCategoriesTable.slug, filters.category),
@@ -354,7 +365,8 @@ export async function filterQuizzes(
 				'description',
 				'timeLimitSeconds',
 				'questionCount',
-				'difficulty'
+				'difficulty',
+				'createdAt'
 			),
 			with: {
 				creator: {
@@ -372,7 +384,32 @@ export async function filterQuizzes(
 			orderBy: desc(quizzesTable.createdAt)
 		})
 
-		return { success: true, quizzes }
+		// Sort by relevance
+		const rankedQuizzes =
+			words.length > 0
+				? quizzes
+						.map(quiz => {
+							const relevance = words.reduce((score, word) => {
+								const pattern = word.toLowerCase()
+
+								return (
+									score +
+									(quiz.title.toLowerCase().includes(pattern) ? 3 : 0) +
+									(quiz.description?.toLowerCase().includes(pattern) ? 1 : 0)
+								)
+							}, 0)
+
+							return { quiz, relevance }
+						})
+						.sort(
+							(a, b) =>
+								b.relevance - a.relevance ||
+								b.quiz.createdAt.getTime() - a.quiz.createdAt.getTime()
+						)
+						.map(({ quiz }) => quiz)
+				: quizzes
+
+		return { success: true, quizzes: rankedQuizzes }
 	} catch (error) {
 		console.error('[FILTER_QUIZZES]:', error)
 		return { success: false }
@@ -447,7 +484,7 @@ export async function restoreQuiz(
 
 		return { success: true }
 	} catch (error) {
-		console.error('[DELETE_QUIZ]:', error)
+		console.error('[RESTORE_QUIZ]:', error)
 
 		if (throwOnError)
 			throw new Error('Failed to move quiz to trash. Please try again later')
@@ -487,7 +524,7 @@ export async function softDeleteQuiz(
 
 		return { success: true }
 	} catch (error) {
-		console.error('[DELETE_QUIZ]:', error)
+		console.error('[SOFT_DELETE_QUIZ]:', error)
 
 		if (throwOnError)
 			throw new Error('Failed to move quiz to trash. Please try again later')
@@ -523,7 +560,7 @@ export async function pruneDeletedQuizzes({
 
 		return { success: true }
 	} catch (error) {
-		console.error('[DELETE_QUIZ]:', error)
+		console.error('[PRUNE_DELETED_QUIZZES]:', error)
 
 		if (throwOnError) {
 			throw new Error('Failed to delete quiz.')

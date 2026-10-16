@@ -23,8 +23,6 @@ export type QuizPlayerProps = {
 	attemptId: Attempt['id']
 }
 
-// TODO: Cache loaded questions instead of fetching them constantly
-
 export default function QuizPlayer({ attemptId }: QuizPlayerProps) {
 	const quiz = useQuiz()
 	const [error, setError] = useState<string | null>(null)

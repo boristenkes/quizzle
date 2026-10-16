@@ -25,3 +25,5 @@ export const MAX_QUIZ_QUESTIONS = 50
 
 export const MIN_QUESTION_OPTIONS = 2
 export const MAX_QUESTION_OPTIONS = 4
+
+export const MAX_QUERY_LENGTH = 50

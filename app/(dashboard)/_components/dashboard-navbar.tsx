@@ -1,5 +1,6 @@
 // import { NotificationsPopover } from '@/components/NotificationsPopover'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { Button } from '@/components/ui/button'
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -7,7 +8,9 @@ import {
 } from '@/components/ui/input-group'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import UserButton from '@/components/utils/user-button'
+import { MAX_QUERY_LENGTH } from '@/lib/constants'
 import { SearchIcon } from 'lucide-react'
+import Form from 'next/form'
 
 export default function DashboardNavbar() {
 	return (
@@ -17,16 +20,29 @@ export default function DashboardNavbar() {
 					<SidebarTrigger size='icon' />
 
 					{/* Search */}
-					<InputGroup className='hidden md:flex items-center gap-2 max-w-sm'>
-						<InputGroupInput
-							type='search'
-							className='bg-secondary/50'
-							placeholder='Search...'
-						/>
-						<InputGroupAddon>
-							<SearchIcon className='size-4 text-muted-foregroun' />
-						</InputGroupAddon>
-					</InputGroup>
+					<Form action='/discover'>
+						<InputGroup className='hidden md:flex items-center max-w-sm'>
+							<InputGroupInput
+								type='search'
+								name='query'
+								className='bg-secondary/50'
+								placeholder='Type to search...'
+								maxLength={MAX_QUERY_LENGTH}
+							/>
+							<InputGroupAddon align='inline-start'>
+								<SearchIcon className='size-4 text-muted-foregroun' />
+							</InputGroupAddon>
+							<InputGroupAddon align='inline-end'>
+								<Button
+									type='submit'
+									size='xs'
+									variant='secondary'
+								>
+									Search
+								</Button>
+							</InputGroupAddon>
+						</InputGroup>
+					</Form>
 				</div>
 
 				{/* Right side */}

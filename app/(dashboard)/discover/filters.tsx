@@ -120,7 +120,7 @@ export default function DiscoverPageFilters() {
 								>
 									Search term
 								</FieldLabel>
-								<InputGroup>
+								<InputGroup className='h-auto'>
 									<InputGroupAddon>
 										<SearchIcon className='size-4 text-muted-foreground' />
 									</InputGroupAddon>

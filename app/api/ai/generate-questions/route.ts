@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 			return new Response('Too Many Requests', { status: 429 })
 		}
 
-		console.log(
+		console.info(
 			`[${new Date().toISOString()}]: ${session.user.name} (${session.user.id}) requested question generation.`
 		)
 
