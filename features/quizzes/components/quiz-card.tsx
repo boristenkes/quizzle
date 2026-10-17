@@ -41,7 +41,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 						<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
 							<div className='flex items-center gap-1 text-sm'>
 								<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
-								<span>{quiz.averageRating}</span>
+								<span>{quiz.averageRating.toFixed(2)}</span>
 							</div>
 							<Badge
 								className={cn(
