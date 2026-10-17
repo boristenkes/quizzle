@@ -57,14 +57,27 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 				initialQuestion={initialQuestionResponse.question}
 			>
 				<div className='flex items-start justify-between gap-4 max-w-4xl mx-auto'>
-					<Button variant='ghost'>
+					<Button
+						variant='ghost'
+						className='shrink-0'
+					>
 						<ArrowLeft /> Exit Quiz
 					</Button>
 
-					<QuizProgress attemptId={quizSessionResponse.attemptId} />
+					<QuizProgress
+						attemptId={quizSessionResponse.attemptId}
+						className='flex-1 min-w-0 hidden md:block'
+						skeletonClassName='hidden md:block'
+					/>
 
 					<QuizTimer attemptId={quizSessionResponse.attemptId} />
 				</div>
+
+				<QuizProgress
+					attemptId={quizSessionResponse.attemptId}
+					className='min-w-0 md:hidden'
+					skeletonClassName='md:hidden'
+				/>
 
 				<QuizPlayer attemptId={quizSessionResponse.attemptId} />
 			</QuizProvider>

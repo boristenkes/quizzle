@@ -29,7 +29,7 @@ export default function QuizStatistics({ statistics }: QuizStatisticsProps) {
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
 					<div className='text-center p-4 bg-secondary rounded-lg'>
 						<p className='text-3xl font-bold text-primary'>
-							{statistics.averageScore}%
+							{statistics.averageScore.toFixed(2)}%
 						</p>
 						<p className='text-sm text-muted-foreground'>Average Score</p>
 					</div>

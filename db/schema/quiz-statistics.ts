@@ -9,7 +9,7 @@ export const quizStatisticsTable = quizzle.table('quiz_statistics', {
 		.references(() => quizzesTable.id, { onDelete: 'cascade' }),
 
 	attemptsCount: integer().notNull().default(0),
-	averageScore: integer().notNull().default(0),
+	averageScore: real().notNull().default(0),
 	averageTimeMs: integer().notNull().default(0),
 	fastestTimeMs: integer().notNull().default(0),
 

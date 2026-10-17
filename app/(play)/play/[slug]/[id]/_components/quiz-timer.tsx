@@ -1,13 +1,14 @@
 'use client'
 
 import ErrorMessage from '@/components/error-message'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useQuiz } from '@/context/quiz'
 import { Attempt } from '@/db/schema'
 import { submitQuiz } from '@/features/quiz-game/actions'
 import { cn, errorMessage } from '@/utils/helpers'
-import { ClockIcon, Loader2Icon } from 'lucide-react'
+import { ClockIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 function formatTime(totalSeconds: number) {
 	const minutes = Math.floor(totalSeconds / 60)
@@ -73,8 +74,7 @@ export default function QuizTimer({ attemptId }: { attemptId: Attempt['id'] }) {
 			})
 	}, [attemptId, remainingSeconds, router, startedAt, timeLimitSeconds])
 
-	if (quiz.isLoading || !quiz.data)
-		return <Loader2Icon className='animate-spin' />
+	if (quiz.isLoading || !quiz.data) return <QuizTimerSkeleton />
 
 	if (quiz.isError)
 		return <ErrorMessage message={errorMessage(quiz.error.message)} />
@@ -99,5 +99,19 @@ export default function QuizTimer({ attemptId }: { attemptId: Attempt['id'] }) {
 				<div className='absolute rounded-full inset-0.5 -z-10 bg-red-500/50 animate-ping' />
 			)}
 		</div>
+	)
+}
+
+export type QuizTimerSkeletonProps = React.ComponentProps<typeof Skeleton>
+
+export function QuizTimerSkeleton({
+	className,
+	...props
+}: QuizTimerSkeletonProps) {
+	return (
+		<Skeleton
+			className={cn('w-22 h-8 rounded-full', className)}
+			{...props}
+		/>
 	)
 }

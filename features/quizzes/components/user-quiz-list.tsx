@@ -50,18 +50,21 @@ export default function UserQuizList({
 									{quiz.description}
 								</CardDescription>
 							</div>
-							{quiz.category && (
-								<Badge variant='outline'>{quiz.category.name}</Badge>
-							)}
-							<Badge
-								className={cn(
-									getDifficultyColor(quiz.difficulty),
-									'capitalize'
+
+							<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
+								{quiz.category && (
+									<Badge variant='outline'>{quiz.category.name}</Badge>
 								)}
-								variant='outline'
-							>
-								{quiz.difficulty}
-							</Badge>
+								<Badge
+									className={cn(
+										getDifficultyColor(quiz.difficulty),
+										'capitalize'
+									)}
+									variant='outline'
+								>
+									{quiz.difficulty}
+								</Badge>
+							</div>
 						</div>
 					</CardHeader>
 					<CardContent className='space-y-4 flex flex-col justify-end h-full'>
@@ -80,7 +83,7 @@ export default function UserQuizList({
 							</div>
 							<div className='flex items-center gap-2'>
 								<TrendingUpIcon className='h-4 w-4 text-muted-foreground' />
-								<span>{quiz.averageScore}% avg</span>
+								<span>{quiz.averageScore.toFixed(2)}% avg</span>
 							</div>
 						</div>
 

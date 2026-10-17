@@ -56,10 +56,10 @@ export default async function UserDetailsPage({
 				Back
 			</BackButton>
 
-			<div className='flex max-xl:flex-col gap-4'>
+			<div className='flex flex-col gap-4'>
 				{/* Profile Header */}
 				<Card className='basis-2/3'>
-					<CardContent className='p-6'>
+					<CardContent className='py-6 px-10'>
 						<div className='flex flex-col md:flex-row gap-6 items-start'>
 							<Avatar className='size-32'>
 								<AvatarImage

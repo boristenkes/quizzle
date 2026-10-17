@@ -11,9 +11,6 @@ const nextConfig: NextConfig = {
 				pathname: '/f/*'
 			}
 		]
-	},
-	experimental: {
-		turbopackFileSystemCacheForDev: true
 	}
 }
 

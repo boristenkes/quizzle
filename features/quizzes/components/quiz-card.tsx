@@ -96,7 +96,7 @@ export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
 					</div>
 					<div className='flex items-center gap-2'>
 						<TrendingUpIcon className='size-4 text-muted-foreground' />
-						<span>{quiz.averageScore}% avg</span>
+						<span>{quiz.averageScore.toFixed(2)}% avg</span>
 					</div>
 				</div>
 

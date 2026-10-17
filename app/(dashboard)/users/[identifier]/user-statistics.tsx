@@ -21,7 +21,7 @@ export default function UserStatistics({
 }: UserStatisticsProps) {
 	return (
 		<div
-			className={cn('grid grid-cols-2 gap-4', className)}
+			className={cn('grid grid-cols-2 lg:grid-cols-4 gap-4', className)}
 			{...props}
 		>
 			<Card>
