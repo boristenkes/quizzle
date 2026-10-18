@@ -12,7 +12,13 @@ import { quizFormSchema, QuizFormSchema } from '@/features/quizzes/zod'
 import { Difficulty, MAX_QUIZ_QUESTIONS } from '@/lib/constants'
 import { SetState } from '@/utils/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createContext, useContext, useEffect, useState } from 'react'
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useRef,
+	useState
+} from 'react'
 import {
 	useFieldArray,
 	UseFieldArrayReturn,
@@ -27,7 +33,7 @@ type QuizFormContextReturn = {
 	questionsFieldArray: UseFieldArrayReturn<QuizFormSchema, 'questions'>
 	isGenerating: boolean
 	setIsGenerating: SetState<boolean>
-	controller: AbortController
+	controllerRef: React.RefObject<AbortController | null>
 }
 
 export const QuizFormContext = createContext<QuizFormContextReturn | null>(null)
@@ -101,7 +107,7 @@ export function QuizFormProvider({
 		name: 'options'
 	})
 	const [isGenerating, setIsGenerating] = useState(false)
-	const [controller] = useState(new AbortController())
+	const controllerRef = useRef<AbortController | null>(null)
 	const storageKey = `quiz-form:${userId}`
 
 	useEffect(() => {
@@ -154,7 +160,7 @@ export function QuizFormProvider({
 				questionsFieldArray,
 				isGenerating,
 				setIsGenerating,
-				controller
+				controllerRef
 			}}
 		>
 			{children}

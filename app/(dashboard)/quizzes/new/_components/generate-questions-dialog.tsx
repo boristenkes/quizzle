@@ -60,22 +60,23 @@ export default function GenerateQuestionsDialog({
 	const { isSubmitting, errors } = form.formState
 	const [pdfFile, setPDFFile] = useState<Nullable<File>>(null)
 	const [isOpen, setIsOpen] = useState(false)
-	const { questionsFieldArray, setIsGenerating, controller } = useQuizForm()
+	const { questionsFieldArray, setIsGenerating, controllerRef } = useQuizForm()
 	const existingQuestionCount = questionsFieldArray.fields.length
 	const remainingQuestions = Math.max(
 		0,
 		MAX_QUIZ_QUESTIONS - existingQuestionCount
 	)
-	const minQuestionCount =
-		remainingQuestions < MIN_QUIZ_QUESTIONS
-			? remainingQuestions
-			: MIN_QUIZ_QUESTIONS
+	const minQuestionCount = Math.min(remainingQuestions, MIN_QUIZ_QUESTIONS)
+
 	const questionCount = Math.min(
 		Math.max(form.watch('questionCount'), minQuestionCount),
 		remainingQuestions
 	)
 
 	const onSubmit = async (data: GenerateQuestionsFormSchema) => {
+		const controller = new AbortController()
+		controllerRef.current = controller
+
 		try {
 			const difficultyDistribution = getDistributionObj(
 				data.difficultyDistribution,
@@ -148,14 +149,20 @@ export default function GenerateQuestionsDialog({
 
 			toast.success('Questions generated successfully')
 		} catch (error: any) {
-			if (error.name === 'AbortError') {
+			if (error instanceof Error && error.name === 'AbortError') {
+				// User aborted question generation
 				toast('Generation canceled')
-			} else {
-				console.error('[FAILED TO GENERATE QUESTIONS]:', error)
-				toast.error(errorMessage(error.message))
+				return
 			}
+
+			console.error('[FAILED TO GENERATE QUESTIONS]:', error)
+			toast.error(errorMessage(error.message))
 		} finally {
 			setIsGenerating(false)
+
+			if (controllerRef.current === controller) {
+				controllerRef.current = null
+			}
 		}
 	}
 

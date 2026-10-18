@@ -18,7 +18,7 @@ import { CheckIcon, EditIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
 import { useQuizForm } from '../_context/quiz-form'
 
 export default function QuestionList() {
-	const { questionForm, questionsFieldArray, isGenerating, controller } =
+	const { questionForm, questionsFieldArray, isGenerating, controllerRef } =
 		useQuizForm()
 
 	return (
@@ -47,7 +47,7 @@ export default function QuestionList() {
 						<Button
 							type='button'
 							variant='secondary'
-							onClick={() => controller.abort()}
+							onClick={() => controllerRef.current?.abort()}
 						>
 							Cancel
 						</Button>

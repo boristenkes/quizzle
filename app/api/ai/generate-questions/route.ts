@@ -115,6 +115,12 @@ export async function POST(req: NextRequest) {
 
 					controller.close()
 				} catch (error: any) {
+					if (error instanceof Error && error.name === 'AbortError') {
+						return console.info(
+							`[${new Date().toISOString()}]: ${session.user.name} (${session.user.id}) aborted question generation.`
+						)
+					}
+
 					console.error('[QUESTION_GENERATION_STREAM_ERROR]:', error)
 					controller.error(
 						'AI failed to generate questions. Please try again later.'
