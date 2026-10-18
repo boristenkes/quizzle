@@ -1,5 +1,6 @@
-import { ExternalLinkIcon, SparklesIcon } from 'lucide-react'
+import { ExternalLinkIcon } from 'lucide-react'
 import Link from 'next/link'
+import { LogoWithText } from './logo'
 
 export default function Footer() {
 	return (
@@ -8,12 +9,8 @@ export default function Footer() {
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
 					{/* Brand */}
 					<div className='space-y-3'>
-						<div className='flex items-center gap-2'>
-							<div className='h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center'>
-								<SparklesIcon className='h-4 w-4 text-white' />
-							</div>
-							<span className='font-bold text-lg text-foreground'>Quizzle</span>
-						</div>
+						<LogoWithText />
+
 						<p className='text-sm text-muted-foreground'>
 							Create, share, and discover AI-powered quizzes.
 						</p>

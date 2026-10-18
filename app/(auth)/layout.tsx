@@ -1,7 +1,5 @@
+import { Logo } from '@/components/logo'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { Button } from '@/components/ui/button'
-import { ArrowLeftIcon, SparklesIcon } from 'lucide-react'
-import Link from 'next/link'
 
 export default function AuthLayout({
 	children
@@ -10,26 +8,13 @@ export default function AuthLayout({
 }) {
 	return (
 		<div className='min-h-screen p-4 bg-linear-to-br from-accent/10 via-secondary/30 to-accent/20'>
-			<div className='flex items-center justify-between gap-4'>
-				<Button
-					variant='outline'
-					className='m-4'
-					nativeButton={false}
-					render={
-						<Link href='/'>
-							<ArrowLeftIcon className='mr-2 h-4 w-4' />
-							Back to Home
-						</Link>
-					}
-				/>
-
-				<ThemeSwitch />
-			</div>
+			<ThemeSwitch />
 
 			<main className='w-full max-w-md space-y-6 mx-auto py-4'>
 				{/* Logo */}
-				<div className='flex items-center gap-4'>
-					<SparklesIcon className='text-indigo-500 size-8' />
+				<div className='flex items-center justify-center gap-4'>
+					<Logo className='size-10' />
+
 					<div>
 						<h1 className='text-3xl font-bold'>Quizzle</h1>
 						<p className='text-muted-foreground'>
