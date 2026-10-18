@@ -7,7 +7,7 @@ import { getGenerateQuestionsPrompt } from '@/features/ai/prompts'
 import { generateQuestionsConfigSchema, pdfFileSchema } from '@/features/ai/zod'
 import { questionFormSchema } from '@/features/questions/zod'
 import { auth } from '@/lib/auth'
-import { ratelimit } from '@/lib/redis'
+import { rateLimit } from '@/lib/rate-limit'
 import { NextRequest } from 'next/server'
 
 const systemInstruction = `
@@ -33,9 +33,12 @@ export async function POST(req: NextRequest) {
 
 		if (!session) return new Response('Unauthorized', { status: 401 })
 
-		const ratelimitResult = await ratelimit.limit(session.user.id)
+		const ratelimitResult = rateLimit(`ai:${session.user.id}`, {
+			maxRequests: 3,
+			windowMs: 24 * 60 * 60 * 1000 // 1d
+		})
 
-		if (!ratelimitResult.success) {
+		if (!ratelimitResult) {
 			return new Response('Too Many Requests', { status: 429 })
 		}
 
