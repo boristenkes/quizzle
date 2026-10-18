@@ -28,6 +28,8 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
+type Submitting = 'email' | 'google'
+
 export type SignUpFormProps = {
 	callbackUrl: Nullable<string>
 }
@@ -44,14 +46,19 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
 		}
 	})
 	const [showPassword, setShowPassword] = useState(false)
+	const [submitting, setSubmitting] = useState<Submitting | null>(null)
+	const isSubmitting = submitting !== null
 	const router = useRouter()
-	const { isSubmitting, errors } = form.formState
+	const { errors } = form.formState
 
 	const onSubmit = async (data: SignUpSchema) => {
+		setSubmitting('email')
+
 		const response = await authClient.signUp.email(data)
 
 		if (response.error) {
 			console.error('[SIGN_UP_ERROR]:', response.error)
+			setSubmitting(null)
 			return form.setError('root', {
 				message: errorMessage(response.error.message)
 			})
@@ -62,6 +69,18 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
 		})
 		form.reset()
 		router.replace(callbackUrl || '/')
+		setSubmitting(null)
+	}
+
+	const signInGoogle = async () => {
+		setSubmitting('google')
+
+		await authClient.signIn.social({
+			provider: 'google',
+			callbackURL: callbackUrl || '/'
+		})
+
+		setSubmitting(null)
 	}
 
 	return (
@@ -227,8 +246,8 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
 					size='lg'
 					disabled={isSubmitting}
 				>
-					{isSubmitting ? 'Please wait' : 'Create Account'}
-					{isSubmitting && <Spinner />}
+					{submitting === 'email' ? 'Please wait' : 'Create Account'}
+					{submitting === 'email' && <Spinner />}
 				</Button>
 			</form>
 
@@ -251,12 +270,7 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
 				className='w-full'
 				size='lg'
 				disabled={isSubmitting}
-				onClick={() =>
-					authClient.signIn.social({
-						provider: 'google',
-						callbackURL: callbackUrl || '/'
-					})
-				}
+				onClick={signInGoogle}
 			>
 				<GoogleLogo className='mr-2 size-4' />
 				Continue with Google

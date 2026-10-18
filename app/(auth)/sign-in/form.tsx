@@ -32,6 +32,8 @@ export type SignInFormProps = {
 	callbackUrl: Nullable<string>
 }
 
+type Submitting = 'email' | 'google' | 'demo'
+
 export default function SignInForm({ callbackUrl }: SignInFormProps) {
 	const form = useForm<SignInSchema>({
 		resolver: zodResolver(signInSchema),
@@ -41,10 +43,14 @@ export default function SignInForm({ callbackUrl }: SignInFormProps) {
 		}
 	})
 	const [showPassword, setShowPassword] = useState(false)
+	const [submitting, setSubmitting] = useState<Submitting | null>(null)
+	const isSubmitting = submitting !== null
 	const router = useRouter()
-	const { isSubmitting, errors } = form.formState
+	const { errors } = form.formState
 
 	const onSubmit = async (data: SignInSchema) => {
+		setSubmitting('email')
+
 		const chosenIdentifier = data.identifier.includes('@')
 			? 'email'
 			: 'username'
@@ -56,6 +62,7 @@ export default function SignInForm({ callbackUrl }: SignInFormProps) {
 
 		if (response.error) {
 			console.error('[SIGN_IN_ERROR]:', response.error)
+			setSubmitting(null)
 			return form.setError('root', {
 				message: errorMessage(response.message)
 			})
@@ -66,6 +73,18 @@ export default function SignInForm({ callbackUrl }: SignInFormProps) {
 		})
 		form.reset()
 		router.replace(callbackUrl || '/')
+		setSubmitting(null)
+	}
+
+	const signInGoogle = async () => {
+		setSubmitting('google')
+
+		await authClient.signIn.social({
+			provider: 'google',
+			callbackURL: callbackUrl || '/'
+		})
+
+		setSubmitting(null)
 	}
 
 	return (
@@ -150,8 +169,8 @@ export default function SignInForm({ callbackUrl }: SignInFormProps) {
 					size='lg'
 					disabled={isSubmitting}
 				>
-					{isSubmitting ? 'Please wait' : 'Sign In'}
-					{isSubmitting && <Spinner />}
+					{submitting === 'email' ? 'Please wait' : 'Sign In'}
+					{submitting === 'email' && <Spinner />}
 				</Button>
 			</form>
 
@@ -174,15 +193,38 @@ export default function SignInForm({ callbackUrl }: SignInFormProps) {
 				className='w-full'
 				size='lg'
 				disabled={isSubmitting}
-				onClick={() =>
-					authClient.signIn.social({
-						provider: 'google',
-						callbackURL: callbackUrl || '/'
-					})
-				}
+				onClick={signInGoogle}
 			>
-				<GoogleLogo className='mr-2 size-4' />
-				Continue with Google
+				{submitting === 'google' ? (
+					<Spinner />
+				) : (
+					<>
+						<GoogleLogo className='mr-2 size-4' />
+						Continue with Google
+					</>
+				)}
+			</Button>
+
+			<Button
+				variant='outline'
+				className='w-full mt-4'
+				size='lg'
+				disabled={isSubmitting}
+				onClick={async () => {
+					setSubmitting('demo')
+					await authClient.signIn.email({
+						email: 'demo@example.com',
+						password: 'demodemo',
+						callbackURL: '/'
+					})
+					setSubmitting(null)
+				}}
+			>
+				{submitting === 'demo' ? (
+					<Spinner />
+				) : (
+					'✨ Continue with Demo account ✨'
+				)}
 			</Button>
 		</>
 	)
