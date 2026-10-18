@@ -1,5 +1,6 @@
 'use client'
 
+import { TwinOrbit } from '@/components/twin-orbit'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,7 +10,6 @@ import {
 	CardHeader,
 	CardTitle
 } from '@/components/ui/card'
-import { Spinner } from '@/components/ui/spinner'
 import { questionTypeLabel } from '@/lib/constants'
 import { getDifficultyColor } from '@/utils/format'
 import { cn, scrollToElement } from '@/utils/helpers'
@@ -41,8 +41,8 @@ export default function QuestionList() {
 						<p className='flex items-center gap-4'>
 							Your questions are being generated
 						</p>
-						<div>
-							<Spinner className='size-8 my-4' />
+						<div className='my-6'>
+							<TwinOrbit className='size-3' />
 						</div>
 						<Button
 							type='button'
