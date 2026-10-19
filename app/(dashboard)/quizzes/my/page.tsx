@@ -8,7 +8,7 @@ import {
 	EmptyTitle
 } from '@/components/ui/empty'
 import { getUserQuizzes } from '@/features/quizzes/actions'
-import UserQuizList from '@/features/quizzes/components/user-quiz-list'
+import QuizList from '@/features/quizzes/components/quiz-list'
 import { getSession } from '@/lib/auth'
 import { errorMessage } from '@/utils/helpers'
 import { BookmarkIcon, FolderOpenIcon, Trash2Icon } from 'lucide-react'
@@ -53,10 +53,7 @@ export default async function MyQuizzesPage() {
 
 			{response.success ? (
 				response.quizzes.length > 0 ? (
-					<UserQuizList
-						quizzes={response.quizzes}
-						sessionUserId={sessionUser.id}
-					/>
+					<QuizList quizzes={response.quizzes} />
 				) : (
 					<MyQuizzesEmpty />
 				)

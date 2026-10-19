@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/empty'
 import { User } from '@/db/schema'
 import { getUserQuizzes } from '@/features/quizzes/actions'
-import UserQuizList from '@/features/quizzes/components/user-quiz-list'
+import QuizList from '@/features/quizzes/components/quiz-list'
 import { errorMessage } from '@/utils/helpers'
 import { BarChart3, FolderOpenIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -46,10 +46,7 @@ export default async function RecentQuizzes({
 			</div>
 
 			{response.quizzes.length > 0 ? (
-				<UserQuizList
-					quizzes={response.quizzes}
-					sessionUserId={sessionUserId}
-				/>
+				<QuizList quizzes={response.quizzes} />
 			) : (
 				<RecentQuizzesEmpty />
 			)}

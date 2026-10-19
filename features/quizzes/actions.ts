@@ -18,7 +18,7 @@ import { getSession } from '@/lib/auth'
 import { difficulties, Difficulty, MAX_QUERY_LENGTH } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
-import { Nullable, ServerActionResponse } from '@/utils/types'
+import { ServerActionResponse } from '@/utils/types'
 import { and, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
@@ -116,7 +116,7 @@ export async function createQuiz(
 	}
 }
 
-export type GetQuizzesQuiz = Pick<
+export type QuizCardData = Pick<
 	Quiz,
 	| 'id'
 	| 'slug'
@@ -134,7 +134,7 @@ export type GetQuizzesQuiz = Pick<
 }
 
 export async function getQuizzes(): Promise<
-	ServerActionResponse<{ quizzes: GetQuizzesQuiz[] }>
+	ServerActionResponse<{ quizzes: QuizCardData[] }>
 > {
 	try {
 		const session = await getSession()
@@ -178,17 +178,10 @@ export async function getQuizzes(): Promise<
 	}
 }
 
-export type GetUserQuizzesQuiz = Quiz & {
-	category: Nullable<Pick<QuizCategory, 'id' | 'name' | 'slug'>>
-	averageRating: number
-	totalAttempts: number
-	averageScore: number
-}
-
 export async function getUserQuizzes(
 	userId: User['id'],
 	{ page = 1, pageSize = 6 } = {}
-): Promise<ServerActionResponse<{ quizzes: GetUserQuizzesQuiz[] }>> {
+): Promise<ServerActionResponse<{ quizzes: QuizCardData[] }>> {
 	try {
 		const session = await getSession()
 
@@ -208,9 +201,21 @@ export async function getUserQuizzes(
 				isNull(quizzesTable.deletedAt),
 				...foreignQuizzesFilters
 			),
+			columns: pickColumns(
+				'id',
+				'title',
+				'slug',
+				'description',
+				'timeLimitSeconds',
+				'questionCount',
+				'difficulty'
+			),
 			with: {
+				creator: {
+					columns: pickColumns('id', 'username', 'name', 'image')
+				},
 				category: {
-					columns: pickColumns('id', 'name', 'slug')
+					columns: pickColumns('name')
 				}
 			},
 			extras: {
@@ -312,7 +317,7 @@ export type FilterQuizzesFilters = Partial<{
 
 export async function filterQuizzes(
 	filters: FilterQuizzesFilters
-): Promise<ServerActionResponse<{ quizzes: GetQuizzesQuiz[] }>> {
+): Promise<ServerActionResponse<{ quizzes: QuizCardData[] }>> {
 	try {
 		const session = await getSession()
 

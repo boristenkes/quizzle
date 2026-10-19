@@ -1,4 +1,3 @@
-import ErrorMessage from '@/components/error-message'
 import {
 	Empty,
 	EmptyDescription,
@@ -6,32 +5,23 @@ import {
 	EmptyMedia,
 	EmptyTitle
 } from '@/components/ui/empty'
-import {
-	filterQuizzes,
-	FilterQuizzesFilters,
-	getQuizzes
-} from '@/features/quizzes/actions'
+import { QuizCardData } from '@/features/quizzes/actions'
 import QuizCard, {
 	QuizCardSkeleton
 } from '@/features/quizzes/components/quiz-card'
-import { cn, errorMessage } from '@/utils/helpers'
+import { cn } from '@/utils/helpers'
 import { FolderOpenIcon } from 'lucide-react'
 
 export type QuizListProps = React.HTMLAttributes<HTMLElement> & {
-	filters?: FilterQuizzesFilters
+	quizzes: QuizCardData[]
 }
 
-export default async function QuizList({
+export default function QuizList({
 	className,
-	filters,
+	quizzes,
 	...props
 }: QuizListProps) {
-	const response = await (filters ? filterQuizzes(filters) : getQuizzes())
-
-	if (!response.success)
-		return <ErrorMessage message={errorMessage(response.message)} />
-
-	if (response.quizzes.length === 0) return <QuizListEmptyState />
+	if (quizzes.length === 0) return <QuizListEmptyState />
 
 	return (
 		<div
@@ -41,7 +31,7 @@ export default async function QuizList({
 			)}
 			{...props}
 		>
-			{response.quizzes.map(quiz => (
+			{quizzes.map(quiz => (
 				<QuizCard
 					key={quiz.id}
 					quiz={quiz}

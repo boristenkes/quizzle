@@ -137,10 +137,7 @@ export default async function UserDetailsPage({
 
 			{/* Tabs */}
 			<Suspense fallback={<UserDetailsPageQuizListSkeleton />}>
-				<UserDetailsPageQuizList
-					userId={user.id}
-					sessionUserId={session.user.id}
-				/>
+				<UserDetailsPageQuizList userId={user.id} />
 			</Suspense>
 		</div>
 	)

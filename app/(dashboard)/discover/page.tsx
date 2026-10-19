@@ -1,3 +1,4 @@
+import ErrorMessage from '@/components/error-message'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -8,14 +9,18 @@ import {
 	DrawerTitle,
 	DrawerTrigger
 } from '@/components/ui/drawer'
-import { FilterQuizzesFilters } from '@/features/quizzes/actions'
+import {
+	filterQuizzes,
+	FilterQuizzesFilters,
+	getQuizzes
+} from '@/features/quizzes/actions'
+import QuizList from '@/features/quizzes/components/quiz-list'
 import { getSession } from '@/lib/auth'
+import { errorMessage } from '@/utils/helpers'
 import { FilterIcon, Globe } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 import DiscoverPageFilters from './filters'
-import QuizList, { QuizListSkeleton } from './quiz-list'
 
 export const metadata: Metadata = {
 	title: 'Discover'
@@ -31,6 +36,10 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 	if (!isAuthenticated) redirect('/sign-in')
 
 	const searchParams = await props.searchParams
+
+	const response = await (searchParams
+		? filterQuizzes(searchParams)
+		: getQuizzes())
 
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-6'>
@@ -83,9 +92,11 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 			</div>
 
 			{/* Quiz Grid */}
-			<Suspense fallback={<QuizListSkeleton />}>
-				<QuizList filters={searchParams} />
-			</Suspense>
+			{response.success ? (
+				<QuizList quizzes={response.quizzes} />
+			) : (
+				<ErrorMessage message={errorMessage(response.message)} />
+			)}
 
 			{/* Pagination */}
 			<p>

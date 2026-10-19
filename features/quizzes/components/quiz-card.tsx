@@ -9,7 +9,7 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { GetQuizzesQuiz } from '@/features/quizzes/actions'
+import { type QuizCardData } from '@/features/quizzes/actions'
 import { getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {
@@ -23,7 +23,7 @@ import {
 import Link from 'next/link'
 import TimeLimit from './time-limit'
 
-export default function QuizCard({ quiz }: { quiz: GetQuizzesQuiz }) {
+export default function QuizCard({ quiz }: { quiz: QuizCardData }) {
 	return (
 		<Card className='flex flex-col gap-3'>
 			<CardHeader className='grow'>
