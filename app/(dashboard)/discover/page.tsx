@@ -1,4 +1,13 @@
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger
+} from '@/components/ui/drawer'
 import { FilterQuizzesFilters } from '@/features/quizzes/actions'
 import { getSession } from '@/lib/auth'
 import { FilterIcon, Globe } from 'lucide-react'
@@ -37,17 +46,35 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 					</p>
 				</div>
 
-				<Button
-					variant='outline'
-					size='icon-lg'
-					className='lg:hidden'
-				>
-					<FilterIcon className='size-4' />
-				</Button>
+				<Drawer>
+					<DrawerTrigger asChild>
+						<Button
+							variant='outline'
+							size='icon-lg'
+							className='lg:hidden'
+						>
+							<FilterIcon className='size-4' />
+						</Button>
+					</DrawerTrigger>
+					<DrawerContent>
+						<DrawerHeader>
+							<DrawerTitle>Filter Quizzes</DrawerTitle>
+							<DrawerDescription>
+								Filter quizzes by query, category or difficulty
+							</DrawerDescription>
+						</DrawerHeader>
+
+						<DiscoverPageFilters />
+					</DrawerContent>
+				</Drawer>
 			</div>
 
 			{/* Filters */}
-			<DiscoverPageFilters />
+			<Card className='max-lg:hidden'>
+				<CardContent>
+					<DiscoverPageFilters />
+				</CardContent>
+			</Card>
 
 			{/* Results Info */}
 			<div className='flex items-center justify-between'>
