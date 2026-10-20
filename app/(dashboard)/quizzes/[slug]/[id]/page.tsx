@@ -145,23 +145,6 @@ export default async function QuizDetailsPage({
 								</p>
 							</div>
 						</div>
-
-						<p>
-							<em>* Tag list goes here (maybe) *</em>
-						</p>
-						{/* <div className='flex flex-wrap gap-2'>
-							{(quiz.topics ?? ['Variables', 'Functions', 'Closures']).map(
-								(topic: string) => (
-									<Badge
-										key={topic}
-										variant='outline'
-										className='text-xs'
-									>
-										{topic}
-									</Badge>
-								)
-							)}
-						</div> */}
 					</div>
 				</div>
 

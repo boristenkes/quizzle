@@ -78,7 +78,7 @@ export function DashboardSidebar() {
 												activeStyles='bg-primary text-primary-foreground font-medium shadow-sm'
 											>
 												<item.icon className='size-4' />
-												{!isCollapsed && <span>{item.title}</span>}
+												<span>{item.title}</span>
 											</NavLink>
 										}
 									/>

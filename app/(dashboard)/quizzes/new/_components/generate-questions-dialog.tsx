@@ -175,7 +175,7 @@ export default function GenerateQuestionsDialog({
 			<ResponsiveDialogTrigger disabled={remainingQuestions === 0}>
 				{children}
 			</ResponsiveDialogTrigger>
-			<ResponsiveDialogContent className='px-8'>
+			<ResponsiveDialogContent className='px-8 overflow-y-auto pb-8 after:hidden'>
 				<ResponsiveDialogHeader className='gap-0'>
 					<ResponsiveDialogTitle>
 						Generate Questions with AI
@@ -196,7 +196,7 @@ export default function GenerateQuestionsDialog({
 								<Field data-invalid={fieldState.invalid}>
 									<FieldLabel
 										htmlFor={field.name}
-										className='-mb-1.5'
+										className='-mb-1.5 mt-4'
 									>
 										Number of Questions
 									</FieldLabel>
