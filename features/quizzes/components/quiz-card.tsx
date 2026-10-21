@@ -9,7 +9,7 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { type QuizCardData } from '@/features/quizzes/actions'
+import { type QuizCardData } from '@/features/quizzes/zod'
 import { getDifficultyColor } from '@/utils/format'
 import { cn } from '@/utils/helpers'
 import {

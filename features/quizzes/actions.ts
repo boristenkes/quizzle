@@ -1,5 +1,9 @@
 'use server'
 
+import {
+	filterQuizzesSchema,
+	FilterQuizzesSchema
+} from '@/app/(dashboard)/discover/zod'
 import { db } from '@/db'
 import {
 	bookmarksTable,
@@ -15,7 +19,6 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
-import { difficulties, Difficulty, MAX_QUERY_LENGTH } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
@@ -29,7 +32,7 @@ import {
 	isBookmarkedQuery,
 	totalAttemptsQuery
 } from './queries'
-import { quizFormSchema, QuizFormSchema } from './zod'
+import { QuizCardData, quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
 	data: QuizFormSchema
@@ -112,68 +115,6 @@ export async function createQuiz(
 		return { success: true }
 	} catch (error) {
 		console.error('[CREATE_QUIZ]:', error)
-		return { success: false }
-	}
-}
-
-export type QuizCardData = Pick<
-	Quiz,
-	| 'id'
-	| 'slug'
-	| 'title'
-	| 'description'
-	| 'timeLimitSeconds'
-	| 'questionCount'
-	| 'difficulty'
-> & {
-	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
-	category: Pick<QuizCategory, 'name'> | null
-	averageRating: number
-	totalAttempts: number
-	averageScore: number
-}
-
-export async function getQuizzes(): Promise<
-	ServerActionResponse<{ quizzes: QuizCardData[] }>
-> {
-	try {
-		const session = await getSession()
-
-		if (!session) throw new Error('Unauthorized')
-
-		const results = await db.query.quizzesTable.findMany({
-			where: and(
-				eq(quizzesTable.isPublished, true),
-				isNull(quizzesTable.deletedAt)
-			),
-			columns: pickColumns(
-				'id',
-				'title',
-				'slug',
-				'description',
-				'timeLimitSeconds',
-				'questionCount',
-				'difficulty'
-			),
-			with: {
-				creator: {
-					columns: pickColumns('id', 'username', 'name', 'image')
-				},
-				category: {
-					columns: pickColumns('name')
-				}
-			},
-			extras: {
-				averageRating: averageRatingQuery,
-				totalAttempts: totalAttemptsQuery,
-				averageScore: averageScoreQuery
-			},
-			orderBy: desc(quizzesTable.createdAt)
-		})
-
-		return { success: true, quizzes: results }
-	} catch (error) {
-		console.error('[GET_QUIZZES]:', error)
 		return { success: false }
 	}
 }
@@ -309,26 +250,25 @@ export async function getQuizById(
 	}
 }
 
-export type FilterQuizzesFilters = Partial<{
-	query: string
-	category: string
-	difficulty: string
-}>
-
 export async function filterQuizzes(
-	filters: FilterQuizzesFilters
-): Promise<ServerActionResponse<{ quizzes: QuizCardData[] }>> {
+	filters: FilterQuizzesSchema
+): Promise<
+	ServerActionResponse<{ quizzes: QuizCardData[]; totalQuizzes: number }>
+> {
 	try {
 		const session = await getSession()
 
 		if (!session) throw new Error('Unauthorized')
 
-		if (filters.query && filters.query.length > MAX_QUERY_LENGTH)
-			throw new Error('Bad Request')
+		const parsedFilters = await filterQuizzesSchema
+			.parseAsync(filters)
+			.catch(() => {
+				throw new Error('Bad Request')
+			})
 
 		const databaseFilters = []
 		const words = [
-			...new Set(filters.query?.trim().split(/\s+/).filter(Boolean) ?? [])
+			...new Set(parsedFilters.query?.trim().split(/\s+/).filter(Boolean) ?? [])
 		]
 
 		// Filter by search query
@@ -344,15 +284,16 @@ export async function filterQuizzes(
 		}
 
 		// Filter by difficulty
-		const difficulty = filters.difficulty as Difficulty
-		if (filters.difficulty && difficulties.includes(difficulty)) {
-			databaseFilters.push(eq(quizzesTable.difficulty, difficulty))
+		if (parsedFilters.difficulty) {
+			databaseFilters.push(
+				eq(quizzesTable.difficulty, parsedFilters.difficulty)
+			)
 		}
 
 		// Filter by category
-		if (filters.category) {
+		if (parsedFilters.category) {
 			const targetCategory = await db.query.quizCategoriesTable.findFirst({
-				where: eq(quizCategoriesTable.slug, filters.category),
+				where: eq(quizCategoriesTable.slug, parsedFilters.category),
 				columns: { id: true }
 			})
 
@@ -361,33 +302,41 @@ export async function filterQuizzes(
 			}
 		}
 
-		const quizzes = await db.query.quizzesTable.findMany({
-			where: and(isNull(quizzesTable.deletedAt), ...databaseFilters),
-			columns: pickColumns(
-				'id',
-				'title',
-				'slug',
-				'description',
-				'timeLimitSeconds',
-				'questionCount',
-				'difficulty',
-				'createdAt'
-			),
-			with: {
-				creator: {
-					columns: pickColumns('id', 'username', 'name', 'image')
+		const [quizzes, totalQuizzes] = await Promise.all([
+			db.query.quizzesTable.findMany({
+				where: and(isNull(quizzesTable.deletedAt), ...databaseFilters),
+				columns: pickColumns(
+					'id',
+					'title',
+					'slug',
+					'description',
+					'timeLimitSeconds',
+					'questionCount',
+					'difficulty',
+					'createdAt'
+				),
+				with: {
+					creator: {
+						columns: pickColumns('id', 'username', 'name', 'image')
+					},
+					category: {
+						columns: pickColumns('name')
+					}
 				},
-				category: {
-					columns: pickColumns('name')
-				}
-			},
-			extras: {
-				averageRating: averageRatingQuery,
-				totalAttempts: totalAttemptsQuery,
-				averageScore: averageScoreQuery
-			},
-			orderBy: desc(quizzesTable.createdAt)
-		})
+				extras: {
+					averageRating: averageRatingQuery,
+					totalAttempts: totalAttemptsQuery,
+					averageScore: averageScoreQuery
+				},
+				limit: parsedFilters.pageSize,
+				offset: (parsedFilters.page - 1) * parsedFilters.pageSize,
+				orderBy: desc(quizzesTable.createdAt)
+			}),
+			db.$count(
+				quizzesTable,
+				and(isNull(quizzesTable.deletedAt), ...databaseFilters)
+			)
+		])
 
 		// Sort by relevance
 		const rankedQuizzes =
@@ -414,7 +363,7 @@ export async function filterQuizzes(
 						.map(({ quiz }) => quiz)
 				: quizzes
 
-		return { success: true, quizzes: rankedQuizzes }
+		return { success: true, quizzes: rankedQuizzes, totalQuizzes }
 	} catch (error) {
 		console.error('[FILTER_QUIZZES]:', error)
 		return { success: false }

@@ -5,10 +5,10 @@ import {
 	EmptyMedia,
 	EmptyTitle
 } from '@/components/ui/empty'
-import { QuizCardData } from '@/features/quizzes/actions'
 import QuizCard, {
 	QuizCardSkeleton
 } from '@/features/quizzes/components/quiz-card'
+import { QuizCardData } from '@/features/quizzes/zod'
 import { cn } from '@/utils/helpers'
 import { FolderOpenIcon } from 'lucide-react'
 

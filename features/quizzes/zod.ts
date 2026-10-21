@@ -1,3 +1,5 @@
+import { PAGE_SIZE } from '@/app/(dashboard)/discover/zod'
+import { Quiz, QuizCategory, User } from '@/db/schema'
 import { questionFormSchema } from '@/features/questions/zod'
 import {
 	difficulties,
@@ -43,3 +45,27 @@ export const filtersFormSchema = z
 	.partial()
 
 export type FiltersFormSchema = z.infer<typeof filtersFormSchema>
+
+export const paginationSchema = z.object({
+	page: integerSchema.positive().optional().default(1),
+	pageSize: integerSchema.positive().optional().default(PAGE_SIZE)
+})
+
+export type QuizCardData = Pick<
+	Quiz,
+	| 'id'
+	| 'slug'
+	| 'title'
+	| 'description'
+	| 'timeLimitSeconds'
+	| 'questionCount'
+	| 'difficulty'
+> & {
+	creator: Pick<User, 'id' | 'username' | 'name' | 'image'>
+	category: Pick<QuizCategory, 'name'> | null
+	averageRating: number
+	totalAttempts: number
+	averageScore: number
+}
+
+export type PaginationSchema = z.infer<typeof paginationSchema>

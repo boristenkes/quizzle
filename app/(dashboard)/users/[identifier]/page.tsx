@@ -86,23 +86,6 @@ export default async function UserDetailsPage({
 										{dateFormatter.format(user.createdAt)}
 									</time>
 								</span>
-
-								{/* Badges */}
-								<p>
-									<em>* Badges/Awards goes here *</em>
-								</p>
-								{/* <div className='flex flex-wrap gap-2'>
-								{badges.map(badge => (
-									<Badge
-										key={badge.name}
-										variant='secondary'
-										className='flex items-center gap-1'
-									>
-										<badge.icon className={`h-3 w-3 ${badge.color}`} />
-										{badge.name}
-									</Badge>
-								))}
-							</div> */}
 							</div>
 
 							<div className='flex items-center gap-2'>

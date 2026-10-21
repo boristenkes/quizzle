@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/input-group'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import UserButton from '@/components/utils/user-button'
-import { MAX_QUERY_LENGTH } from '@/lib/constants'
 import { SearchIcon } from 'lucide-react'
 import Form from 'next/form'
+import { MAX_QUERY_LENGTH } from '../discover/zod'
 
 export default function DashboardNavbar() {
 	return (

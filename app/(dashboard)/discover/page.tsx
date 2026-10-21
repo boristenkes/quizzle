@@ -9,25 +9,24 @@ import {
 	DrawerTitle,
 	DrawerTrigger
 } from '@/components/ui/drawer'
-import {
-	filterQuizzes,
-	FilterQuizzesFilters,
-	getQuizzes
-} from '@/features/quizzes/actions'
+import DynamicPagination from '@/components/utils/dynamic-pagination'
+import { filterQuizzes } from '@/features/quizzes/actions'
 import QuizList from '@/features/quizzes/components/quiz-list'
 import { getSession } from '@/lib/auth'
 import { errorMessage } from '@/utils/helpers'
+import { integerSchema } from '@/utils/zod'
 import { FilterIcon, Globe } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import DiscoverPageFilters from './filters'
+import { FilterQuizzesSchema, PAGE_SIZE } from './zod'
 
 export const metadata: Metadata = {
 	title: 'Discover'
 }
 
 export type DiscoverPageProps = {
-	searchParams: Promise<FilterQuizzesFilters>
+	searchParams: Promise<FilterQuizzesSchema>
 }
 
 export default async function DisoverPage(props: DiscoverPageProps) {
@@ -37,9 +36,20 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 
 	const searchParams = await props.searchParams
 
-	const response = await (searchParams
-		? filterQuizzes(searchParams)
-		: getQuizzes())
+	const response = await filterQuizzes(searchParams)
+	const currentPage = integerSchema.default(1).parse(searchParams.page)
+
+	const totalPages = response.success
+		? Math.ceil(response.totalQuizzes / PAGE_SIZE)
+		: 0
+	const start = response.success
+		? response.totalQuizzes === 0
+			? 0
+			: (currentPage - 1) * PAGE_SIZE + 1
+		: 0
+	const end = response.success
+		? Math.min(currentPage * PAGE_SIZE, response.totalQuizzes)
+		: 0
 
 	return (
 		<div className='container mx-auto py-6 px-4 space-y-6'>
@@ -87,8 +97,13 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 
 			{/* Results Info */}
 			<div className='flex items-center justify-between'>
-				<p className='text-muted-foreground'>Showing 1-6 of 6 quizzes</p>
-				<div className='text-sm text-muted-foreground'>Page 1 of 1</div>
+				<p className='text-muted-foreground'>
+					Showing {start}-{end} of{' '}
+					{response.success ? response.totalQuizzes : 0} quizzes
+				</p>
+				<div className='text-sm text-muted-foreground'>
+					Page {currentPage} of {totalPages}
+				</div>
 			</div>
 
 			{/* Quiz Grid */}
@@ -99,48 +114,7 @@ export default async function DisoverPage(props: DiscoverPageProps) {
 			)}
 
 			{/* Pagination */}
-			<p>
-				<em>* Pagination goes here *</em>
-			</p>
-			{/* {totalPages > 1 && (
-				<div className='flex items-center justify-center gap-2 mt-8'>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-						disabled={currentPage === 1}
-					>
-						<ChevronLeft className='size-4' />
-						Previous
-					</Button>
-
-					<div className='flex gap-1'>
-						{Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-							<Button
-								key={page}
-								variant={currentPage === page ? 'default' : 'outline'}
-								size='sm'
-								onClick={() => setCurrentPage(page)}
-								className='w-10'
-							>
-								{page}
-							</Button>
-						))}
-					</div>
-
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() =>
-							setCurrentPage(Math.min(totalPages, currentPage + 1))
-						}
-						disabled={currentPage === totalPages}
-					>
-						Next
-						<ChevronRight className='size-4' />
-					</Button>
-				</div>
-			)} */}
+			{totalPages > 1 && <DynamicPagination totalPages={totalPages} />}
 		</div>
 	)
 }
