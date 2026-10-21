@@ -7,7 +7,7 @@ import { useQuiz } from '@/context/quiz'
 import { Attempt } from '@/db/schema'
 import { getQuestionByPosition } from '@/features/quiz-game/actions'
 import { cn, errorMessage } from '@/utils/helpers'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export type QuizProgressProps = React.ComponentProps<'div'> & {
 	attemptId: Attempt['id']
@@ -21,6 +21,15 @@ export default function QuizProgress({
 	...props
 }: QuizProgressProps) {
 	const quiz = useQuiz()
+	const activeQuestionRef = useRef<HTMLButtonElement>(null)
+
+	useEffect(() => {
+		activeQuestionRef.current?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'nearest',
+			inline: 'center'
+		})
+	}, [quiz.currentQuestion.position])
 
 	if (quiz.isLoading)
 		return <QuizProgressSkeleton className={skeletonClassName} />
@@ -57,6 +66,11 @@ export default function QuizProgress({
 						className='flex shrink-0 items-center'
 					>
 						<Button
+							ref={
+								question.position === quiz.currentQuestion.position
+									? activeQuestionRef
+									: undefined
+							}
 							size='icon-lg'
 							variant='secondary'
 							className={cn(

@@ -51,7 +51,7 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 		redirect(`/quizzes/results/${quizSessionResponse.attemptId}`)
 
 	return (
-		<main className='p-16'>
+		<main className='p-16 max-lg: px-8'>
 			<QuizProvider
 				attemptId={quizSessionResponse.attemptId}
 				initialQuestion={initialQuestionResponse.question}
@@ -75,7 +75,7 @@ export default async function PlayQuizPage({ params }: PlayQuizPageProps) {
 
 				<QuizProgress
 					attemptId={quizSessionResponse.attemptId}
-					className='min-w-0 md:hidden'
+					className='min-w-0 my-4 md:hidden'
 					skeletonClassName='md:hidden'
 				/>
 
