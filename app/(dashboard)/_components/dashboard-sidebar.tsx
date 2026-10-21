@@ -13,6 +13,7 @@ import {
 	useSidebar
 } from '@/components/ui/sidebar'
 import NavLink from '@/components/utils/nav-link'
+import { useUpdateEffect } from '@/hooks/use-update-effect'
 import { cn } from '@/utils/helpers'
 import {
 	BarChart3Icon,
@@ -24,6 +25,7 @@ import {
 	TrophyIcon
 } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const navigationItems = [
 	{ title: 'Dashboard', url: '/', icon: LayoutDashboardIcon },
@@ -36,8 +38,13 @@ const navigationItems = [
 ]
 
 export function DashboardSidebar() {
-	const { state } = useSidebar()
+	const { state, setOpen, setOpenMobile } = useSidebar()
+	const pathname = usePathname()
 	const isCollapsed = state === 'collapsed'
+
+	useUpdateEffect(() => {
+		setOpenMobile(false)
+	}, [pathname])
 
 	return (
 		<Sidebar collapsible='icon'>

@@ -175,7 +175,7 @@ export default function GenerateQuestionsDialog({
 			<ResponsiveDialogTrigger disabled={remainingQuestions === 0}>
 				{children}
 			</ResponsiveDialogTrigger>
-			<ResponsiveDialogContent className='px-8 overflow-y-auto pb-8 after:hidden'>
+			<ResponsiveDialogContent className='px-8 after:hidden'>
 				<ResponsiveDialogHeader className='gap-0'>
 					<ResponsiveDialogTitle>
 						Generate Questions with AI
@@ -185,140 +185,142 @@ export default function GenerateQuestionsDialog({
 					</ResponsiveDialogDescription>
 				</ResponsiveDialogHeader>
 
-				<PDFDropzone onFileSelect={setPDFFile} />
+				<div className='no-scrollbar overflow-y-auto pb-8'>
+					<PDFDropzone onFileSelect={setPDFFile} />
 
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<FieldGroup>
-						<Controller
-							name='questionCount'
-							control={form.control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<FieldLabel
-										htmlFor={field.name}
-										className='-mb-1.5 mt-4'
-									>
-										Number of Questions
-									</FieldLabel>
-									<FieldDescription>
-										How many questions should be generated?
-									</FieldDescription>
-									<Input
-										{...field}
-										value={field.value}
-										onChange={field.onChange}
-										type='number'
-										id={field.name}
-										aria-invalid={fieldState.invalid}
-										min={minQuestionCount}
-										max={remainingQuestions}
-										disabled={isSubmitting || remainingQuestions === 0}
-									/>
-
-									{fieldState.invalid && (
-										<FieldError errors={[fieldState.error]} />
-									)}
-								</Field>
-							)}
-						/>
-
-						<Controller
-							name='difficultyDistribution'
-							control={form.control}
-							render={({ field }) => {
-								const { easy, medium, hard } = getDistributionObj(
-									field.value,
-									questionCount,
-									['easy', 'medium', 'hard']
-								)
-
-								return (
-									<Field>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<FieldGroup>
+							<Controller
+								name='questionCount'
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
 										<FieldLabel
 											htmlFor={field.name}
-											className='-mb-1.5'
+											className='-mb-1.5 mt-4'
 										>
-											Difficulty distribution
+											Number of Questions
 										</FieldLabel>
 										<FieldDescription>
-											Adjust the balance of easy, medium and hard questions
+											How many questions should be generated?
 										</FieldDescription>
+										<Input
+											{...field}
+											value={field.value}
+											onChange={field.onChange}
+											type='number'
+											id={field.name}
+											aria-invalid={fieldState.invalid}
+											min={minQuestionCount}
+											max={remainingQuestions}
+											disabled={isSubmitting || remainingQuestions === 0}
+										/>
 
-										<div className='space-y-3'>
-											<Slider
-												min={0}
-												max={questionCount}
-												step={1}
-												value={field.value}
-												onValueChange={field.onChange}
-												id={field.name}
-												disabled={isSubmitting}
-											/>
-
-											<div className='flex justify-between text-sm text-muted-foreground'>
-												<span>Easy: {easy}</span>
-												<span>Medium: {medium}</span>
-												<span>Hard: {hard}</span>
-											</div>
-										</div>
+										{fieldState.invalid && (
+											<FieldError errors={[fieldState.error]} />
+										)}
 									</Field>
-								)
-							}}
-						/>
+								)}
+							/>
 
-						<Controller
-							name='typeDistribution'
-							control={form.control}
-							render={({ field }) => {
-								const { text, singleCorrect, multiCorrect } =
-									getDistributionObj(field.value, questionCount, [
-										'text',
-										'singleCorrect',
-										'multiCorrect'
-									])
+							<Controller
+								name='difficultyDistribution'
+								control={form.control}
+								render={({ field }) => {
+									const { easy, medium, hard } = getDistributionObj(
+										field.value,
+										questionCount,
+										['easy', 'medium', 'hard']
+									)
 
-								return (
-									<Field>
-										<FieldLabel className='-mb-1.5'>
-											Question type distribution
-										</FieldLabel>
-										<FieldDescription>
-											Adjust the balance of question types
-										</FieldDescription>
+									return (
+										<Field>
+											<FieldLabel
+												htmlFor={field.name}
+												className='-mb-1.5'
+											>
+												Difficulty distribution
+											</FieldLabel>
+											<FieldDescription>
+												Adjust the balance of easy, medium and hard questions
+											</FieldDescription>
 
-										<div className='space-y-3'>
-											<Slider
-												min={0}
-												max={questionCount}
-												step={1}
-												value={field.value}
-												onValueChange={field.onChange}
-												disabled={isSubmitting}
-											/>
+											<div className='space-y-3'>
+												<Slider
+													min={0}
+													max={questionCount}
+													step={1}
+													value={field.value}
+													onValueChange={field.onChange}
+													id={field.name}
+													disabled={isSubmitting}
+												/>
 
-											<div className='flex justify-between text-sm text-muted-foreground'>
-												<span>Text: {text}</span>
-												<span>Single correct: {singleCorrect}</span>
-												<span>Multiple correct: {multiCorrect}</span>
+												<div className='flex justify-between text-sm text-muted-foreground'>
+													<span>Easy: {easy}</span>
+													<span>Medium: {medium}</span>
+													<span>Hard: {hard}</span>
+												</div>
 											</div>
-										</div>
-									</Field>
-								)
-							}}
-						/>
+										</Field>
+									)
+								}}
+							/>
 
-						{errors.root && <ErrorMessage message={errors.root.message!} />}
+							<Controller
+								name='typeDistribution'
+								control={form.control}
+								render={({ field }) => {
+									const { text, singleCorrect, multiCorrect } =
+										getDistributionObj(field.value, questionCount, [
+											'text',
+											'singleCorrect',
+											'multiCorrect'
+										])
 
-						<Button
-							type='submit'
-							disabled={isSubmitting}
-						>
-							{!isSubmitting && <SparklesIcon />}
-							{isSubmitting ? 'Generating' : 'Generate Questions'}
-							{isSubmitting && <Spinner />}
-						</Button>
-					</FieldGroup>
-				</form>
+									return (
+										<Field>
+											<FieldLabel className='-mb-1.5'>
+												Question type distribution
+											</FieldLabel>
+											<FieldDescription>
+												Adjust the balance of question types
+											</FieldDescription>
+
+											<div className='space-y-3'>
+												<Slider
+													min={0}
+													max={questionCount}
+													step={1}
+													value={field.value}
+													onValueChange={field.onChange}
+													disabled={isSubmitting}
+												/>
+
+												<div className='flex justify-between text-sm text-muted-foreground'>
+													<span>Text: {text}</span>
+													<span>Single correct: {singleCorrect}</span>
+													<span>Multiple correct: {multiCorrect}</span>
+												</div>
+											</div>
+										</Field>
+									)
+								}}
+							/>
+
+							{errors.root && <ErrorMessage message={errors.root.message!} />}
+
+							<Button
+								type='submit'
+								disabled={isSubmitting}
+							>
+								{!isSubmitting && <SparklesIcon />}
+								{isSubmitting ? 'Generating' : 'Generate Questions'}
+								{isSubmitting && <Spinner />}
+							</Button>
+						</FieldGroup>
+					</form>
+				</div>
 			</ResponsiveDialogContent>
 		</ResponsiveDialog>
 	)
