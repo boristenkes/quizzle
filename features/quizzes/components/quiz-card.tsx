@@ -41,7 +41,7 @@ export default function QuizCard({ quiz }: { quiz: QuizCardData }) {
 						<div className='flex items-start mb-2 gap-2 flex-wrap flex-row-reverse'>
 							<div className='flex items-center gap-1 text-sm'>
 								<StarIcon className='size-4 fill-yellow-400 text-yellow-400' />
-								<span>{quiz.averageRating.toFixed(2)}</span>
+								<span>{quiz.statistics.averageRating.toFixed(2)}</span>
 							</div>
 							<Badge
 								className={cn(
@@ -92,11 +92,11 @@ export default function QuizCard({ quiz }: { quiz: QuizCardData }) {
 					</div>
 					<div className='flex items-center gap-2'>
 						<UsersIcon className='size-4 text-muted-foreground' />
-						<span>{quiz.totalAttempts} attempts</span>
+						<span>{quiz.statistics.attemptsCount} attempts</span>
 					</div>
 					<div className='flex items-center gap-2'>
 						<TrendingUpIcon className='size-4 text-muted-foreground' />
-						<span>{quiz.averageScore.toFixed(2)}% avg</span>
+						<span>{quiz.statistics.averageScore.toFixed(2)}% avg</span>
 					</div>
 				</div>
 

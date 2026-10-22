@@ -26,9 +26,7 @@ export type QuizPlayerProps = {
 export default function QuizPlayer({ attemptId }: QuizPlayerProps) {
 	const quiz = useQuiz()
 	const [error, setError] = useState<string | null>(null)
-	const [answer, setAnswer] = useState<AttemptQuestionSubmittedAnswer | null>(
-		null
-	)
+	const [answer, setAnswer] = useState<AttemptQuestionSubmittedAnswer | null>()
 	const router = useRouter()
 
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

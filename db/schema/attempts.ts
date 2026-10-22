@@ -25,9 +25,7 @@ export const attemptsTable = quizzle.table(
 		isCompleted: boolean().notNull().default(false),
 		quizData: json().$type<AttemptQuizData>().notNull(),
 
-		quizId: text()
-			.notNull()
-			.references(() => quizzesTable.id, { onDelete: 'cascade' }),
+		quizId: text().references(() => quizzesTable.id, { onDelete: 'set null' }),
 		userId: text()
 			.notNull()
 			.references(() => usersTable.id, { onDelete: 'cascade' }),

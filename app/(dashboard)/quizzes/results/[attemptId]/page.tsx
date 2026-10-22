@@ -26,13 +26,13 @@ export type QuizResultsPageProps = {
 	params: Promise<{ attemptId: string }>
 }
 
-const getScoreColor = (score: number) => {
+export const getScoreColor = (score: number) => {
 	if (score >= 80) return 'text-green-600'
 	if (score >= 40) return 'text-yellow-600'
 	return 'text-red-600'
 }
 
-const getScoreLabel = (score: number) => {
+export const getScoreLabel = (score: number) => {
 	if (score >= 90) return 'Excellent!'
 	if (score >= 70) return 'Great job!'
 	if (score >= 50) return 'Good work!'

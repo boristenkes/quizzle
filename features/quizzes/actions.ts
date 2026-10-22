@@ -22,16 +22,11 @@ import { getSession } from '@/lib/auth'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm'
+import { and, desc, eq, ilike, isNull, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
-import {
-	averageRatingQuery,
-	averageScoreQuery,
-	isBookmarkedQuery,
-	totalAttemptsQuery
-} from './queries'
+import { isBookmarkedQuery } from './queries'
 import { QuizCardData, quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
@@ -136,7 +131,7 @@ export async function getUserQuizzes(
 				? [eq(quizzesTable.isPublic, true), eq(quizzesTable.isPublished, true)]
 				: []
 
-		const quizzes = await db.query.quizzesTable.findMany({
+		const quizzes = (await db.query.quizzesTable.findMany({
 			where: and(
 				eq(quizzesTable.creatorId, parsedUserId),
 				isNull(quizzesTable.deletedAt),
@@ -157,17 +152,15 @@ export async function getUserQuizzes(
 				},
 				category: {
 					columns: pickColumns('name')
+				},
+				statistics: {
+					columns: pickColumns('averageRating', 'attemptsCount', 'averageScore')
 				}
-			},
-			extras: {
-				averageRating: averageRatingQuery,
-				totalAttempts: totalAttemptsQuery,
-				averageScore: averageScoreQuery
 			},
 			offset: (page - 1) * pageSize,
 			limit: pageSize,
 			orderBy: desc(quizzesTable.createdAt)
-		})
+		})) as QuizCardData[]
 
 		return { success: true, quizzes }
 	} catch (error) {
@@ -321,12 +314,14 @@ export async function filterQuizzes(
 					},
 					category: {
 						columns: pickColumns('name')
+					},
+					statistics: {
+						columns: pickColumns(
+							'averageRating',
+							'attemptsCount',
+							'averageScore'
+						)
 					}
-				},
-				extras: {
-					averageRating: averageRatingQuery,
-					totalAttempts: totalAttemptsQuery,
-					averageScore: averageScoreQuery
 				},
 				limit: parsedFilters.pageSize,
 				offset: (parsedFilters.page - 1) * parsedFilters.pageSize,
@@ -339,7 +334,7 @@ export async function filterQuizzes(
 		])
 
 		// Sort by relevance
-		const rankedQuizzes =
+		const rankedQuizzes = (
 			words.length > 0
 				? quizzes
 						.map(quiz => {
@@ -362,6 +357,7 @@ export async function filterQuizzes(
 						)
 						.map(({ quiz }) => quiz)
 				: quizzes
+		) as QuizCardData[]
 
 		return { success: true, quizzes: rankedQuizzes, totalQuizzes }
 	} catch (error) {
@@ -482,43 +478,6 @@ export async function softDeleteQuiz(
 
 		if (throwOnError)
 			throw new Error('Failed to move quiz to trash. Please try again later')
-
-		return { success: false }
-	}
-}
-
-export async function pruneDeletedQuizzes({
-	path,
-	throwOnError = false
-}: {
-	path?: string
-	throwOnError?: boolean
-} = {}): Promise<ServerActionResponse> {
-	try {
-		const session = await getSession()
-
-		if (!session) throw new Error('Unauthorized')
-
-		const sessionUser = session.user
-
-		await db
-			.delete(quizzesTable)
-			.where(
-				and(
-					eq(quizzesTable.creatorId, sessionUser.id),
-					isNotNull(quizzesTable.deletedAt)
-				)
-			)
-
-		if (path) revalidatePath(path)
-
-		return { success: true }
-	} catch (error) {
-		console.error('[PRUNE_DELETED_QUIZZES]:', error)
-
-		if (throwOnError) {
-			throw new Error('Failed to delete quiz.')
-		}
 
 		return { success: false }
 	}
