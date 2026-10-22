@@ -15,6 +15,7 @@ import QuizReviewForm from '@/features/reviews/components/review-form'
 import { dateFormatter } from '@/utils/format'
 import { errorMessage } from '@/utils/helpers'
 import { MessageSquareIcon, ThumbsUpIcon } from 'lucide-react'
+import Link from 'next/link'
 
 export type QuizReviewsProps = {
 	quizId: Quiz['id']
@@ -65,16 +66,23 @@ async function ReviewList({ quizId }: { quizId: Quiz['id'] }) {
 				>
 					<div className='flex items-start justify-between'>
 						<div className='flex items-center gap-3'>
-							<Avatar className='size-10'>
-								<AvatarImage
-									src={review.user.image!}
-									alt={review.user.name}
-								/>
-								<AvatarFallback />
-							</Avatar>
+							<Link href={`/users/${review.user.username}`}>
+								<Avatar className='size-10'>
+									<AvatarImage
+										src={review.user.image!}
+										alt={review.user.name}
+									/>
+									<AvatarFallback />
+								</Avatar>
+							</Link>
 							<div>
 								<div className='flex items-center gap-2'>
-									<p className='font-medium'>{review.user.name}</p>
+									<Link
+										href={`/users/${review.user.username}`}
+										className='font-medium'
+									>
+										{review.user.name}
+									</Link>
 									<div className='flex'>
 										<RatingStars
 											rating={review.rating}

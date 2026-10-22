@@ -58,7 +58,7 @@ export default async function MyQuizzes() {
 						<div className='flex items-start justify-between gap-4'>
 							<div className='space-y-2'>
 								<Link
-									href={`/quizzes/${quiz.id}`}
+									href={`/quizzes/${quiz.slug}/${quiz.id}`}
 									className='hover:text-primary transition-colors'
 								>
 									<CardTitle className='text-lg line-clamp-2'>
