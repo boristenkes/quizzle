@@ -34,7 +34,7 @@ export async function getUserQuizStats(): Promise<
 			quizzesTable,
 			and(
 				eq(quizzesTable.creatorId, session.user.id),
-				isNotNull(quizzesTable.deletedAt)
+				isNull(quizzesTable.deletedAt)
 			)
 		)
 		const totalAttemptsQuery = db.$count(
