@@ -6,6 +6,7 @@ import {
 } from '@/app/(dashboard)/discover/zod'
 import { db } from '@/db'
 import {
+	attemptsTable,
 	bookmarksTable,
 	questionOptionsTable,
 	questionsTable,
@@ -19,10 +20,11 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
+import { MAX_PLAYTIME_SECONDS } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
 import { ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, ilike, isNull, or } from 'drizzle-orm'
+import { and, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
@@ -497,13 +499,36 @@ export async function deleteQuiz(
 
 		const targetQuiz = await db.query.quizzesTable.findFirst({
 			where: eq(quizzesTable.id, parsedQuizId),
-			columns: pickColumns('creatorId')
+			columns: pickColumns('id', 'timeLimitSeconds', 'creatorId')
 		})
 
 		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
 
 		if (sessionUser.role !== 'admin' && targetQuiz.creatorId !== sessionUser.id)
 			throw new Error('Unauthorized')
+
+		const isSomeonePlaying = await db.query.attemptsTable
+			.findFirst({
+				where: and(
+					eq(attemptsTable.quizId, parsedQuizId),
+					isNull(attemptsTable.submittedAt),
+					// Check if time is up, fallback for unsubmitted attempts
+					sql`
+						${attemptsTable.startedAt} +
+						(COALESCE(${targetQuiz.timeLimitSeconds}, ${MAX_PLAYTIME_SECONDS}) * INTERVAL '1 second')
+						> NOW()
+					`
+				),
+				columns: { id: true }
+			})
+			.then(Boolean)
+
+		if (isSomeonePlaying)
+			return {
+				success: false,
+				message:
+					'Someone is currently playing this quiz. Please come back and delete it later'
+			}
 
 		await db.delete(quizzesTable).where(eq(quizzesTable.id, parsedQuizId))
 

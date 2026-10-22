@@ -569,7 +569,9 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 
 					updatedAt: submittedAt
 				})
-				.where(eq(quizStatisticsTable.quizId, targetAttempt.quizId))
+				.where(
+					eq(quizStatisticsTable.quizId, targetAttempt.quizId as Quiz['id'])
+				)
 		})
 
 		return { success: true }

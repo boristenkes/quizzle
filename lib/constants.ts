@@ -25,3 +25,5 @@ export const MAX_QUIZ_QUESTIONS = 50
 
 export const MIN_QUESTION_OPTIONS = 2
 export const MAX_QUESTION_OPTIONS = 4
+
+export const MAX_PLAYTIME_SECONDS = 24 * 60 * 60 // 24 hours
