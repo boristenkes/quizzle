@@ -70,9 +70,8 @@ export function normalizeText(
 
 	let normalized = value
 
-	if (options.trimWhitespace) normalized.trim()
-
-	if (options.ignoreCase) normalized.toLowerCase()
+	if (options.trimWhitespace) normalized = normalized.trim()
+	if (options.ignoreCase) normalized = normalized.toLowerCase()
 
 	return normalized
 }
