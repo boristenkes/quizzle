@@ -2,7 +2,6 @@
 
 import {
 	Field,
-	FieldContent,
 	FieldDescription,
 	FieldError,
 	FieldGroup,
@@ -17,7 +16,6 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import CategoryCombobox from '@/features/quizzes/components/category-combobox'
 import { difficulties } from '@/lib/constants'
@@ -184,34 +182,6 @@ export default function QuizConfiguration() {
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
 								)}
-							</Field>
-						)}
-					/>
-
-					<Controller
-						name='isPrivate'
-						control={quizForm.control}
-						render={({ field, fieldState }) => (
-							<Field
-								orientation='horizontal'
-								data-invalid={fieldState.invalid}
-							>
-								<FieldContent>
-									<FieldLabel htmlFor={field.name}>Public Quiz </FieldLabel>
-									<FieldDescription>
-										Allow others to discover and take this quiz
-									</FieldDescription>
-									{fieldState.invalid && (
-										<FieldError errors={[fieldState.error]} />
-									)}
-								</FieldContent>
-								<Switch
-									id={field.name}
-									name={field.name}
-									checked={field.value}
-									onCheckedChange={field.onChange}
-									aria-invalid={fieldState.invalid}
-								/>
 							</Field>
 						)}
 					/>

@@ -76,13 +76,6 @@ export async function createQuizSession(
 			}
 		}
 
-		if (quiz.isPrivate && quiz.creatorId !== sessionUser.id) {
-			return {
-				success: false,
-				message: 'Quiz not found or it has been deleted.'
-			}
-		}
-
 		const attemptId = await db.transaction(async tx => {
 			const [attempt] = await tx
 				.insert(attemptsTable)

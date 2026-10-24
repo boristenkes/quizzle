@@ -22,8 +22,6 @@ import {
 	ClockIcon,
 	EyeIcon,
 	FileTextIcon,
-	GlobeIcon,
-	LockIcon,
 	MoreVerticalIcon,
 	PencilIcon,
 	PlayCircleIcon,
@@ -69,15 +67,6 @@ export default async function MyQuizzes() {
 									{quiz.description}
 								</CardDescription>
 								<div className='flex items-center gap-3 text-xs text-muted-foreground flex-wrap'>
-									<span className='flex items-center gap-1'>
-										{quiz.isPrivate ? (
-											<LockIcon className='h-3 w-3' />
-										) : (
-											<GlobeIcon className='h-3 w-3' />
-										)}
-										{quiz.isPrivate ? 'Private' : 'Public'}
-									</span>
-
 									{quiz.category && (
 										<Badge variant='outline'>{quiz.category.name}</Badge>
 									)}

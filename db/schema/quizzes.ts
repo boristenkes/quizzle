@@ -18,7 +18,6 @@ export const quizzesTable = quizzle.table(
 
 		timeLimitSeconds: integer(),
 		totalPoints: integer().notNull().default(100),
-		isPrivate: boolean().notNull().default(false),
 		isPublished: boolean().notNull().default(true),
 		questionCount: integer().notNull(),
 

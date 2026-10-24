@@ -141,6 +141,13 @@
       "when": 1792852723410,
       "tag": "0019_yellow_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792878004032,
+      "tag": "0020_sturdy_sister_grimm",
+      "breakpoints": true
     }
   ]
 }

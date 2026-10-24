@@ -129,12 +129,7 @@ export async function getUserQuizzes(
 
 		const sessionUserId = session.user.id
 		const foreignQuizzesFilters =
-			sessionUserId !== parsedUserId
-				? [
-						eq(quizzesTable.isPrivate, false),
-						eq(quizzesTable.isPublished, true)
-					]
-				: []
+			sessionUserId !== parsedUserId ? [eq(quizzesTable.isPublished, true)] : []
 
 		const quizzes = (await db.query.quizzesTable.findMany({
 			where: and(
@@ -181,7 +176,6 @@ export type GetQuizByIdQuiz = Pick<
 	| 'title'
 	| 'description'
 	| 'difficulty'
-	| 'isPrivate'
 	| 'questionCount'
 	| 'timeLimitSeconds'
 	| 'createdAt'
@@ -215,7 +209,6 @@ export async function getQuizById(
 				'title',
 				'description',
 				'difficulty',
-				'isPrivate',
 				'questionCount',
 				'timeLimitSeconds',
 				'createdAt'

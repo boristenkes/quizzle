@@ -6,7 +6,7 @@ import {
 	MAX_QUIZ_QUESTIONS,
 	MIN_QUIZ_QUESTIONS
 } from '@/lib/constants'
-import { booleanSchema, integerSchema, requiredString } from '@/utils/zod'
+import { integerSchema, requiredString } from '@/utils/zod'
 import z from 'zod'
 
 export const quizFormSchema = z.object({
@@ -21,7 +21,6 @@ export const quizFormSchema = z.object({
 		.max(120, { error: 'Max 120 minutes (2h)' })
 		.optional(),
 	totalPoints: integerSchema.positive(),
-	isPrivate: booleanSchema.default(false),
 	categoryId: z.ulid().optional().nullable(),
 	difficulty: z.enum(difficulties).default('easy'),
 	questions: questionFormSchema

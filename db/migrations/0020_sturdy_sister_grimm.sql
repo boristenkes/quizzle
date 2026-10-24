@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzes" DROP COLUMN "is_private";
