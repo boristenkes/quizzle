@@ -134,6 +134,13 @@
       "when": 1792676772697,
       "tag": "0018_quick_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792852723410,
+      "tag": "0019_yellow_thunderball",
+      "breakpoints": true
     }
   ]
 }

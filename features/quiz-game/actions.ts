@@ -76,7 +76,7 @@ export async function createQuizSession(
 			}
 		}
 
-		if (!quiz.isPublic && quiz.creatorId !== sessionUser.id) {
+		if (quiz.isPrivate && quiz.creatorId !== sessionUser.id) {
 			return {
 				success: false,
 				message: 'Quiz not found or it has been deleted.'

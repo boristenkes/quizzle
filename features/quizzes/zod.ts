@@ -21,7 +21,7 @@ export const quizFormSchema = z.object({
 		.max(120, { error: 'Max 120 minutes (2h)' })
 		.optional(),
 	totalPoints: integerSchema.positive(),
-	isPublic: booleanSchema.default(true),
+	isPrivate: booleanSchema.default(false),
 	categoryId: z.ulid().optional().nullable(),
 	difficulty: z.enum(difficulties).default('easy'),
 	questions: questionFormSchema

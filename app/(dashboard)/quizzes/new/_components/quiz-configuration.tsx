@@ -189,7 +189,7 @@ export default function QuizConfiguration() {
 					/>
 
 					<Controller
-						name='isPublic'
+						name='isPrivate'
 						control={quizForm.control}
 						render={({ field, fieldState }) => (
 							<Field

@@ -43,7 +43,7 @@ export const quizFormDefaults = {
 	description: '',
 	totalPoints: 100,
 	timeLimitMinutes: 0,
-	isPublic: true,
+	isPrivate: false,
 	categoryId: null,
 	difficulty: 'easy' as Difficulty,
 	questions: []

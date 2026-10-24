@@ -52,7 +52,7 @@ export default async function MyQuizzes() {
 			{response.quizzes.map(quiz => (
 				<Card
 					key={quiz.id}
-					className='hover:shadow-lg transition-all duration-300'
+					className='flex flex-col hover:shadow-lg transition-all duration-300'
 				>
 					<CardHeader>
 						<div className='flex items-start justify-between gap-4'>
@@ -70,12 +70,12 @@ export default async function MyQuizzes() {
 								</CardDescription>
 								<div className='flex items-center gap-3 text-xs text-muted-foreground flex-wrap'>
 									<span className='flex items-center gap-1'>
-										{quiz.isPublic ? (
-											<GlobeIcon className='h-3 w-3' />
-										) : (
+										{quiz.isPrivate ? (
 											<LockIcon className='h-3 w-3' />
+										) : (
+											<GlobeIcon className='h-3 w-3' />
 										)}
-										{quiz.isPublic ? 'Public' : 'Private'}
+										{quiz.isPrivate ? 'Private' : 'Public'}
 									</span>
 
 									{quiz.category && (
@@ -146,7 +146,7 @@ export default async function MyQuizzes() {
 						</div>
 					</CardHeader>
 
-					<CardContent className='space-y-4'>
+					<CardContent className='space-y-4 flex flex-col justify-end grow'>
 						<div className='grid grid-cols-2 gap-3 text-sm'>
 							<div className='flex items-center gap-2'>
 								<FileTextIcon className='h-4 w-4 text-muted-foreground' />

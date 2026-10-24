@@ -1,0 +1,1 @@
+ALTER TABLE "quizzle"."quizzes" RENAME COLUMN "is_public" TO "is_private";

@@ -83,7 +83,7 @@ export type MyQuiz = Pick<
 	| 'slug'
 	| 'title'
 	| 'description'
-	| 'isPublic'
+	| 'isPrivate'
 	| 'isPublished'
 	| 'difficulty'
 	| 'questionCount'
@@ -112,7 +112,7 @@ export async function getMyQuizzes(): Promise<
 				'slug',
 				'title',
 				'description',
-				'isPublic',
+				'isPrivate',
 				'isPublished',
 				'difficulty',
 				'questionCount',
