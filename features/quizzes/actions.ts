@@ -8,6 +8,7 @@ import { db } from '@/db'
 import {
 	attemptsTable,
 	bookmarksTable,
+	followsTable,
 	questionOptionsTable,
 	questionsTable,
 	Quiz,
@@ -23,8 +24,8 @@ import { getSession } from '@/lib/auth'
 import { MAX_PLAYTIME_SECONDS } from '@/lib/constants'
 import { sanitizeHTML } from '@/lib/sanitize-html'
 import { pickColumns, slugify } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
-import { and, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm'
+import { ServerResponse } from '@/utils/types'
+import { and, desc, eq, exists, ilike, isNull, or, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ulid } from 'ulid'
 import z from 'zod'
@@ -33,7 +34,7 @@ import { QuizCardData, quizFormSchema, QuizFormSchema } from './zod'
 
 export async function createQuiz(
 	data: QuizFormSchema
-): Promise<ServerActionResponse> {
+): Promise<ServerResponse> {
 	try {
 		const session = await getSession()
 
@@ -119,7 +120,7 @@ export async function createQuiz(
 export async function getUserQuizzes(
 	userId: User['id'],
 	{ page = 1, pageSize = 6 } = {}
-): Promise<ServerActionResponse<{ quizzes: QuizCardData[] }>> {
+): Promise<ServerResponse<{ quizzes: QuizCardData[] }>> {
 	try {
 		const session = await getSession()
 
@@ -127,15 +128,24 @@ export async function getUserQuizzes(
 
 		const parsedUserId = z.ulid().parse(userId)
 
-		const sessionUserId = session.user.id
-		const foreignQuizzesFilters =
-			sessionUserId !== parsedUserId ? [eq(quizzesTable.isPublished, true)] : []
-
 		const quizzes = (await db.query.quizzesTable.findMany({
 			where: and(
-				eq(quizzesTable.creatorId, parsedUserId),
-				isNull(quizzesTable.deletedAt),
-				...foreignQuizzesFilters
+				or(
+					eq(quizzesTable.creatorId, parsedUserId),
+					// Get quizzes created by session user's followings
+					exists(
+						db
+							.select({ createdAt: followsTable.createdAt })
+							.from(followsTable)
+							.where(
+								and(
+									eq(followsTable.followerId, session.user.id),
+									sql`${followsTable.followingId} = "quizzesTable"."creator_id"`
+								)
+							)
+					)
+				),
+				isNull(quizzesTable.deletedAt)
 			),
 			columns: pickColumns(
 				'id',
@@ -188,7 +198,7 @@ export type GetQuizByIdQuiz = Pick<
 
 export async function getQuizById(
 	quizId: Quiz['id']
-): Promise<ServerActionResponse<{ quiz: GetQuizByIdQuiz }>> {
+): Promise<ServerResponse<{ quiz: GetQuizByIdQuiz }>> {
 	try {
 		const session = await getSession()
 
@@ -243,9 +253,7 @@ export async function getQuizById(
 
 export async function filterQuizzes(
 	filters: FilterQuizzesSchema
-): Promise<
-	ServerActionResponse<{ quizzes: QuizCardData[]; totalQuizzes: number }>
-> {
+): Promise<ServerResponse<{ quizzes: QuizCardData[]; totalQuizzes: number }>> {
 	try {
 		const session = await getSession()
 
@@ -366,7 +374,7 @@ export async function filterQuizzes(
 
 export async function toggleQuizBookmark(
 	quizId: Quiz['id']
-): Promise<ServerActionResponse<{ isBookmarked: boolean }>> {
+): Promise<ServerResponse<{ isBookmarked: boolean }>> {
 	try {
 		const session = await getSession()
 
@@ -404,7 +412,7 @@ export async function toggleQuizBookmark(
 export async function restoreQuiz(
 	quizId: Quiz['id'],
 	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
-): Promise<ServerActionResponse> {
+): Promise<ServerResponse> {
 	try {
 		const session = await getSession()
 
@@ -444,7 +452,7 @@ export async function restoreQuiz(
 export async function softDeleteQuiz(
 	quizId: Quiz['id'],
 	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
-): Promise<ServerActionResponse> {
+): Promise<ServerResponse> {
 	try {
 		const session = await getSession()
 
@@ -484,7 +492,7 @@ export async function softDeleteQuiz(
 export async function deleteQuiz(
 	quizId: Quiz['id'],
 	{ path, throwOnError = false }: { path?: string; throwOnError?: boolean } = {}
-): Promise<ServerActionResponse> {
+): Promise<ServerResponse> {
 	try {
 		const session = await getSession()
 

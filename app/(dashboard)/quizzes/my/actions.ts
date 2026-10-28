@@ -13,7 +13,7 @@ import {
 import { QuizCardData } from '@/features/quizzes/zod'
 import { getSession } from '@/lib/auth'
 import { pickColumns } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
+import { ServerResponse } from '@/utils/types'
 import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm'
 
 export type GetUserQuizStats = {
@@ -23,7 +23,7 @@ export type GetUserQuizStats = {
 }
 
 export async function getUserQuizStats(): Promise<
-	ServerActionResponse<GetUserQuizStats>
+	ServerResponse<GetUserQuizStats>
 > {
 	try {
 		const session = await getSession()
@@ -94,7 +94,7 @@ export type MyQuiz = Pick<
 }
 
 export async function getMyQuizzes(): Promise<
-	ServerActionResponse<{ quizzes: MyQuiz[] }>
+	ServerResponse<{ quizzes: MyQuiz[] }>
 > {
 	try {
 		const session = await getSession()
@@ -147,7 +147,7 @@ export type RecentAttempt = Pick<
 }
 
 export async function getRecentAttempts(): Promise<
-	ServerActionResponse<{ attempts: RecentAttempt[] }>
+	ServerResponse<{ attempts: RecentAttempt[] }>
 > {
 	try {
 		const session = await getSession()
@@ -182,7 +182,7 @@ export async function getRecentAttempts(): Promise<
 }
 
 export async function getSavedQuizzes(): Promise<
-	ServerActionResponse<{ quizzes: QuizCardData[] }>
+	ServerResponse<{ quizzes: QuizCardData[] }>
 > {
 	try {
 		const session = await getSession()
@@ -240,7 +240,7 @@ export async function getSavedQuizzes(): Promise<
 export type TrashedQuiz = Pick<Quiz, 'id' | 'slug' | 'title' | 'deletedAt'>
 
 export async function getTrashedQuizzes(): Promise<
-	ServerActionResponse<{ quizzes: TrashedQuiz[] }>
+	ServerResponse<{ quizzes: TrashedQuiz[] }>
 > {
 	try {
 		const session = await getSession()

@@ -14,7 +14,7 @@ import {
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { pickColumns } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
+import { ServerResponse } from '@/utils/types'
 import { integerSchema } from '@/utils/zod'
 import { and, asc, eq, isNull, sql } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
@@ -31,7 +31,7 @@ import {
 
 export async function createQuizSession(
 	quizId: Quiz['id']
-): Promise<ServerActionResponse<{ attemptId: Attempt['id'] }>> {
+): Promise<ServerResponse<{ attemptId: Attempt['id'] }>> {
 	try {
 		const session = await getSession()
 
@@ -135,7 +135,7 @@ export type AttemptQuestionData = AttemptQuestionPublic & {
 
 export async function getInitialQuestion(
 	attemptId: Attempt['id']
-): Promise<ServerActionResponse<{ question: AttemptQuestionData | null }>> {
+): Promise<ServerResponse<{ question: AttemptQuestionData | null }>> {
 	try {
 		const session = await getSession()
 
@@ -188,7 +188,7 @@ export async function getInitialQuestion(
 export async function getQuestionByPosition(
 	attemptId: Attempt['id'],
 	position: AttemptQuestion['position']
-): Promise<ServerActionResponse<{ question: AttemptQuestionData }>> {
+): Promise<ServerResponse<{ question: AttemptQuestionData }>> {
 	try {
 		const session = await getSession()
 
@@ -307,7 +307,7 @@ export type QuizResults = Pick<
 
 export async function getQuizResults(
 	attemptId: Attempt['id']
-): Promise<ServerActionResponse<{ results: QuizResults }>> {
+): Promise<ServerResponse<{ results: QuizResults }>> {
 	try {
 		const session = await getSession()
 
@@ -363,7 +363,7 @@ export async function getQuizResults(
 export async function submitAnswer(
 	attemptQuestionId: Attempt['id'],
 	answerData: AttemptQuestionSubmittedAnswer
-): Promise<ServerActionResponse<{ question: AttemptQuestionData | null }>> {
+): Promise<ServerResponse<{ question: AttemptQuestionData | null }>> {
 	try {
 		const session = await getSession()
 

@@ -50,6 +50,8 @@ export const paginationSchema = z.object({
 	pageSize: integerSchema.positive().optional().default(PAGE_SIZE)
 })
 
+export type PaginationSchema = z.infer<typeof paginationSchema>
+
 export type QuizCardData = Pick<
 	Quiz,
 	| 'id'
@@ -67,5 +69,3 @@ export type QuizCardData = Pick<
 		'averageRating' | 'attemptsCount' | 'averageScore'
 	>
 }
-
-export type PaginationSchema = z.infer<typeof paginationSchema>

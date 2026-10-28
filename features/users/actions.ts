@@ -4,7 +4,7 @@ import { db } from '@/db'
 import { followsTable, User, usersTable } from '@/db/schema'
 import { getSession } from '@/lib/auth'
 import { omitColumns } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
+import { ServerResponse } from '@/utils/types'
 import { and, eq, or } from 'drizzle-orm'
 import z from 'zod'
 import {
@@ -26,7 +26,7 @@ export type GetUserUser = Omit<
 
 export async function getUser(
 	identifier: User['id'] | User['username']
-): Promise<ServerActionResponse<{ user: GetUserUser }>> {
+): Promise<ServerResponse<{ user: GetUserUser }>> {
 	try {
 		const session = await getSession()
 

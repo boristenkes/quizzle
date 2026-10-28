@@ -2,7 +2,7 @@ export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type Nullable<T> = T | undefined | null
 
-export type ServerActionResponse<
+export type ServerResponse<
 	SuccessResponse extends object = {},
 	ErrorResponse extends object = {}
 > =

@@ -13,7 +13,7 @@ import {
 import { getSession } from '@/lib/auth'
 import { env } from '@/lib/env'
 import { pickColumns } from '@/utils/helpers'
-import { ServerActionResponse } from '@/utils/types'
+import { ServerResponse } from '@/utils/types'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import z from 'zod'
@@ -23,7 +23,7 @@ export async function createReview(
 	data: NewReviewSchema,
 	quizId: Quiz['id'],
 	{ path }: { path?: string } = {}
-): Promise<ServerActionResponse> {
+): Promise<ServerResponse> {
 	try {
 		const session = await getSession()
 
@@ -121,7 +121,7 @@ export type GetQuizReviewsReview = Review & {
 }
 
 export async function getQuizReviews(quizId: Quiz['id']): Promise<
-	ServerActionResponse<{
+	ServerResponse<{
 		reviews: GetQuizReviewsReview[]
 	}>
 > {
