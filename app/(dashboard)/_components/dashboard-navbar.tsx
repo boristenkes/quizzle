@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/input-group'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import UserButton from '@/components/utils/user-button'
+import { NotificationsPopover } from '@/features/notifications/components/notification-popover'
+import { NotificationProvider } from '@/features/notifications/context'
 import { SearchIcon } from 'lucide-react'
 import Form from 'next/form'
 import { MAX_QUERY_LENGTH } from '../discover/zod'
@@ -47,8 +49,9 @@ export default function DashboardNavbar() {
 
 				{/* Right side */}
 				<div className='flex items-center gap-2'>
-					{/* <NotificationsPopover /> */}
-
+					<NotificationProvider>
+						<NotificationsPopover />
+					</NotificationProvider>
 					<ThemeSwitch />
 					<UserButton />
 				</div>

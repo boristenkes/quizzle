@@ -6,6 +6,7 @@ import {
 	AttemptQuestion,
 	attemptQuestionsTable,
 	attemptsTable,
+	notificationsTable,
 	questionsTable,
 	Quiz,
 	quizStatisticsTable,
@@ -475,6 +476,11 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 						questionPrivate: true,
 						submittedAnswer: true
 					}
+				},
+				quiz: {
+					columns: {
+						creatorId: true
+					}
 				}
 			}
 		})
@@ -524,7 +530,7 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 			}
 
 			// Update quiz statistics.
-			await tx
+			const updateQuizStatsPromise = tx
 				.update(quizStatisticsTable)
 				.set({
 					attemptsCount: sql`${quizStatisticsTable.attemptsCount} + 1`,
@@ -565,6 +571,16 @@ export async function submitQuiz(attemptId: Attempt['id']) {
 				.where(
 					eq(quizStatisticsTable.quizId, targetAttempt.quizId as Quiz['id'])
 				)
+
+			const sendNotificationPromise = tx.insert(notificationsTable).values({
+				issuerId: session.user.id,
+				recipientId: targetAttempt.quiz!.creatorId,
+				type: 'new_attempt',
+				attemptId: updatedAttempt.id,
+				quizId: targetAttempt.quizId
+			})
+
+			await Promise.all([updateQuizStatsPromise, sendNotificationPromise])
 		})
 
 		return { success: true }

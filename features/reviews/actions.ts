@@ -3,6 +3,7 @@
 import { db } from '@/db'
 import {
 	attemptsTable,
+	notificationsTable,
 	Quiz,
 	quizStatisticsTable,
 	quizzesTable,
@@ -11,7 +12,6 @@ import {
 	User
 } from '@/db/schema'
 import { getSession } from '@/lib/auth'
-import { env } from '@/lib/env'
 import { pickColumns } from '@/utils/helpers'
 import { ServerResponse } from '@/utils/types'
 import { and, desc, eq, sql } from 'drizzle-orm'
@@ -33,14 +33,14 @@ export async function createReview(
 		const parsedQuizId = z.ulid().parse(quizId)
 		const sessionUser = session.user
 
-		const isSelfReview = await db.query.quizzesTable
-			.findFirst({
-				where: eq(quizzesTable.id, parsedQuizId),
-				columns: pickColumns('creatorId')
-			})
-			.then(quiz => quiz?.creatorId === sessionUser.id)
+		const targetQuiz = await db.query.quizzesTable.findFirst({
+			where: eq(quizzesTable.id, parsedQuizId),
+			columns: pickColumns('creatorId')
+		})
 
-		if (isSelfReview) {
+		if (!targetQuiz) return { success: false, message: 'Quiz not found' }
+
+		if (targetQuiz.creatorId === session.user.id) {
 			return {
 				success: false,
 				message: 'You cannot leave review on your own quiz.'
@@ -64,33 +64,34 @@ export async function createReview(
 			}
 		}
 
-		if (env.NODE_ENV !== 'development') {
-			const hasTakenQuiz = await db.query.attemptsTable
-				.findFirst({
-					where: and(
-						eq(attemptsTable.userId, sessionUser.id),
-						eq(attemptsTable.quizId, parsedQuizId)
-					),
-					columns: pickColumns('id')
-				})
-				.then(Boolean)
+		const hasTakenQuiz = await db.query.attemptsTable
+			.findFirst({
+				where: and(
+					eq(attemptsTable.userId, sessionUser.id),
+					eq(attemptsTable.quizId, parsedQuizId)
+				),
+				columns: pickColumns('id')
+			})
+			.then(Boolean)
 
-			if (!hasTakenQuiz) {
-				return {
-					success: false,
-					message: 'You must take this quiz before leaving a review.'
-				}
+		if (!hasTakenQuiz) {
+			return {
+				success: false,
+				message: 'You must take this quiz before leaving a review.'
 			}
 		}
 
 		await db.transaction(async tx => {
-			await tx.insert(reviewsTable).values({
-				...parsedData,
-				quizId: parsedQuizId,
-				userId: sessionUser.id
-			})
+			const [newReview] = await tx
+				.insert(reviewsTable)
+				.values({
+					...parsedData,
+					quizId: parsedQuizId,
+					userId: sessionUser.id
+				})
+				.returning({ id: reviewsTable.id })
 
-			await tx
+			const updateQuizStatsPromise = tx
 				.update(quizStatisticsTable)
 				.set({
 					averageRating: sql`
@@ -105,6 +106,16 @@ export async function createReview(
 					reviewsCount: sql`${quizStatisticsTable.reviewsCount} + 1`
 				})
 				.where(eq(quizStatisticsTable.quizId, parsedQuizId))
+
+			const sendNotificationPromise = tx.insert(notificationsTable).values({
+				issuerId: session.user.id,
+				recipientId: targetQuiz.creatorId,
+				type: 'new_review',
+				quizId: parsedQuizId,
+				reviewId: newReview.id
+			})
+
+			await Promise.all([updateQuizStatsPromise, sendNotificationPromise])
 		})
 
 		if (path) revalidatePath(path)

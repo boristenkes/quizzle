@@ -20,6 +20,14 @@ export const difficulties = ['easy', 'medium', 'hard'] as const
 
 export type Difficulty = (typeof difficulties)[number]
 
+export const notificationTypes = [
+	'new_follower',
+	'new_attempt',
+	'new_review'
+] as const
+
+export type NotificationType = (typeof notificationTypes)[number]
+
 export const MIN_QUIZ_QUESTIONS = 3
 export const MAX_QUIZ_QUESTIONS = 50
 

@@ -148,6 +148,13 @@
       "when": 1792878004032,
       "tag": "0020_sturdy_sister_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793223665498,
+      "tag": "0021_lean_fixer",
+      "breakpoints": true
     }
   ]
 }
