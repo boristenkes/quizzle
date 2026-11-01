@@ -17,6 +17,7 @@ import {
 	PlusIcon,
 	Trash2Icon
 } from 'lucide-react'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -27,6 +28,11 @@ import Trash from './_components/trash'
 import UserQuizStats, {
 	UserQuizStatsSkeleton
 } from './_components/user-quiz-stats'
+
+export const metadata: Metadata = {
+	title: 'My Quizzes',
+	description: "Manage quizzes you've created and track quizzes you've taken"
+}
 
 export default async function MyQuizzesPage() {
 	const session = await getSession()

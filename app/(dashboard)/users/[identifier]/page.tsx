@@ -3,11 +3,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import BackButton from '@/components/utils/back-button'
+import { db } from '@/db'
 import { getUser } from '@/features/users/actions'
 import FollowButton from '@/features/users/components/follow-button'
 import { getSession } from '@/lib/auth'
 import { dateFormatter } from '@/utils/format'
+import { absoluteUrl, pickColumns } from '@/utils/helpers'
+import { or } from 'drizzle-orm'
 import { ArrowLeft, Calendar, SettingsIcon } from 'lucide-react'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -18,6 +22,36 @@ import UserStatistics from './user-statistics'
 
 export type UserDetailsPageProps = {
 	params: Promise<{ identifier: string }>
+}
+
+export async function generateMetadata({
+	params
+}: UserDetailsPageProps): Promise<Metadata> {
+	const { identifier } = await params
+	const pathname = `/quizzes/${identifier}`
+
+	const user = await db.query.usersTable.findFirst({
+		where: (table, { eq }) =>
+			or(eq(table.id, identifier), eq(table.username, identifier)),
+		columns: pickColumns('id', 'name', 'username', 'bio')
+	})
+
+	if (!user) notFound()
+
+	return {
+		title: user.name,
+		description: user.bio,
+		openGraph: {
+			title: user.name,
+			description: user.bio ?? '',
+			url: absoluteUrl(pathname)
+		},
+		twitter: {
+			title: user.name,
+			description: user.bio ?? ''
+		},
+		metadataBase: new URL(absoluteUrl(pathname))
+	}
 }
 
 export default async function UserDetailsPage({
