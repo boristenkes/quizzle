@@ -68,7 +68,7 @@ export default async function SettingsPage() {
 					className='space-y-6'
 				>
 					<Section.ProfileInfo user={sessionUser} />
-					<Section.ConnectedAccounts />
+					<Section.ConnectedAccounts sessionUserId={sessionUser.id} />
 				</TabsContent>
 
 				{/* Notifications tab */}

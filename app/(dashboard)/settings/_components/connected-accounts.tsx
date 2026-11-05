@@ -6,11 +6,19 @@ import {
 	CardTitle
 } from '@/components/ui/card'
 import { db } from '@/db'
+import { User } from '@/db/schema'
 import '@/utils/format'
 import AccountCard from './account-card'
 
-export default async function ConnectedAccounts() {
+export type ConnectedAccountsProps = {
+	sessionUserId: User['id']
+}
+
+export default async function ConnectedAccounts({
+	sessionUserId
+}: ConnectedAccountsProps) {
 	const accounts = await db.query.accountsTable.findMany({
+		where: (table, { eq }) => eq(table.userId, sessionUserId),
 		columns: {
 			id: true,
 			providerId: true
