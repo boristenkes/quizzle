@@ -11,12 +11,17 @@ export const metadata: Metadata = {
 	title: 'Settings'
 }
 
-export default async function SettingsPage() {
+export type SettingsPageProps = {
+	searchParams: Promise<{ tab?: string }>
+}
+
+export default async function SettingsPage({
+	searchParams
+}: SettingsPageProps) {
 	const session = await getSession()
+	const activeTab = (await searchParams).tab ?? 'profile'
 
-	if (!session) redirect('/sign-in')
-
-	const sessionUser = session.user
+	if (!session) redirect(`/sign-in?callbackUrl=/settings?tab=${activeTab}`)
 
 	return (
 		<div className='container mx-auto py-6 px-4 max-w-4xl space-y-8'>
@@ -67,8 +72,8 @@ export default async function SettingsPage() {
 					value='profile'
 					className='space-y-6'
 				>
-					<Section.ProfileInfo user={sessionUser} />
-					<Section.ConnectedAccounts sessionUserId={sessionUser.id} />
+					<Section.ProfileInfo user={session.user} />
+					<Section.ConnectedAccounts sessionUserId={session.user.id} />
 				</TabsContent>
 
 				{/* Notifications tab */}
@@ -93,7 +98,7 @@ export default async function SettingsPage() {
 				>
 					<Section.ProfileVisibility />
 					<Section.Security />
-					<Section.DangerZone userName={sessionUser.name} />
+					<Section.DangerZone userName={session.user.name} />
 				</TabsContent>
 
 				{/* Appearance tab */}

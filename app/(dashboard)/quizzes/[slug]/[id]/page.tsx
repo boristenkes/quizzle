@@ -67,10 +67,10 @@ export default async function QuizDetailsPage({
 	params
 }: QuizDetailsPageProps) {
 	const session = await getSession()
-
-	if (!session) redirect('/sign-in')
-
 	const { slug, id } = await params
+
+	if (!session) redirect(`/sign-in?callbackUrl=/quizzes/${slug}/${id}`)
+
 	const sessionUser = session.user
 	const response = await getQuizById(id)
 

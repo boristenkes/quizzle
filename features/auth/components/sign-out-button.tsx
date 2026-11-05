@@ -2,6 +2,7 @@
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { authClient } from '@/lib/auth.client'
+import { usePathname } from 'next/navigation'
 import { useRouter } from 'nextjs-toploader/app'
 
 export type SignOutButtonProps =
@@ -13,10 +14,11 @@ export default function SignOutButton({
 	...props
 }: SignOutButtonProps) {
 	const router = useRouter()
+	const pathname = usePathname()
 
 	const handleClick = async () => {
 		await authClient.signOut()
-		router.replace('/sign-in')
+		router.replace(`/sign-in?callbackUrl=${pathname}`)
 	}
 
 	if (unstyled)

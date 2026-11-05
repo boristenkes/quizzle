@@ -34,10 +34,17 @@ export const metadata: Metadata = {
 	description: "Manage quizzes you've created and track quizzes you've taken"
 }
 
-export default async function MyQuizzesPage() {
-	const session = await getSession()
+export type MyQuizzesPageProps = {
+	searchParams: Promise<{ tab: string }>
+}
 
-	if (!session) redirect('/sign-in?callbackUrl=/quizzes/my')
+export default async function MyQuizzesPage({
+	searchParams
+}: MyQuizzesPageProps) {
+	const session = await getSession()
+	const activeTab = (await searchParams).tab ?? 'created'
+
+	if (!session) redirect(`/sign-in?callbackUrl=/quizzes/my?tab=${activeTab}`)
 
 	return (
 		<div className='container mx-auto py-16 px-4 space-y-6'>

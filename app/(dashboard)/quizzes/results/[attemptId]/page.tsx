@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { AttemptQuestion } from '@/db/schema'
 import { getQuizResults } from '@/features/quiz-game/actions'
+import { getSession } from '@/lib/auth'
 import { formatElapsedTime } from '@/utils/format'
 import { cn, errorMessage } from '@/utils/helpers'
 import {
@@ -19,7 +20,7 @@ import {
 	XIcon
 } from 'lucide-react'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import z from 'zod'
 
 export type QuizResultsPageProps = {
@@ -43,7 +44,10 @@ export const getScoreLabel = (score: number) => {
 export default async function QuizResultsPage({
 	params
 }: QuizResultsPageProps) {
+	const session = await getSession()
 	const { attemptId } = await params
+
+	if (!session) redirect(`/sign-in?callbackUrl=/quizzes/results/${attemptId}`)
 
 	const parseResult = z.ulid().safeParse(attemptId)
 

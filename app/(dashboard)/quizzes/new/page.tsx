@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function NewQuizPage() {
 	const session = await getSession()
 
-	if (!session) redirect('/sign-in')
+	if (!session) redirect('/sign-in?callbackUrl=/quizzes/new')
 
 	return (
 		<main className='px-4 py-16 space-y-8'>

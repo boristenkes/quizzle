@@ -32,7 +32,7 @@ export type DiscoverPageProps = {
 export default async function DisoverPage(props: DiscoverPageProps) {
 	const isAuthenticated = await getSession().then(Boolean)
 
-	if (!isAuthenticated) redirect('/sign-in')
+	if (!isAuthenticated) redirect('/sign-in?callbackUrl=/discover')
 
 	const searchParams = await props.searchParams
 
